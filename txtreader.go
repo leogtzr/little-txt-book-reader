@@ -279,9 +279,6 @@ func main() {
 		from = latestFile.From
 		to = latestFile.To
 
-		fmt.Println(from)
-		fmt.Println(to)
-
 		fileName = latestFile.FileName
 		if err != nil {
 			log.Fatal(err)

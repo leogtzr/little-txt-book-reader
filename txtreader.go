@@ -346,9 +346,7 @@ func main() {
 
 		gotoLineNumber := getNumberLineGoto(gotoLine)
 		gotoLineNumberDigits, err := strconv.ParseInt(gotoLineNumber, 10, 64)
-		if err != nil {
-			panic(err)
-		}
+		check(err)
 		if int(gotoLineNumberDigits) < (len(fileContent) - Advance) {
 			from = int(gotoLineNumberDigits)
 			to = from + Advance

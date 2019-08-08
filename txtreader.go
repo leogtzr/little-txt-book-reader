@@ -34,6 +34,7 @@ var to = Advance
 var gotoLine = ""
 var fileToOpen = flag.String("file", "", "File to open")
 var openLatestFile = flag.Bool("latest", false, "Open the latest text file")
+var percentagePointStats = false
 
 // LatestFile ...
 type LatestFile struct {
@@ -154,9 +155,14 @@ func wrap(line string) string {
 func getStatusInformation(fileContent *[]string) string {
 	percent := float64(to) * 100.00
 	percent = percent / float64(len(*fileContent))
-	return fmt.Sprintf(".   %d of %d lines (%.3f%%) [%d lines to next percentage point]                                                            ",
-		to,
-		len(*fileContent), percent, linesToChangePercentagePoint(to, len(*fileContent)))
+	if percentagePointStats {
+		return fmt.Sprintf(".   %d of %d lines (%.3f%%) [%d lines to next percentage point]                                                            ",
+			to,
+			len(*fileContent), percent, linesToChangePercentagePoint(to, len(*fileContent)))
+	}
+	return fmt.Sprintf(".   %d of %d lines (%.3f%%)                                                            ",
+		to, len(*fileContent), percent)
+
 }
 
 func addUpBinding(fileContent *[]string, box *tui.Box, input *tui.Entry) func() {
@@ -371,6 +377,10 @@ func main() {
 	})
 
 	ui.SetKeybinding("Alt+s", func() {
+
+		if !noteBox.IsFocused() {
+			return
+		}
 		// Save note ...
 		notesDir := filepath.Join(os.Getenv("HOME"), "txtnotes")
 		if !dirExists(notesDir) {
@@ -412,6 +422,12 @@ func main() {
 		// save status ...
 		absoluteFilePath, _ := filepath.Abs(fileName)
 		saveStatus(absoluteFilePath, from, to)
+	})
+
+	// Enable percentage stags
+	ui.SetKeybinding("Alt+p", func() {
+		percentagePointStats = !percentagePointStats
+		inputCommand.SetText(getStatusInformation(&fileContent))
 	})
 
 	ui.SetKeybinding("Esc", func() {

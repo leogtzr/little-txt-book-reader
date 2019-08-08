@@ -366,6 +366,7 @@ func main() {
 	noteBox.SetText("")
 
 	ui.SetKeybinding("Alt+n", func() {
+		noteBox.SetText("")
 		noteBox.SetSizePolicy(tui.Expanding, tui.Expanding)
 		noteBox.SetFocused(true)
 		inputCommand.SetFocused(false)

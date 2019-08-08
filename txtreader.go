@@ -6,11 +6,14 @@ import (
 	"fmt"
 	"io/ioutil"
 	"log"
+	"math/rand"
 	"os"
+	"path"
 	"path/filepath"
 	"regexp"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/marcusolsson/tui-go"
 )
@@ -268,6 +271,8 @@ func dirExists(dirPath string) bool {
 	return true
 }
 
+var absoluteFilePath string
+
 func main() {
 
 	flag.Parse()
@@ -294,6 +299,7 @@ func main() {
 			log.Fatal(err)
 		}
 	}
+
 	fileContent, err := readLines(fileName)
 	check(err)
 
@@ -350,9 +356,10 @@ func main() {
 		addGotoWidget(txtReader)
 	})
 
+	noteBox := tui.NewTextEdit()
+	noteBox.SetText("")
+
 	ui.SetKeybinding("Alt+n", func() {
-		noteBox := tui.NewTextEdit()
-		noteBox.SetText("")
 		noteBox.SetSizePolicy(tui.Expanding, tui.Expanding)
 		noteBox.SetFocused(true)
 		inputCommand.SetFocused(false)
@@ -372,7 +379,15 @@ func main() {
 				fmt.Fprintf(os.Stderr, "error: creating notes dir: %s", notesDir)
 			}
 		}
+		rand.Seed(time.Now().UnixNano())
+		absoluteFilePath, _ := filepath.Abs(fileName)
+		baseFileName := path.Base(absoluteFilePath)
+		noteFileName := fmt.Sprintf("%d-%s", rand.Intn(150), baseFileName)
 
+		noteContent := noteBox.Text()
+
+		ioutil.WriteFile(filepath.Join(notesDir, noteFileName), []byte(noteContent), 0666)
+		txtReader.Remove(0)
 	})
 
 	ui.SetKeybinding("r", func() {

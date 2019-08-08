@@ -196,8 +196,6 @@ func saveStatus(fileName string, from, to int) {
 		return
 	}
 	defer f.Close()
-	// w := bufio.NewWriter(f)
-	// w.WriteString(fmt.Sprintf("%s|%d|%d", fileName, from, to))
 	f.WriteString(fmt.Sprintf("%s|%d|%d", fileName, from, to))
 }
 
@@ -258,6 +256,16 @@ func linesToChangePercentagePoint(currentLine, totalLines int) int {
 	}
 
 	return linesToChangePercentage - start
+}
+
+func dirExists(dirPath string) bool {
+	if _, err := os.Stat(dirPath); err != nil {
+		if os.IsNotExist(err) {
+			return false
+		}
+		return false
+	}
+	return true
 }
 
 func main() {
@@ -348,23 +356,23 @@ func main() {
 		noteBox.SetSizePolicy(tui.Expanding, tui.Expanding)
 		noteBox.SetFocused(true)
 		inputCommand.SetFocused(false)
+		inputCommand.SetText("> > > > > Creating note ... ")
 		noteBox.SetWordWrap(true)
 		txtReader.SetFocused(false)
 
 		txtReader.Insert(0, noteBox)
-		// txtReader.Prepend()
-		// txtReader.Insert(1, noteBox)
-		// time.Sleep(10 * time.Second)
-		// txtReader.Remove(1)
+	})
 
-		// inputCommand.SetText("Add a note ... ")
-		//gotoInput := tui.NewTextEdit()
-		// gotoInput.SetText("Go to line: ")
-		// gotoInput.SetFocused(true)
-		// gotoInput.OnTextChanged(func(entry *tui.TextEdit) {
-		// 	gotoLine = entry.Text()
-		// })
-		// box.Append(gotoInput)
+	ui.SetKeybinding("Alt+s", func() {
+		// Save note ...
+		notesDir := filepath.Join(os.Getenv("HOME"), "txtnotes")
+		if !dirExists(notesDir) {
+			err := os.Mkdir(notesDir, 0755)
+			if err != nil {
+				fmt.Fprintf(os.Stderr, "error: creating notes dir: %s", notesDir)
+			}
+		}
+
 	})
 
 	ui.SetKeybinding("r", func() {
@@ -385,7 +393,7 @@ func main() {
 		txtReader.Remove(GotoWidgetIndex)
 	})
 
-	ui.SetKeybinding("Alt+s", func() {
+	ui.SetKeybinding("s", func() {
 		// save status ...
 		absoluteFilePath, _ := filepath.Abs(fileName)
 		saveStatus(absoluteFilePath, from, to)

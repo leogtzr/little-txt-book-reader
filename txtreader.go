@@ -24,6 +24,8 @@ const WrapMax = 80
 // GotoWidgetIndex ...
 const GotoWidgetIndex = 2
 
+const exampleBody = ``
+
 var from = 0
 var to = Advance
 var gotoLine = ""
@@ -336,8 +338,33 @@ func main() {
 	ui.SetKeybinding("Up", addUpBinding(&fileContent, txtArea, inputCommand))
 
 	// go to:
-	ui.SetKeybinding("g", func() {
+	ui.SetKeybinding("Alt+g", func() {
 		addGotoWidget(txtReader)
+	})
+
+	ui.SetKeybinding("Alt+n", func() {
+		noteBox := tui.NewTextEdit()
+		noteBox.SetText("")
+		noteBox.SetSizePolicy(tui.Expanding, tui.Expanding)
+		noteBox.SetFocused(true)
+		inputCommand.SetFocused(false)
+		noteBox.SetWordWrap(true)
+		txtReader.SetFocused(false)
+
+		txtReader.Insert(0, noteBox)
+		// txtReader.Prepend()
+		// txtReader.Insert(1, noteBox)
+		// time.Sleep(10 * time.Second)
+		// txtReader.Remove(1)
+
+		// inputCommand.SetText("Add a note ... ")
+		//gotoInput := tui.NewTextEdit()
+		// gotoInput.SetText("Go to line: ")
+		// gotoInput.SetFocused(true)
+		// gotoInput.OnTextChanged(func(entry *tui.TextEdit) {
+		// 	gotoLine = entry.Text()
+		// })
+		// box.Append(gotoInput)
 	})
 
 	ui.SetKeybinding("r", func() {
@@ -346,7 +373,9 @@ func main() {
 
 		gotoLineNumber := getNumberLineGoto(gotoLine)
 		gotoLineNumberDigits, err := strconv.ParseInt(gotoLineNumber, 10, 64)
-		check(err)
+		if err != nil {
+			return
+		}
 		if int(gotoLineNumberDigits) < (len(fileContent) - Advance) {
 			from = int(gotoLineNumberDigits)
 			to = from + Advance
@@ -356,7 +385,7 @@ func main() {
 		txtReader.Remove(GotoWidgetIndex)
 	})
 
-	ui.SetKeybinding("s", func() {
+	ui.SetKeybinding("Alt+s", func() {
 		// save status ...
 		absoluteFilePath, _ := filepath.Abs(fileName)
 		saveStatus(absoluteFilePath, from, to)

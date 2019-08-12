@@ -221,9 +221,13 @@ func main() {
 			inputCommand.SetText(getStatusInformation(&fileContent))
 		}
 		txtReader.Remove(GotoWidgetIndex)
+		inputCommand.SetText(getStatusInformation(&fileContent))
 	})
 
-	ui.SetKeybinding(saveStatusKeyBindingAlternative1, saveReadingStatus(fileName, from, to))
+	ui.SetKeybinding(saveStatusKeyBindingAlternative1, func() {
+		absoluteFilePath, _ := filepath.Abs(fileName)
+		saveStatus(absoluteFilePath, from, to)
+	})
 
 	// Enable percentage stags
 	ui.SetKeybinding(nextPercentagePointKeyBindingAlternative1, func() {

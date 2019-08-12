@@ -46,6 +46,7 @@ func saveStatus(fileName string, from, to int) {
 
 func saveReadingStatus(fileName string, from, to int) func() {
 	return func() {
+		os.Exit(1)
 		absoluteFilePath, _ := filepath.Abs(fileName)
 		saveStatus(absoluteFilePath, from, to)
 	}

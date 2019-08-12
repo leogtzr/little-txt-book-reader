@@ -71,6 +71,10 @@ func upText(fileContent *[]string, txtArea *tui.Box) {
 	putText(txtArea, &chunk)
 }
 
+func getSavedStatusInformation(fileContent *[]string) string {
+	return fmt.Sprintf("%s <saved>", getStatusInformation(fileContent))
+}
+
 func getStatusInformation(fileContent *[]string) string {
 	percent := float64(to) * 100.00
 	percent = percent / float64(len(*fileContent))
@@ -227,6 +231,8 @@ func main() {
 	ui.SetKeybinding(saveStatusKeyBindingAlternative1, func() {
 		absoluteFilePath, _ := filepath.Abs(fileName)
 		saveStatus(absoluteFilePath, from, to)
+
+		inputCommand.SetText(getSavedStatusInformation(&fileContent))
 	})
 
 	// Enable percentage stags

@@ -13,17 +13,19 @@ import (
 	"github.com/marcusolsson/tui-go"
 )
 
-const downKeyBindingAlternative1 = "Alt+j"
-const downKeyBindingAlternative2 = "Down"
-const upKeyBindingAlternative1 = "Alt+k"
-const upKeyBindingAlternative2 = "Up"
-const gotoKeyBindingAlterntive1 = "Alt+g"
-const newNoteKeyBindingAlternative1 = "Alt+n"
-const saveNoteKeyBindingAlternative1 = "Alt+s"
-const closeGotoKeyBindingAlternative1 = "r"
-const saveStatusKeyBindingAlternative1 = "s"
-const nextPercentagePointKeyBindingAlternative1 = "Alt+p"
-const closeApplicationKeyBindingAlterntive1 = "Esc"
+const (
+	downKeyBindingAlternative1                = "Alt+j"
+	downKeyBindingAlternative2                = "Down"
+	upKeyBindingAlternative1                  = "Alt+k"
+	upKeyBindingAlternative2                  = "Up"
+	gotoKeyBindingAlterntive1                 = "Alt+g"
+	newNoteKeyBindingAlternative1             = "Alt+n"
+	saveNoteKeyBindingAlternative1            = "Alt+s"
+	closeGotoKeyBindingAlternative1           = "r"
+	saveStatusKeyBindingAlternative1          = "s"
+	nextPercentagePointKeyBindingAlternative1 = "Alt+p"
+	closeApplicationKeyBindingAlterntive1     = "Esc"
+)
 
 func prepareNewNoteBox(noteBox *tui.TextEdit) {
 	noteBox.SetText("")
@@ -46,7 +48,6 @@ func saveStatus(fileName string, from, to int) {
 
 func saveReadingStatus(fileName string, from, to int) func() {
 	return func() {
-		os.Exit(1)
 		absoluteFilePath, _ := filepath.Abs(fileName)
 		saveStatus(absoluteFilePath, from, to)
 	}

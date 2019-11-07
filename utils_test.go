@@ -5,22 +5,46 @@ import (
 )
 
 func Test_getNumberLineGoto(t *testing.T) {
-	line := "hola12_mundo_345"
-	lineWithOnlyNumbers := getNumberLineGoto(line)
-	expectedText := "12345"
-	if lineWithOnlyNumbers != expectedText {
-		t.Errorf("expected: %s, got: %s", expectedText, lineWithOnlyNumbers)
+
+	type test struct {
+		line string
+		want string
+	}
+
+	tests := []test{
+		{line: "hola12_mundo_345", want: "12345"},
+	}
+
+	for _, tc := range tests {
+		got := getNumberLineGoto(tc.line)
+
+		if got != tc.want {
+			t.Errorf("expected: %s, got: %s", tc.want, got)
+		}
 	}
 }
 
 func Test_percent(t *testing.T) {
-	totalLines := 150
-	i := 30
 
-	progress := percent(i, totalLines)
-	expectedPercentageProgress := 20.0
-	if progress != expectedPercentageProgress {
-		t.Errorf("expected: %f, got: %f", expectedPercentageProgress, progress)
+	type test struct {
+		totalLines   int
+		currentIndex int
+		want         float64
+	}
+
+	tests := []test{
+		{
+			totalLines:   150,
+			currentIndex: 30,
+			want:         20.0,
+		},
+	}
+
+	for _, tc := range tests {
+		got := percent(tc.currentIndex, tc.totalLines)
+		if got != tc.want {
+			t.Errorf("expected: %f, got: %f", tc.want, got)
+		}
 	}
 }
 

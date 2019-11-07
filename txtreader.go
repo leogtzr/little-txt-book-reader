@@ -33,6 +33,7 @@ var fileToOpen = flag.String("file", "", "File to open")
 var openLatestFile = flag.Bool("latest", false, "Open the latest text file")
 var percentagePointStats = false
 var absoluteFilePath string
+var toggleShowStatus = true
 
 // LatestFile ...
 type LatestFile struct {
@@ -76,6 +77,11 @@ func getSavedStatusInformation(fileContent *[]string) string {
 }
 
 func getStatusInformation(fileContent *[]string) string {
+
+	if !toggleShowStatus {
+		return ""
+	}
+
 	percent := float64(to) * 100.00
 	percent = percent / float64(len(*fileContent))
 	if percentagePointStats {
@@ -169,6 +175,12 @@ func main() {
 	// go to:
 	ui.SetKeybinding(gotoKeyBindingAlterntive1, func() {
 		addGotoWidget(txtReader)
+	})
+
+	// show status key binding:
+	ui.SetKeybinding(showStatusKeyBinding, func() {
+		toggleShowStatus = !toggleShowStatus
+		inputCommand.SetText(getStatusInformation(&fileContent))
 	})
 
 	noteBox := tui.NewTextEdit()

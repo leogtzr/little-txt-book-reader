@@ -21,6 +21,7 @@ const (
 	gotoKeyBindingAlterntive1                 = "Alt+g"
 	newNoteKeyBindingAlternative1             = "Alt+n"
 	saveNoteKeyBindingAlternative1            = "Alt+s"
+	showStatusKeyBinding                      = "Alt+."
 	closeGotoKeyBindingAlternative1           = "r"
 	saveStatusKeyBindingAlternative1          = "s"
 	nextPercentagePointKeyBindingAlternative1 = "Alt+p"

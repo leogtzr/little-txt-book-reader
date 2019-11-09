@@ -15,25 +15,28 @@ import (
 	"github.com/marcusolsson/tui-go"
 )
 
-// Advance ...
-const Advance int = 30
+const (
+	// Advance ...
+	Advance int = 30
 
-// WrapMax ...
-const WrapMax = 80
+	// WrapMax ...
+	WrapMax = 80
 
-// GotoWidgetIndex ...
-const GotoWidgetIndex = 2
+	// GotoWidgetIndex ...
+	GotoWidgetIndex = 2
+)
 
-const exampleBody = ``
-
-var from = 0
-var to = Advance
-var gotoLine = ""
-var fileToOpen = flag.String("file", "", "File to open")
-var openLatestFile = flag.Bool("latest", false, "Open the latest text file")
-var percentagePointStats = false
-var absoluteFilePath string
-var toggleShowStatus = true
+var (
+	from                 = 0
+	to                   = Advance
+	gotoLine             = ""
+	fileToOpen           = flag.String("file", "", "File to open")
+	wrapText             = flag.Bool("wrap", false, "Wrap text")
+	openLatestFile       = flag.Bool("latest", false, "Open the latest text file")
+	percentagePointStats = false
+	absoluteFilePath     string
+	toggleShowStatus     = true
+)
 
 // LatestFile ...
 type LatestFile struct {

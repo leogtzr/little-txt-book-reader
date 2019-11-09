@@ -238,10 +238,11 @@ func putText(box *tui.Box, content *[]string) {
 	for _, txt := range *content {
 		txt = strings.Replace(txt, " ", " ", -1)
 		txt = strings.Replace(txt, "\t", "    ", -1)
-		// txt = wrap(txt)
+		if *wrapText {
+			txt = wrap(txt)
+		}
 		box.Append(tui.NewVBox(
 			tui.NewLabel(txt),
-			// tui.NewSpacer(),
 		))
 	}
 }

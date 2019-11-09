@@ -26,6 +26,7 @@ const (
 	saveStatusKeyBindingAlternative1          = "s"
 	nextPercentagePointKeyBindingAlternative1 = "Alt+p"
 	closeApplicationKeyBindingAlterntive1     = "Esc"
+	maxNumberOfElementsInGUIBox               = 1000
 )
 
 func prepareNewNoteBox(noteBox *tui.TextEdit) {
@@ -221,14 +222,26 @@ func addDownBinding(fileContent *[]string, box *tui.Box, input *tui.Entry) func(
 }
 
 func putText(box *tui.Box, content *[]string) {
+
 	clearBox(box, len(*content))
+
+	/*
+		Had to introduce this code to reduce the number of elements added to the
+		GUI, otherwise the memory would be increasing all the time ...
+	*/
+	if box.Length() > 0 {
+		for i := 0; i < box.Length(); i++ {
+			box.Remove(i)
+		}
+	}
+
 	for _, txt := range *content {
 		txt = strings.Replace(txt, " ", " ", -1)
 		txt = strings.Replace(txt, "\t", "    ", -1)
-		txt = wrap(txt)
+		// txt = wrap(txt)
 		box.Append(tui.NewVBox(
 			tui.NewLabel(txt),
-			tui.NewSpacer(),
+			// tui.NewSpacer(),
 		))
 	}
 }

@@ -55,7 +55,7 @@ func TestIdentifyReferences(t *testing.T) {
 	}
 
 	for _, tc := range tests {
-		got := references(tc.line)
+		got := extractReferences(tc.line)
 		if len(got) != len(tc.want) {
 			t.Errorf("got=[%d], want=[%d] references", len(got), len(tc.want))
 		}

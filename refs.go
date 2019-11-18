@@ -2,7 +2,7 @@ package main
 
 import "strings"
 
-func references(line string) []string {
+func extractReferences(line string) []string {
 	words := extractWords(strings.TrimSpace(line))
 	if len(words) == 0 {
 		return []string{}

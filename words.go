@@ -118,6 +118,8 @@ func sanitizeWord(line string) string {
 }
 
 func isTitle(word string) bool {
+	// fmt.Printf("Working with[%s]\n", word)
+	// os.Exit(1)
 	chars := []rune(word)
 	return unicode.IsUpper(chars[0])
 }

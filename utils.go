@@ -14,19 +14,21 @@ import (
 )
 
 const (
-	downKeyBindingAlternative1                = "Alt+j"
-	downKeyBindingAlternative2                = "Down"
-	upKeyBindingAlternative1                  = "Alt+k"
-	upKeyBindingAlternative2                  = "Up"
-	gotoKeyBindingAlterntive1                 = "Alt+g"
-	newNoteKeyBindingAlternative1             = "Alt+n"
-	saveNoteKeyBindingAlternative1            = "Alt+s"
-	showStatusKeyBinding                      = "Alt+."
-	closeGotoKeyBindingAlternative1           = "r"
-	saveStatusKeyBindingAlternative1          = "s"
-	nextPercentagePointKeyBindingAlternative1 = "Alt+p"
-	closeApplicationKeyBindingAlterntive1     = "Esc"
-	maxNumberOfElementsInGUIBox               = 1000
+	downKeyBindingAlternative1                  = "Alt+j"
+	downKeyBindingAlternative2                  = "Down"
+	upKeyBindingAlternative1                    = "Alt+k"
+	upKeyBindingAlternative2                    = "Up"
+	gotoKeyBindingAlterntive1                   = "Alt+g"
+	newNoteKeyBindingAlternative1               = "Alt+n"
+	saveNoteKeyBindingAlternative1              = "Alt+s"
+	showStatusKeyBinding                        = "Alt+."
+	closeGotoKeyBindingAlternative1             = "r"
+	saveStatusKeyBindingAlternative1            = "s"
+	nextPercentagePointKeyBindingAlternative1   = "Alt+p"
+	showReferencesKeyBindingAlternative1        = "Alt+r"
+	closeReferencesWindowKeyBindingAlternative1 = "Alt+q"
+	closeApplicationKeyBindingAlternative1      = "Esc"
+	maxNumberOfElementsInGUIBox                 = 1000
 )
 
 func prepareNewNoteBox(noteBox *tui.TextEdit) {
@@ -34,6 +36,13 @@ func prepareNewNoteBox(noteBox *tui.TextEdit) {
 	noteBox.SetSizePolicy(tui.Expanding, tui.Expanding)
 	noteBox.SetFocused(true)
 	noteBox.SetWordWrap(true)
+}
+
+func prepareReferencesBox(guiComponent *tui.TextEdit) {
+	guiComponent.SetText("")
+	guiComponent.SetSizePolicy(tui.Expanding, tui.Expanding)
+	guiComponent.SetFocused(true)
+	guiComponent.SetWordWrap(true)
 }
 
 func saveStatus(fileName string, from, to int) {
@@ -147,8 +156,8 @@ func readLines(path string) ([]string, error) {
 	return lines, scanner.Err()
 }
 
-func getChunk(fileContent *[]string, from, to int) []string {
-	return (*fileContent)[from:to]
+func getChunk(content *[]string, from, to int) []string {
+	return (*content)[from:to]
 }
 
 func clearBox(box *tui.Box, contentLen int) {
@@ -207,22 +216,21 @@ func exists(name string) bool {
 	return true
 }
 
-func addUpBinding(fileContent *[]string, box *tui.Box, input *tui.Entry) func() {
+func addUpBinding(box *tui.Box, input *tui.Entry) func() {
 	return func() {
-		upText(fileContent, box)
-		input.SetText(getStatusInformation(fileContent))
+		upText(box)
+		input.SetText(getStatusInformation())
 	}
 }
 
-func addDownBinding(fileContent *[]string, box *tui.Box, input *tui.Entry) func() {
+func addDownBinding(box *tui.Box, input *tui.Entry) func() {
 	return func() {
-		downText(fileContent, box)
-		input.SetText(getStatusInformation(fileContent))
+		downText(box)
+		input.SetText(getStatusInformation())
 	}
 }
 
 func putText(box *tui.Box, content *[]string) {
-
 	clearBox(box, len(*content))
 
 	/*
@@ -245,4 +253,25 @@ func putText(box *tui.Box, content *[]string) {
 			tui.NewLabel(txt),
 		))
 	}
+}
+
+func extractReferencesFromFileContent(fileContent *[]string) []string {
+	refs := make([]string, 0)
+	i := 0
+	for _, lineInFile := range *fileContent {
+		i++
+		lineInFile = strings.TrimSpace(lineInFile)
+		if lineInFile == "" || len(lineInFile) == 0 {
+			continue
+		}
+
+		r := extractReferences(lineInFile)
+		if len(r) > 0 {
+			for _, ref := range r {
+				refs = append(refs, ref)
+			}
+		}
+	}
+
+	return refs
 }

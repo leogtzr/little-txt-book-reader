@@ -1,6 +1,7 @@
 package main
 
 import (
+	"path/filepath"
 	"testing"
 )
 
@@ -83,5 +84,14 @@ func Test_countWithoutWhitespaces(t *testing.T) {
 		if got != tc.want {
 			t.Errorf("got=%d, expected=%d", got, tc.want)
 		}
+	}
+}
+
+func TestGetFileToSaveName(t *testing.T) {
+	name := "/home/leo/code/little-txt-book-reader/refs.go"
+	baseFileName := filepath.Base(name)
+
+	if baseFileName != "refs.go" {
+		t.Errorf("got=[%s], want=[%s]", baseFileName, "refs.go")
 	}
 }

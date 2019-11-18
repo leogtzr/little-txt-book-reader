@@ -29,6 +29,8 @@ const (
 var (
 	from                 = 0
 	to                   = Advance
+	fromForReferences    = 0
+	toReferences         = Advance
 	gotoLine             = ""
 	fileToOpen           = flag.String("file", "", "File to open")
 	wrapText             = flag.Bool("wrap", false, "Wrap text")
@@ -36,6 +38,9 @@ var (
 	percentagePointStats = false
 	absoluteFilePath     string
 	toggleShowStatus     = true
+	showReferencesMode   = false
+	references           = []string{}
+	fileContent          = []string{}
 )
 
 // LatestFile ...
@@ -45,22 +50,7 @@ type LatestFile struct {
 	To       int
 }
 
-func downText(fileContent *[]string, txtArea *tui.Box) {
-	if from < len(*fileContent) {
-		from++
-	}
-	if to >= len(*fileContent) {
-		return
-	}
-
-	if to < len(*fileContent) {
-		to++
-	}
-	chunk := getChunk(fileContent, from, to)
-	putText(txtArea, &chunk)
-}
-
-func upText(fileContent *[]string, txtArea *tui.Box) {
+func updateRangesUp() {
 	if from <= 0 {
 		return
 	}
@@ -70,30 +60,101 @@ func upText(fileContent *[]string, txtArea *tui.Box) {
 	}
 
 	to--
+}
 
-	chunk := getChunk(fileContent, from, to)
+func updateRangesReferenceUp() {
+	if fromForReferences <= 0 {
+		return
+	}
+
+	if fromForReferences > 0 {
+		fromForReferences--
+	}
+
+	toReferences--
+}
+
+func updateRangesDown() {
+	if from < len(fileContent) {
+		from++
+	}
+
+	if to >= len(fileContent) {
+		return
+	}
+
+	if to < len(fileContent) {
+		to++
+	}
+}
+
+func updateRangesReferenceDown() {
+	if fromForReferences < len(references) {
+		fromForReferences++
+	}
+
+	if toReferences >= len(references) {
+		return
+	}
+
+	if toReferences < len(references) {
+		toReferences++
+	}
+}
+
+func downText(txtArea *tui.Box) {
+	if showReferencesMode {
+		updateRangesReferenceDown()
+	} else {
+		updateRangesDown()
+	}
+
+	chunk := []string{}
+	if showReferencesMode {
+		chunk = getChunk(&references, fromForReferences, toReferences)
+	} else {
+		chunk = getChunk(&fileContent, from, to)
+	}
+
 	putText(txtArea, &chunk)
 }
 
-func getSavedStatusInformation(fileContent *[]string) string {
-	return fmt.Sprintf("%s <saved>", getStatusInformation(fileContent))
+func upText(txtArea *tui.Box) {
+	if showReferencesMode {
+		updateRangesReferenceUp()
+	} else {
+		updateRangesUp()
+	}
+
+	chunk := []string{}
+	if showReferencesMode {
+		chunk = getChunk(&references, fromForReferences, toReferences)
+	} else {
+		chunk = getChunk(&fileContent, from, to)
+	}
+
+	putText(txtArea, &chunk)
 }
 
-func getStatusInformation(fileContent *[]string) string {
+func getSavedStatusInformation() string {
+	return fmt.Sprintf("%s <saved>", getStatusInformation())
+}
+
+func getStatusInformation() string {
 
 	if !toggleShowStatus {
 		return ""
 	}
 
 	percent := float64(to) * 100.00
-	percent = percent / float64(len(*fileContent))
+	percent = percent / float64(len(fileContent))
 	if percentagePointStats {
 		return fmt.Sprintf(".   %d of %d lines (%.3f%%) [%d lines to next percentage point]                                                            ",
 			to,
-			len(*fileContent), percent, linesToChangePercentagePoint(to, len(*fileContent)))
+			len(fileContent), percent, linesToChangePercentagePoint(to, len(fileContent)))
 	}
 	return fmt.Sprintf(".   %d of %d lines (%.3f%%)                                                            ",
-		to, len(*fileContent), percent)
+		to, len(fileContent), percent)
 
 }
 
@@ -124,7 +185,7 @@ func main() {
 		}
 	}
 
-	fileContent, err := readLines(fileName)
+	fileContent, err = readLines(fileName)
 	check(err)
 
 	// sidebar := tui.NewVBox(
@@ -168,12 +229,12 @@ func main() {
 	}
 
 	// down ...
-	ui.SetKeybinding(downKeyBindingAlternative1, addDownBinding(&fileContent, txtArea, inputCommand))
-	ui.SetKeybinding(downKeyBindingAlternative2, addDownBinding(&fileContent, txtArea, inputCommand))
+	ui.SetKeybinding(downKeyBindingAlternative1, addDownBinding(txtArea, inputCommand))
+	ui.SetKeybinding(downKeyBindingAlternative2, addDownBinding(txtArea, inputCommand))
 
 	// Up ...
-	ui.SetKeybinding(upKeyBindingAlternative1, addUpBinding(&fileContent, txtArea, inputCommand))
-	ui.SetKeybinding(upKeyBindingAlternative2, addUpBinding(&fileContent, txtArea, inputCommand))
+	ui.SetKeybinding(upKeyBindingAlternative1, addUpBinding(txtArea, inputCommand))
+	ui.SetKeybinding(upKeyBindingAlternative2, addUpBinding(txtArea, inputCommand))
 
 	// go to:
 	ui.SetKeybinding(gotoKeyBindingAlterntive1, func() {
@@ -183,12 +244,16 @@ func main() {
 	// show status key binding:
 	ui.SetKeybinding(showStatusKeyBinding, func() {
 		toggleShowStatus = !toggleShowStatus
-		inputCommand.SetText(getStatusInformation(&fileContent))
+		inputCommand.SetText(getStatusInformation())
 	})
 
 	noteBox := tui.NewTextEdit()
 	noteBox.SetText("")
 
+	referencesBox := tui.NewTextEdit()
+	referencesBox.SetText("")
+
+	// new note key binding:
 	ui.SetKeybinding(newNoteKeyBindingAlternative1, func() {
 		prepareNewNoteBox(noteBox)
 		inputCommand.SetFocused(false)
@@ -226,7 +291,7 @@ func main() {
 
 	ui.SetKeybinding(closeGotoKeyBindingAlternative1, func() {
 		// Go to the specified line
-		inputCommand.SetText(getStatusInformation(&fileContent))
+		inputCommand.SetText(getStatusInformation())
 
 		gotoLineNumber := getNumberLineGoto(gotoLine)
 		gotoLineNumberDigits, err := strconv.ParseInt(gotoLineNumber, 10, 64)
@@ -237,30 +302,45 @@ func main() {
 			from = int(gotoLineNumberDigits)
 			to = from + Advance
 			putText(txtArea, &chunk)
-			inputCommand.SetText(getStatusInformation(&fileContent))
+			inputCommand.SetText(getStatusInformation())
 		}
 		txtReader.Remove(GotoWidgetIndex)
-		inputCommand.SetText(getStatusInformation(&fileContent))
+		inputCommand.SetText(getStatusInformation())
 	})
 
 	ui.SetKeybinding(saveStatusKeyBindingAlternative1, func() {
 		absoluteFilePath, _ := filepath.Abs(fileName)
 		saveStatus(absoluteFilePath, from, to)
 
-		inputCommand.SetText(getSavedStatusInformation(&fileContent))
+		inputCommand.SetText(getSavedStatusInformation())
 	})
 
-	// Enable percentage stags
+	// Enable percentage tags
 	ui.SetKeybinding(nextPercentagePointKeyBindingAlternative1, func() {
 		percentagePointStats = !percentagePointStats
-		inputCommand.SetText(getStatusInformation(&fileContent))
+		inputCommand.SetText(getStatusInformation())
 	})
 
-	ui.SetKeybinding(closeApplicationKeyBindingAlterntive1, func() {
-		ui.Quit()
+	ui.SetKeybinding(showReferencesKeyBindingAlternative1, func() {
+		showReferencesMode = true
+		if len(references) == 0 {
+			references = extractReferencesFromFileContent(&fileContent)
+		}
+		chunk := getChunk(&references, fromForReferences, toReferences)
+		putText(txtArea, &chunk)
 	})
 
-	inputCommand.SetText(getStatusInformation(&fileContent))
+	ui.SetKeybinding(closeApplicationKeyBindingAlternative1, func() {
+		if showReferencesMode {
+			chunk := getChunk(&fileContent, from, to)
+			putText(txtArea, &chunk)
+			showReferencesMode = false
+		} else {
+			ui.Quit()
+		}
+	})
+
+	inputCommand.SetText(getStatusInformation())
 
 	if err := ui.Run(); err != nil {
 		log.Fatal(err)

@@ -1,6 +1,20 @@
 package main
 
-import "strings"
+import (
+	"strings"
+)
+
+func unique(slice []string) []string {
+	keys := make(map[string]bool)
+	list := []string{}
+	for _, entry := range slice {
+		if _, value := keys[entry]; !value {
+			keys[entry] = true
+			list = append(list, entry)
+		}
+	}
+	return list
+}
 
 func extractReferences(line string) []string {
 	words := extractWords(strings.TrimSpace(line))

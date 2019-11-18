@@ -255,6 +255,23 @@ func putText(box *tui.Box, content *[]string) {
 	}
 }
 
+func removeDuplicates(elements []string) []string {
+	encountered := map[string]bool{}
+	result := []string{}
+
+	for v := range elements {
+		if encountered[elements[v]] == true {
+			// Do not add duplicate.
+		} else {
+			// Record this element as an encountered element.
+			encountered[elements[v]] = true
+			// Append to result slice.
+			result = append(result, elements[v])
+		}
+	}
+	return result
+}
+
 func extractReferencesFromFileContent(fileContent *[]string) []string {
 	refs := make([]string, 0)
 	i := 0
@@ -273,5 +290,5 @@ func extractReferencesFromFileContent(fileContent *[]string) []string {
 		}
 	}
 
-	return refs
+	return removeDuplicates(refs)
 }

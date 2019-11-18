@@ -114,6 +114,8 @@ func sanitizeWord(line string) string {
 	line = strings.ReplaceAll(line, "\"", "")
 	line = strings.ReplaceAll(line, ")", "")
 	line = strings.ReplaceAll(line, "(", "")
+	line = strings.ReplaceAll(line, ":", "")
+	line = strings.ReplaceAll(line, ";", "")
 	return line
 }
 

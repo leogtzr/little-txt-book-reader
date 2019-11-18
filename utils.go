@@ -290,5 +290,14 @@ func extractReferencesFromFileContent(fileContent *[]string) []string {
 		}
 	}
 
-	return removeDuplicates(refs)
+	uniqueReferences := removeDuplicates(refs)
+
+	referencesNoBannedWords := make([]string, 0)
+	for _, word := range uniqueReferences {
+		if !contains(bannedWords, word) {
+			referencesNoBannedWords = append(referencesNoBannedWords, word)
+		}
+	}
+
+	return referencesNoBannedWords
 }

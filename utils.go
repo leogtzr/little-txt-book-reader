@@ -4,11 +4,14 @@ import (
 	"bufio"
 	"fmt"
 	"io/ioutil"
+	"math/rand"
 	"os"
+	"path"
 	"path/filepath"
 	"regexp"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/marcusolsson/tui-go"
 )
@@ -300,4 +303,22 @@ func extractReferencesFromFileContent(fileContent *[]string) []string {
 	}
 
 	return referencesNoBannedWords
+}
+
+func saveNote(fileName string, noteBox *tui.TextEdit) {
+	notesDir := filepath.Join(os.Getenv("HOME"), "txtnotes")
+	if !dirExists(notesDir) {
+		err := os.Mkdir(notesDir, 0755)
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "error: creating notes dir: %s", notesDir)
+		}
+	}
+	rand.Seed(time.Now().UnixNano())
+	absoluteFilePath, _ := filepath.Abs(fileName)
+	baseFileName := path.Base(absoluteFilePath)
+	noteFileName := fmt.Sprintf("%d-%s", rand.Intn(150), baseFileName)
+
+	noteContent := noteBox.Text()
+
+	ioutil.WriteFile(filepath.Join(notesDir, noteFileName), []byte(noteContent), 0666)
 }

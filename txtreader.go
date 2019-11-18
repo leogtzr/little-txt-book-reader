@@ -3,14 +3,10 @@ package main
 import (
 	"flag"
 	"fmt"
-	"io/ioutil"
 	"log"
-	"math/rand"
 	"os"
-	"path"
 	"path/filepath"
 	"strconv"
-	"time"
 
 	"github.com/marcusolsson/tui-go"
 )
@@ -266,26 +262,10 @@ func main() {
 	})
 
 	ui.SetKeybinding(saveNoteKeyBindingAlternative1, func() {
-
 		if !noteBox.IsFocused() {
 			return
 		}
-		// Save note ...
-		notesDir := filepath.Join(os.Getenv("HOME"), "txtnotes")
-		if !dirExists(notesDir) {
-			err := os.Mkdir(notesDir, 0755)
-			if err != nil {
-				fmt.Fprintf(os.Stderr, "error: creating notes dir: %s", notesDir)
-			}
-		}
-		rand.Seed(time.Now().UnixNano())
-		absoluteFilePath, _ := filepath.Abs(fileName)
-		baseFileName := path.Base(absoluteFilePath)
-		noteFileName := fmt.Sprintf("%d-%s", rand.Intn(150), baseFileName)
-
-		noteContent := noteBox.Text()
-
-		ioutil.WriteFile(filepath.Join(notesDir, noteFileName), []byte(noteContent), 0666)
+		saveNote(fileName, noteBox)
 		txtReader.Remove(0)
 	})
 

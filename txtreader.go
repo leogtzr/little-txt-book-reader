@@ -184,17 +184,6 @@ func main() {
 	fileContent, err = readLines(fileName)
 	check(err)
 
-	// sidebar := tui.NewVBox(
-	// 	tui.NewLabel("CHANNELS"),
-	// 	tui.NewLabel("general"),
-	// 	tui.NewLabel("random"),
-	// 	tui.NewLabel(""),
-	// 	tui.NewLabel("DIRECT MESSAGES"),
-	// 	tui.NewLabel("slackbot"),
-	// 	tui.NewSpacer(),
-	// )
-	// sidebar.SetBorder(true)
-
 	txtArea := tui.NewVBox()
 	txtAreaScroll := tui.NewScrollArea(txtArea)
 	txtAreaScroll.SetAutoscrollToBottom(true)

@@ -213,13 +213,7 @@ func main() {
 		log.Fatal(err)
 	}
 
-	// down ...
-	ui.SetKeybinding(downKeyBindingAlternative1, addDownBinding(txtArea, inputCommand))
-	ui.SetKeybinding(downKeyBindingAlternative2, addDownBinding(txtArea, inputCommand))
-
-	// Up ...
-	ui.SetKeybinding(upKeyBindingAlternative1, addUpBinding(txtArea, inputCommand))
-	ui.SetKeybinding(upKeyBindingAlternative2, addUpBinding(txtArea, inputCommand))
+	addUpDownKeyBindings(txtArea, ui, inputCommand)
 
 	// go to:
 	ui.SetKeybinding(gotoKeyBindingAlterntive1, func() {
@@ -227,10 +221,7 @@ func main() {
 	})
 
 	// show status key binding:
-	ui.SetKeybinding(showStatusKeyBinding, func() {
-		toggleShowStatus = !toggleShowStatus
-		inputCommand.SetText(getStatusInformation())
-	})
+	addShowStatusKeyBinding(ui, inputCommand)
 
 	noteBox := tui.NewTextEdit()
 	noteBox.SetText("")

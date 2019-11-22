@@ -226,9 +226,6 @@ func main() {
 	noteBox := tui.NewTextEdit()
 	noteBox.SetText("")
 
-	referencesBox := tui.NewTextEdit()
-	referencesBox.SetText("")
-
 	// new note key binding:
 	ui.SetKeybinding(newNoteKeyBindingAlternative1, func() {
 		prepareNewNoteBox(noteBox)

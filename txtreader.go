@@ -10,7 +10,13 @@ import (
 	"github.com/marcusolsson/tui-go"
 )
 
+// TODO: create a new enumeration so we can use easily a switch with the modes ...
+type navMode int
+
 const (
+	readingNavigationMode                    navMode = 1
+	showReferencesNavigationMode             navMode = 2
+	analyzeAndFilterReferencesNavigationMode navMode = 3
 	// Advance ...
 	Advance int = 30
 
@@ -32,10 +38,10 @@ var (
 	openLatestFile       = flag.Bool("latest", false, "Open the latest text file")
 	percentagePointStats = false
 	absoluteFilePath     string
-	toggleShowStatus     = true
-	showReferencesMode   = false
-	references           = []string{}
-	fileContent          = []string{}
+	toggleShowStatus             = true
+	references                   = []string{}
+	fileContent                  = []string{}
+	currentNavMode       navMode = readingNavigationMode
 )
 
 // LatestFile ...
@@ -98,16 +104,13 @@ func updateRangesReferenceDown() {
 }
 
 func downText(txtArea *tui.Box) {
-	if showReferencesMode {
-		updateRangesReferenceDown()
-	} else {
-		updateRangesDown()
-	}
-
 	chunk := []string{}
-	if showReferencesMode {
+	switch currentNavMode {
+	case showReferencesNavigationMode:
+		updateRangesReferenceDown()
 		chunk = getChunk(&references, fromForReferences, toReferences)
-	} else {
+	default:
+		updateRangesDown()
 		chunk = getChunk(&fileContent, from, to)
 	}
 
@@ -115,16 +118,13 @@ func downText(txtArea *tui.Box) {
 }
 
 func upText(txtArea *tui.Box) {
-	if showReferencesMode {
-		updateRangesReferenceUp()
-	} else {
-		updateRangesUp()
-	}
-
 	chunk := []string{}
-	if showReferencesMode {
+	switch currentNavMode {
+	case showReferencesNavigationMode:
+		updateRangesReferenceUp()
 		chunk = getChunk(&references, fromForReferences, toReferences)
-	} else {
+	default:
+		updateRangesUp()
 		chunk = getChunk(&fileContent, from, to)
 	}
 
@@ -273,7 +273,7 @@ func main() {
 	})
 
 	ui.SetKeybinding(showReferencesKeyBindingAlternative1, func() {
-		showReferencesMode = true
+		currentNavMode = showReferencesNavigationMode
 		if len(references) == 0 {
 			references = extractReferencesFromFileContent(&fileContent)
 		}
@@ -281,15 +281,7 @@ func main() {
 		putText(txtArea, &chunk)
 	})
 
-	ui.SetKeybinding(closeApplicationKeyBindingAlternative1, func() {
-		if showReferencesMode {
-			chunk := getChunk(&fileContent, from, to)
-			putText(txtArea, &chunk)
-			showReferencesMode = false
-		} else {
-			ui.Quit()
-		}
-	})
+	addcloseApplicationKeyBinding(ui, txtArea)
 
 	inputCommand.SetText(getStatusInformation())
 

@@ -34,11 +34,12 @@ func addSaveStatusKeyBinding(ui tui.UI, fileName string, inputCommand *tui.Entry
 
 func addcloseApplicationKeyBinding(ui tui.UI, txtArea *tui.Box) {
 	ui.SetKeybinding(closeApplicationKeyBindingAlternative1, func() {
-		if showReferencesMode {
+		switch currentNavMode {
+		case showReferencesNavigationMode:
 			chunk := getChunk(&fileContent, from, to)
 			putText(txtArea, &chunk)
-			showReferencesMode = false
-		} else {
+			currentNavMode = readingNavigationMode
+		default:
 			ui.Quit()
 		}
 	})

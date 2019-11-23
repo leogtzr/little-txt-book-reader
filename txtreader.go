@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"log"
 	"os"
-	"path/filepath"
 	"strconv"
 
 	"github.com/marcusolsson/tui-go"
@@ -265,12 +264,7 @@ func main() {
 		inputCommand.SetText(getStatusInformation())
 	})
 
-	ui.SetKeybinding(saveStatusKeyBindingAlternative1, func() {
-		absoluteFilePath, _ := filepath.Abs(fileName)
-		saveStatus(absoluteFilePath, from, to)
-
-		inputCommand.SetText(getSavedStatusInformation())
-	})
+	addSaveStatusKeyBinding(ui, fileName, inputCommand)
 
 	// Enable percentage tags
 	ui.SetKeybinding(nextPercentagePointKeyBindingAlternative1, func() {

@@ -1,6 +1,10 @@
 package main
 
-import "github.com/marcusolsson/tui-go"
+import (
+	"path/filepath"
+
+	"github.com/marcusolsson/tui-go"
+)
 
 func addUpDownKeyBindings(txtArea *tui.Box, ui tui.UI, inputCommand *tui.Entry) {
 	// down ...
@@ -16,5 +20,26 @@ func addShowStatusKeyBinding(ui tui.UI, inputCommand *tui.Entry) {
 	ui.SetKeybinding(showStatusKeyBinding, func() {
 		toggleShowStatus = !toggleShowStatus
 		inputCommand.SetText(getStatusInformation())
+	})
+}
+
+func addSaveStatusKeyBinding(ui tui.UI, fileName string, inputCommand *tui.Entry) {
+	ui.SetKeybinding(saveStatusKeyBindingAlternative1, func() {
+		absoluteFilePath, _ := filepath.Abs(fileName)
+		saveStatus(absoluteFilePath, from, to)
+
+		inputCommand.SetText(getSavedStatusInformation())
+	})
+}
+
+func addcloseApplicationKeyBinding(ui tui.UI, txtArea *tui.Box) {
+	ui.SetKeybinding(closeApplicationKeyBindingAlternative1, func() {
+		if showReferencesMode {
+			chunk := getChunk(&fileContent, from, to)
+			putText(txtArea, &chunk)
+			showReferencesMode = false
+		} else {
+			ui.Quit()
+		}
 	})
 }

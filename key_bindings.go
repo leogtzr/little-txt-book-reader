@@ -67,11 +67,31 @@ func addShowReferencesKeyBinding(ui tui.UI, txtArea *tui.Box) {
 	})
 }
 
+func prepareTableForReferences() {
+	refsTable.RemoveRows()
+	pageReferences := paginate(references, pageIndex, pageSize)
+	for _, ref := range pageReferences {
+		refsTable.AppendRow(tui.NewLabel(ref))
+	}
+	refsTable.SetSelected(0)
+}
+
 func addReferencesNavigationKeyBindings(ui tui.UI) {
+	// Next references ...
 	ui.SetKeybinding("Right", func() {
-
+		if pageIndex >= len(references) {
+			return
+		}
+		pageIndex += pageSize
+		prepareTableForReferences()
 	})
-	ui.SetKeybinding("Left", func() {
 
+	// Previous references ...
+	ui.SetKeybinding("Left", func() {
+		if pageIndex < pageSize {
+			return
+		}
+		pageIndex -= pageSize
+		prepareTableForReferences()
 	})
 }

@@ -26,6 +26,8 @@ const (
 	GotoWidgetIndex = 2
 
 	nonRefsFileName = "non-refs.txt"
+
+	pageSize = 10
 )
 
 var (
@@ -47,7 +49,7 @@ var (
 	sidebar                      = tui.NewVBox()
 	refsTable                    = tui.NewTable(0, 0)
 	refsStatus                   = tui.NewStatusBar("__________")
-	// refsTableScroll              = tui.NewScrollArea(sidebar)
+	pageIndex                    = 0
 )
 
 // LatestFile ...
@@ -298,29 +300,17 @@ func main() {
 		currentNavMode = analyzeAndFilterReferencesNavigationMode
 		sidebar.SetTitle("References ... ")
 		sidebar.SetBorder(true)
-
 		refsTable.SetColumnStretch(0, 0)
-
 		loadReferences()
-		// TODO: Need a clever way of getting this shit ...
-		// TODO: a status bar ...
-		for _, ref := range references[0:10] {
-			refsTable.AppendRow(
-				tui.NewLabel(ref),
-			)
-		}
 
+		refsTable.RemoveRows()
+		prepareTableForReferences()
 		refsTable.SetFocused(true)
-		// refsTableScroll.SetFocused(true)
 	})
 
 	addPercentageKeyBindings(ui, inputCommand)
 	addcloseApplicationKeyBinding(ui, txtArea)
-
-	refsTable.OnItemActivated(func(table *tui.Table) {
-		// TODO: remove item ...
-		// fmt.Println(table.Selected())
-	})
+	addReferencesNavigationKeyBindings(ui)
 
 	inputCommand.SetText(getStatusInformation())
 

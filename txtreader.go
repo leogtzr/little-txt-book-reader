@@ -281,6 +281,10 @@ func main() {
 		putText(txtArea, &chunk)
 	})
 
+	ui.SetKeybinding(analyzeAndFilterReferencesKeyBinding, func() {
+		currentNavMode = analyzeAndFilterReferencesNavigationMode
+	})
+
 	addcloseApplicationKeyBinding(ui, txtArea)
 
 	inputCommand.SetText(getStatusInformation())

@@ -25,6 +25,8 @@ const (
 
 	// GotoWidgetIndex ...
 	GotoWidgetIndex = 2
+
+	nonRefsFileName = "non-refs.txt"
 )
 
 var (
@@ -42,6 +44,7 @@ var (
 	references                   = []string{}
 	fileContent                  = []string{}
 	currentNavMode       navMode = readingNavigationMode
+	bannedWords                  = []string{}
 )
 
 // LatestFile ...
@@ -151,6 +154,15 @@ func getStatusInformation() string {
 	return fmt.Sprintf(".   %d of %d lines (%.3f%%)                                                            ",
 		to, len(fileContent), percent)
 
+}
+
+// load words from file
+func init() {
+	var err error
+	bannedWords, err = loadNonRefsFile(nonRefsFileName)
+	if err != nil {
+		log.Fatal(err)
+	}
 }
 
 func main() {
@@ -265,26 +277,13 @@ func main() {
 	})
 
 	addSaveStatusKeyBinding(ui, fileName, inputCommand)
-
-	// Enable percentage tags
-	ui.SetKeybinding(nextPercentagePointKeyBindingAlternative1, func() {
-		percentagePointStats = !percentagePointStats
-		inputCommand.SetText(getStatusInformation())
-	})
-
-	ui.SetKeybinding(showReferencesKeyBindingAlternative1, func() {
-		currentNavMode = showReferencesNavigationMode
-		if len(references) == 0 {
-			references = extractReferencesFromFileContent(&fileContent)
-		}
-		chunk := getChunk(&references, fromForReferences, toReferences)
-		putText(txtArea, &chunk)
-	})
+	addShowReferencesKeyBinding(ui, txtArea)
 
 	ui.SetKeybinding(analyzeAndFilterReferencesKeyBinding, func() {
 		currentNavMode = analyzeAndFilterReferencesNavigationMode
 	})
 
+	addPercentageKeyBindings(ui, inputCommand)
 	addcloseApplicationKeyBinding(ui, txtArea)
 
 	inputCommand.SetText(getStatusInformation())

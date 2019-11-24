@@ -5,7 +5,7 @@ import (
 	"unicode"
 )
 
-var bannedWords = []string{
+var bannedWords2 = []string{
 	"Los",
 	"El",
 	"La",

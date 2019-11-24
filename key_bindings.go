@@ -44,3 +44,22 @@ func addcloseApplicationKeyBinding(ui tui.UI, txtArea *tui.Box) {
 		}
 	})
 }
+
+func addPercentageKeyBindings(ui tui.UI, inputCommand *tui.Entry) {
+	// Enable percentage tags
+	ui.SetKeybinding(nextPercentagePointKeyBindingAlternative1, func() {
+		percentagePointStats = !percentagePointStats
+		inputCommand.SetText(getStatusInformation())
+	})
+}
+
+func addShowReferencesKeyBinding(ui tui.UI, txtArea *tui.Box) {
+	ui.SetKeybinding(showReferencesKeyBindingAlternative1, func() {
+		currentNavMode = showReferencesNavigationMode
+		if len(references) == 0 {
+			references = extractReferencesFromFileContent(&fileContent)
+		}
+		chunk := getChunk(&references, fromForReferences, toReferences)
+		putText(txtArea, &chunk)
+	})
+}

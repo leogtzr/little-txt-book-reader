@@ -39,6 +39,11 @@ func addcloseApplicationKeyBinding(ui tui.UI, txtArea *tui.Box) {
 			chunk := getChunk(&fileContent, from, to)
 			putText(txtArea, &chunk)
 			currentNavMode = readingNavigationMode
+		case analyzeAndFilterReferencesNavigationMode:
+			chunk := getChunk(&fileContent, from, to)
+			putText(txtArea, &chunk)
+			currentNavMode = readingNavigationMode
+			refsTable.SetFocused(false)
 		default:
 			ui.Quit()
 		}
@@ -56,10 +61,17 @@ func addPercentageKeyBindings(ui tui.UI, inputCommand *tui.Entry) {
 func addShowReferencesKeyBinding(ui tui.UI, txtArea *tui.Box) {
 	ui.SetKeybinding(showReferencesKeyBindingAlternative1, func() {
 		currentNavMode = showReferencesNavigationMode
-		if len(references) == 0 {
-			references = extractReferencesFromFileContent(&fileContent)
-		}
+		loadReferences()
 		chunk := getChunk(&references, fromForReferences, toReferences)
 		putText(txtArea, &chunk)
+	})
+}
+
+func addReferencesNavigationKeyBindings(ui tui.UI) {
+	ui.SetKeybinding("Right", func() {
+
+	})
+	ui.SetKeybinding("Left", func() {
+
 	})
 }

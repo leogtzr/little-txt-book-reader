@@ -10,7 +10,6 @@ import (
 	"github.com/marcusolsson/tui-go"
 )
 
-// TODO: create a new enumeration so we can use easily a switch with the modes ...
 type navMode int
 
 const (
@@ -45,6 +44,10 @@ var (
 	fileContent                  = []string{}
 	currentNavMode       navMode = readingNavigationMode
 	bannedWords                  = []string{}
+	sidebar                      = tui.NewVBox()
+	refsTable                    = tui.NewTable(0, 0)
+	refsStatus                   = tui.NewStatusBar("__________")
+	// refsTableScroll              = tui.NewScrollArea(sidebar)
 )
 
 // LatestFile ...
@@ -112,6 +115,8 @@ func downText(txtArea *tui.Box) {
 	case showReferencesNavigationMode:
 		updateRangesReferenceDown()
 		chunk = getChunk(&references, fromForReferences, toReferences)
+	case analyzeAndFilterReferencesNavigationMode:
+		return
 	default:
 		updateRangesDown()
 		chunk = getChunk(&fileContent, from, to)
@@ -126,6 +131,8 @@ func upText(txtArea *tui.Box) {
 	case showReferencesNavigationMode:
 		updateRangesReferenceUp()
 		chunk = getChunk(&references, fromForReferences, toReferences)
+	case analyzeAndFilterReferencesNavigationMode:
+		return
 	default:
 		updateRangesUp()
 		chunk = getChunk(&fileContent, from, to)
@@ -163,6 +170,9 @@ func init() {
 	if err != nil {
 		log.Fatal(err)
 	}
+
+	sidebar.Append(refsTable)
+	sidebar.Append(refsStatus)
 }
 
 func main() {
@@ -217,7 +227,12 @@ func main() {
 	chunk := getChunk(&fileContent, from, to)
 	putText(txtArea, &chunk)
 
-	root := tui.NewHBox(txtReader)
+	// <<<<<<<
+	//
+	//sidebar.SetBorder(true)
+	// >>>>>>>
+
+	root := tui.NewHBox(txtReader, sidebar)
 
 	ui, err := tui.New(root)
 	if err != nil {
@@ -281,10 +296,31 @@ func main() {
 
 	ui.SetKeybinding(analyzeAndFilterReferencesKeyBinding, func() {
 		currentNavMode = analyzeAndFilterReferencesNavigationMode
+		sidebar.SetTitle("References ... ")
+		sidebar.SetBorder(true)
+
+		refsTable.SetColumnStretch(0, 0)
+
+		loadReferences()
+		// TODO: Need a clever way of getting this shit ...
+		// TODO: a status bar ...
+		for _, ref := range references[0:10] {
+			refsTable.AppendRow(
+				tui.NewLabel(ref),
+			)
+		}
+
+		refsTable.SetFocused(true)
+		// refsTableScroll.SetFocused(true)
 	})
 
 	addPercentageKeyBindings(ui, inputCommand)
 	addcloseApplicationKeyBinding(ui, txtArea)
+
+	refsTable.OnItemActivated(func(table *tui.Table) {
+		// TODO: remove item ...
+		// fmt.Println(table.Selected())
+	})
 
 	inputCommand.SetText(getStatusInformation())
 

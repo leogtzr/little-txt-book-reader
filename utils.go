@@ -31,7 +31,7 @@ const (
 	showReferencesKeyBindingAlternative1        = "Alt+r"
 	closeReferencesWindowKeyBindingAlternative1 = "Alt+q"
 	closeApplicationKeyBindingAlternative1      = "Esc"
-	analyzeAndFilterReferencesKeyBinding        = "Alt+a"
+	analyzeAndFilterReferencesKeyBinding        = "Alt+b"
 	maxNumberOfElementsInGUIBox                 = 1000
 )
 
@@ -337,4 +337,29 @@ func saveNote(fileName string, noteBox *tui.TextEdit) {
 	noteContent := noteBox.Text()
 
 	ioutil.WriteFile(filepath.Join(notesDir, noteFileName), []byte(noteContent), 0666)
+}
+
+func loadReferences() {
+	if len(references) == 0 {
+		references = extractReferencesFromFileContent(&fileContent)
+	}
+}
+
+func remove(s []string, i int) []string {
+	s[i] = s[len(s)-1]
+	// We do not need to put s[i] at the end, as it will be discarded anyway
+	return s[:len(s)-1]
+}
+
+func paginate(x []string, skip int, size int) []string {
+	if skip > len(x) {
+		skip = len(x)
+	}
+
+	end := skip + size
+	if end > len(x) {
+		end = len(x)
+	}
+
+	return x[skip:end]
 }

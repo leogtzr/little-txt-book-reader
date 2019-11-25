@@ -27,6 +27,9 @@ func extractReferences(line string) []string {
 	bag := make([]string, 0)
 
 	for _, word := range words {
+		if word == "" {
+			continue
+		}
 		f = isTitle(word)
 		if f {
 			bag = append(bag, word)

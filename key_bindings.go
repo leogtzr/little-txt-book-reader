@@ -67,15 +67,6 @@ func addShowReferencesKeyBinding(ui tui.UI, txtArea *tui.Box) {
 	})
 }
 
-func prepareTableForReferences() {
-	refsTable.RemoveRows()
-	pageReferences := paginate(references, pageIndex, pageSize)
-	for _, ref := range pageReferences {
-		refsTable.AppendRow(tui.NewLabel(ref))
-	}
-	refsTable.SetSelected(0)
-}
-
 func addReferencesNavigationKeyBindings(ui tui.UI) {
 	// Next references ...
 	ui.SetKeybinding("Right", func() {
@@ -93,5 +84,29 @@ func addReferencesNavigationKeyBindings(ui tui.UI) {
 		}
 		pageIndex -= pageSize
 		prepareTableForReferences()
+	})
+}
+
+func prepareTableForReferences() {
+	refsTable.RemoveRows()
+	references := paginate(references, pageIndex, pageSize)
+	for _, ref := range references {
+		refsTable.AppendRow(tui.NewLabel(ref))
+	}
+	refsTable.SetSelected(0)
+}
+
+func addOnSelectedReference() {
+	refsTable.OnItemActivated(func(tui *tui.Table) {
+
+		itemIndexToRemove := tui.Selected()
+		itemToAddToNonRefs := references[pageIndex+itemIndexToRemove]
+		// references = remove(references, itemIndexToRemove)
+		findAndRemove(&references, itemToAddToNonRefs)
+		prepareTableForReferences()
+
+		if !contains(bannedWords, itemToAddToNonRefs) {
+			appendLineToFile(nonRefsFileName, itemToAddToNonRefs)
+		}
 	})
 }

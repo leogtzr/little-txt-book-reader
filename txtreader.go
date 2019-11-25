@@ -311,6 +311,7 @@ func main() {
 	addPercentageKeyBindings(ui, inputCommand)
 	addcloseApplicationKeyBinding(ui, txtArea)
 	addReferencesNavigationKeyBindings(ui)
+	addOnSelectedReference()
 
 	inputCommand.SetText(getStatusInformation())
 

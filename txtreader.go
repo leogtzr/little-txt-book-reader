@@ -273,6 +273,7 @@ func main() {
 			return
 		}
 		saveNote(fileName, noteBox)
+		noteBox.SetFocused(false)
 		txtReader.Remove(0)
 	})
 

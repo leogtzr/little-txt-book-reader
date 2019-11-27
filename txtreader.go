@@ -309,7 +309,7 @@ func main() {
 	})
 
 	addPercentageKeyBindings(ui, inputCommand)
-	addcloseApplicationKeyBinding(ui, txtArea)
+	addcloseApplicationKeyBinding(ui, txtArea, noteBox, txtReader)
 	addReferencesNavigationKeyBindings(ui)
 	addOnSelectedReference()
 

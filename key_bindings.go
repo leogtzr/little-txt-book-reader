@@ -32,8 +32,15 @@ func addSaveStatusKeyBinding(ui tui.UI, fileName string, inputCommand *tui.Entry
 	})
 }
 
-func addcloseApplicationKeyBinding(ui tui.UI, txtArea *tui.Box) {
+func addcloseApplicationKeyBinding(ui tui.UI, txtArea *tui.Box, noteBox *tui.TextEdit, txtReader *tui.Box) {
 	ui.SetKeybinding(closeApplicationKeyBindingAlternative1, func() {
+
+		if noteBox.IsFocused() {
+			noteBox.SetFocused(false)
+			txtReader.Remove(0)
+			return
+		}
+
 		switch currentNavMode {
 		case showReferencesNavigationMode:
 			chunk := getChunk(&fileContent, from, to)

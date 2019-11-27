@@ -37,7 +37,7 @@ func addcloseApplicationKeyBinding(ui tui.UI, txtArea *tui.Box, noteBox *tui.Tex
 
 		if noteBox.IsFocused() {
 			noteBox.SetFocused(false)
-			txtReader.Remove(0)
+			// txtReader.Remove(0)
 			return
 		}
 

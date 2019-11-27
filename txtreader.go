@@ -28,6 +28,8 @@ const (
 	nonRefsFileName = "non-refs.txt"
 
 	pageSize = 10
+
+	txtNotesDirName = "txtnotes"
 )
 
 var (
@@ -204,6 +206,11 @@ func main() {
 		}
 	}
 
+	err = createNotesDirForFile(fileName)
+	if err != nil {
+		log.Fatal(err)
+	}
+
 	fileContent, err = readLines(fileName)
 	check(err)
 
@@ -228,11 +235,6 @@ func main() {
 
 	chunk := getChunk(&fileContent, from, to)
 	putText(txtArea, &chunk)
-
-	// <<<<<<<
-	//
-	//sidebar.SetBorder(true)
-	// >>>>>>>
 
 	root := tui.NewHBox(txtReader, sidebar)
 
@@ -319,3 +321,5 @@ func main() {
 		log.Fatal(err)
 	}
 }
+
+// TODO: fix note saving strategies.

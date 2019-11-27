@@ -4,14 +4,12 @@ import (
 	"bufio"
 	"fmt"
 	"io/ioutil"
-	"math/rand"
 	"os"
 	"path"
 	"path/filepath"
 	"regexp"
 	"strconv"
 	"strings"
-	"time"
 
 	"github.com/marcusolsson/tui-go"
 )
@@ -321,24 +319,6 @@ func extractReferencesFromFileContent(fileContent *[]string) []string {
 	return referencesNoBannedWords
 }
 
-func saveNote(fileName string, noteBox *tui.TextEdit) {
-	notesDir := filepath.Join(os.Getenv("HOME"), "txtnotes")
-	if !dirExists(notesDir) {
-		err := os.Mkdir(notesDir, 0755)
-		if err != nil {
-			fmt.Fprintf(os.Stderr, "error: creating notes dir: %s", notesDir)
-		}
-	}
-	rand.Seed(time.Now().UnixNano())
-	absoluteFilePath, _ := filepath.Abs(fileName)
-	baseFileName := path.Base(absoluteFilePath)
-	noteFileName := fmt.Sprintf("%d-%s", rand.Intn(150), baseFileName)
-
-	noteContent := noteBox.Text()
-
-	ioutil.WriteFile(filepath.Join(notesDir, noteFileName), []byte(noteContent), 0666)
-}
-
 func loadReferences() {
 	if len(references) == 0 {
 		references = extractReferencesFromFileContent(&fileContent)
@@ -372,7 +352,7 @@ func remove(s []string, i int) []string {
 // 	return slice[:len(slice)-1]
 // }
 
-func paginate(x []string, skip int, size int) []string {
+func paginate(x []string, skip, size int) []string {
 	if skip > len(x) {
 		skip = len(x)
 	}
@@ -385,8 +365,8 @@ func paginate(x []string, skip int, size int) []string {
 	return x[skip:end]
 }
 
-func appendLineToFile(filePath string, line string) {
-	f, err := os.OpenFile(filePath, os.O_APPEND|os.O_WRONLY, 0644)
+func appendLineToFile(filePath, line string) {
+	f, err := os.OpenFile(filePath, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
 	if err != nil {
 		panic(err)
 	}
@@ -396,4 +376,29 @@ func appendLineToFile(filePath string, line string) {
 	if _, err = f.WriteString(line + "\n"); err != nil {
 		panic(err)
 	}
+}
+
+func saveNote(fileName string, noteBox *tui.TextEdit) {
+	notesDir := getNotesDirectoryNameForFile(fileName)
+	noteContent := noteBox.Text()
+	appendLineToFile(filepath.Join(notesDir, "notes.txt"), noteContent)
+}
+
+func createNotesDirForFile(fileName string) error {
+	notesDir := getNotesDirectoryNameForFile(fileName)
+	if !dirExists(notesDir) {
+		err := os.Mkdir(notesDir, 0755)
+		return err
+	}
+	return nil
+}
+
+func getNotesDirectoryNameForFile(fileName string) string {
+	absoluteFilePath, _ := filepath.Abs(fileName)
+	baseFileName := path.Base(absoluteFilePath)
+
+	baseFileName = sanitizeFileName(baseFileName)
+	notesDir := filepath.Join(os.Getenv("HOME"), txtNotesDirName, baseFileName)
+
+	return notesDir
 }

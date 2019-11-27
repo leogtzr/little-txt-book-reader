@@ -32,7 +32,7 @@ func addSaveStatusKeyBinding(ui tui.UI, fileName string, inputCommand *tui.Entry
 	})
 }
 
-func addcloseApplicationKeyBinding(ui tui.UI, txtArea *tui.Box, noteBox *tui.TextEdit, txtReader *tui.Box) {
+func addcloseApplicationKeyBinding(ui tui.UI, txtArea, txtReader *tui.Box, noteBox *tui.TextEdit) {
 	ui.SetKeybinding(closeApplicationKeyBindingAlternative1, func() {
 
 		if noteBox.IsFocused() {

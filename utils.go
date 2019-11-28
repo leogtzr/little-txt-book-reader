@@ -369,6 +369,7 @@ func saveNote(fileName string, noteBox *tui.TextEdit) {
 	notesDir := getNotesDirectoryNameForFile(fileName)
 	noteContent := noteBox.Text()
 	noteContent = removeFirstChar(noteContent)
+	noteContent = fmt.Sprintf("%s\n%s\n", strings.Repeat("_", longestLineLength(noteContent)), noteContent)
 	appendLineToFile(filepath.Join(notesDir, "notes.txt"), noteContent)
 }
 
@@ -396,4 +397,19 @@ func removeFirstChar(s string) string {
 		return s[1:]
 	}
 	return s
+}
+
+func longestLineLength(text string) int {
+	if len(text) == 0 {
+		return 0
+	}
+
+	lines := strings.Split(text, "\n")
+	longest := len(lines[0])
+	for _, line := range lines {
+		if len(line) > longest {
+			longest = len(line)
+		}
+	}
+	return longest
 }

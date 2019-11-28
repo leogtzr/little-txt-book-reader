@@ -392,7 +392,7 @@ func getNotesDirectoryNameForFile(fileName string) string {
 }
 
 func removeFirstChar(s string) string {
-	if len(s) > 0 && strings.HasPrefix(s, "n") {
+	if strings.HasPrefix(s, "n") {
 		return s[1:]
 	}
 	return s

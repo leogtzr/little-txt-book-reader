@@ -368,6 +368,7 @@ func appendLineToFile(filePath, line string) {
 func saveNote(fileName string, noteBox *tui.TextEdit) {
 	notesDir := getNotesDirectoryNameForFile(fileName)
 	noteContent := noteBox.Text()
+	noteContent = removeFirstChar(noteContent)
 	appendLineToFile(filepath.Join(notesDir, "notes.txt"), noteContent)
 }
 
@@ -388,4 +389,11 @@ func getNotesDirectoryNameForFile(fileName string) string {
 	notesDir := filepath.Join(os.Getenv("HOME"), txtNotesDirName, baseFileName)
 
 	return notesDir
+}
+
+func removeFirstChar(s string) string {
+	if len(s) > 0 && strings.HasPrefix(s, "n") {
+		return s[1:]
+	}
+	return s
 }

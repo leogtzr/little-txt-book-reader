@@ -158,11 +158,11 @@ func getStatusInformation() string {
 	percent := float64(to) * 100.00
 	percent = percent / float64(len(fileContent))
 	if percentagePointStats {
-		return fmt.Sprintf(".   %d of %d lines (%.3f%%) [%d lines to next percentage point]                                                            ",
+		return fmt.Sprintf(".   %d of %d lines (%.3f%%) [%d lines to next percentage point]                           ",
 			to,
 			len(fileContent), percent, linesToChangePercentagePoint(to, len(fileContent)))
 	}
-	return fmt.Sprintf(".   %d of %d lines (%.3f%%)                                                            ",
+	return fmt.Sprintf(".   %d of %d lines (%.3f%%)                                            ",
 		to, len(fileContent), percent)
 
 }
@@ -266,6 +266,7 @@ func main() {
 		txtAreaScroll.SetFocused(false)
 
 		txtReader.Insert(0, noteBox)
+		// noteBox.SetText("")
 	})
 
 	ui.SetKeybinding(saveNoteKeyBindingAlternative1, func() {

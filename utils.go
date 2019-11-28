@@ -325,10 +325,6 @@ func loadReferences() {
 	}
 }
 
-// func remove(s []string, index int) []string {
-// 	return append(s[:index], s[index+1:]...)
-// }
-
 func findAndRemove(s *[]string, e string) {
 	for i, v := range *s {
 		if v == e {
@@ -342,15 +338,6 @@ func remove(s []string, i int) []string {
 	s[len(s)-1], s[i] = s[i], s[len(s)-1]
 	return s[:len(s)-1]
 }
-
-// func remove(slice []string, s int) []string {
-// 	return append(slice[:s], slice[s+1:]...)
-// }
-
-// func remove(slice []string, i int) []string {
-// 	copy(slice[i:], slice[i+1:])
-// 	return slice[:len(slice)-1]
-// }
 
 func paginate(x []string, skip, size int) []string {
 	if skip > len(x) {
@@ -373,7 +360,7 @@ func appendLineToFile(filePath, line string) {
 
 	defer f.Close()
 
-	if _, err = f.WriteString(line + "\n"); err != nil {
+	if _, err = f.WriteString("\n" + line + "\n"); err != nil {
 		panic(err)
 	}
 }

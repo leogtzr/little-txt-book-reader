@@ -1,5 +1,5 @@
 # INSTALL_SCRIPT=./install.sh
-BIN_FILE=txtreader
+BIN_FILE=little-txt-book-reader
 
 install:
 	go build -o "${BIN_FILE}"

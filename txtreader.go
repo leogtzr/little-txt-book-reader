@@ -16,6 +16,7 @@ const (
 	readingNavigationMode                    navMode = 1
 	showReferencesNavigationMode             navMode = 2
 	analyzeAndFilterReferencesNavigationMode navMode = 3
+
 	// Advance ...
 	Advance int = 30
 
@@ -158,7 +159,7 @@ func getStatusInformation() string {
 	percent := float64(to) * 100.00
 	percent = percent / float64(len(fileContent))
 	if percentagePointStats {
-		return fmt.Sprintf(".   %d of %d lines (%.3f%%) [%d lines to next percentage point]                           ",
+		return fmt.Sprintf(".   %d of %d lines (%.3f%%) [%d lines to next percentage point]                    ",
 			to,
 			len(fileContent), percent, linesToChangePercentagePoint(to, len(fileContent)))
 	}
@@ -167,8 +168,8 @@ func getStatusInformation() string {
 
 }
 
-// load words from file
 func init() {
+	// load words from file
 	var err error
 	bannedWords, err = loadNonRefsFile(nonRefsFileName)
 	if err != nil {

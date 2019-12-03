@@ -39,14 +39,13 @@ const (
 )
 
 var (
-	from              = 0
-	to                = Advance
-	fromForReferences = 0
-	toReferences      = Advance
-	gotoLine          = ""
-	fileToOpen        = flag.String("file", "", "File to open")
-	wrapText          = flag.Bool("wrap", false, "Wrap text")
-	// openLatestFile       = flag.Bool("latest", false, "Open the latest text file")
+	from                 = 0
+	to                   = Advance
+	fromForReferences    = 0
+	toReferences         = Advance
+	gotoLine             = ""
+	fileToOpen           = flag.String("file", "", "File to open")
+	wrapText             = flag.Bool("wrap", false, "Wrap text")
 	percentagePointStats = false
 	absoluteFilePath     string
 	toggleShowStatus             = true
@@ -263,7 +262,6 @@ func main() {
 		txtAreaScroll.SetFocused(false)
 
 		txtReader.Insert(0, noteBox)
-		// noteBox.SetText("")
 	})
 
 	ui.SetKeybinding(saveNoteKeyBindingAlternative1, func() {

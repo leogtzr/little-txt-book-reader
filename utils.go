@@ -396,15 +396,6 @@ func createDirectories() error {
 	return nil
 }
 
-func createNotesDirForFile(fileName string) error {
-	// notesDir := getNotesDirectoryNameForFile(fileName)
-	// if !dirExists(notesDir) {
-	// 	err := os.Mkdir(notesDir, 0755)
-	// 	return err
-	// }
-	return nil
-}
-
 func getNotesDirectoryNameForFile(fileName string) string {
 	absoluteFilePath, _ := filepath.Abs(fileName)
 	baseFileName := path.Base(absoluteFilePath)

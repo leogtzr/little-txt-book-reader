@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"path/filepath"
 	"strconv"
 
 	"github.com/marcusolsson/tui-go"
@@ -31,17 +32,21 @@ const (
 	pageSize = 10
 
 	txtNotesDirName = "txtnotes"
+
+	dbFileRequieredNumberFields = 3
+
+	txtDBFile = "txtread"
 )
 
 var (
-	from                 = 0
-	to                   = Advance
-	fromForReferences    = 0
-	toReferences         = Advance
-	gotoLine             = ""
-	fileToOpen           = flag.String("file", "", "File to open")
-	wrapText             = flag.Bool("wrap", false, "Wrap text")
-	openLatestFile       = flag.Bool("latest", false, "Open the latest text file")
+	from              = 0
+	to                = Advance
+	fromForReferences = 0
+	toReferences      = Advance
+	gotoLine          = ""
+	fileToOpen        = flag.String("file", "", "File to open")
+	wrapText          = flag.Bool("wrap", false, "Wrap text")
+	// openLatestFile       = flag.Bool("latest", false, "Open the latest text file")
 	percentagePointStats = false
 	absoluteFilePath     string
 	toggleShowStatus             = true
@@ -169,6 +174,10 @@ func getStatusInformation() string {
 }
 
 func init() {
+	if err := createDirectories(); err != nil {
+		log.Fatal(err)
+	}
+
 	// load words from file
 	var err error
 	bannedWords, err = loadNonRefsFile(nonRefsFileName)
@@ -176,6 +185,7 @@ func init() {
 		log.Fatal(err)
 	}
 
+	// TODO: create HOME+ltbr directory ...
 	sidebar.Append(refsTable)
 	sidebar.Append(refsStatus)
 }
@@ -184,28 +194,20 @@ func main() {
 
 	flag.Parse()
 	fileName := *fileToOpen
-	if fileName == "" && !*openLatestFile {
+	if fileName == "" {
 		fmt.Fprintln(os.Stderr, "error: missing file to read")
-		os.Exit(1)
-	}
-
-	if fileName != "" && *openLatestFile {
-		fmt.Fprintln(os.Stderr, "error: conflicting options")
 		os.Exit(1)
 	}
 
 	var err error
 
-	if *openLatestFile {
-		latestFile, err := getFileNameFromLatest()
-		from = latestFile.From
-		to = latestFile.To
-
-		fileName = latestFile.FileName
-		if err != nil {
-			log.Fatal(err)
-		}
+	absoluteFilePath, _ := filepath.Abs(fileName)
+	latestFile, err := getFileNameFromLatest(absoluteFilePath)
+	if err != nil {
+		log.Fatal(err)
 	}
+
+	from, to, fileName = latestFile.From, latestFile.To, latestFile.FileName
 
 	err = createNotesDirForFile(fileName)
 	if err != nil {

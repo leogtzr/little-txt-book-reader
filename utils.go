@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"fmt"
 	"io/ioutil"
+	"log"
 	"os"
 	"path"
 	"path/filepath"
@@ -63,22 +64,15 @@ func prepareReferencesBox(guiComponent *tui.TextEdit) {
 }
 
 func saveStatus(fileName string, from, to int) {
-	// write from, to y el nombre del archivo ...
 	homeDir := os.Getenv("HOME")
-	f, err := os.Create(filepath.Join(homeDir, "txtread"))
+	baseFileName := filepath.Base(fileName)
+	f, err := os.Create(filepath.Join(homeDir, "ltbr", "progress", baseFileName))
 	if err != nil {
-		fmt.Fprint(os.Stderr, err.Error())
+		log.Fatal(err)
 		return
 	}
 	defer f.Close()
 	f.WriteString(fmt.Sprintf("%s|%d|%d", fileName, from, to))
-}
-
-func saveReadingStatus(fileName string, from, to int) func() {
-	return func() {
-		absoluteFilePath, _ := filepath.Abs(fileName)
-		saveStatus(absoluteFilePath, from, to)
-	}
 }
 
 func getNumberLineGoto(line string) string {
@@ -109,12 +103,14 @@ func linesToChangePercentagePoint(currentLine, totalLines int) int {
 	return linesToChangePercentage - start
 }
 
-func getFileNameFromLatest() (LatestFile, error) {
+func getFileNameFromLatest(filePath string) (LatestFile, error) {
 	homeDir := os.Getenv("HOME")
-	latestFilePath := filepath.Join(homeDir, "txtread")
-
+	// TODO: change this for a constant: txtDBFile
+	baseFileName := filepath.Base(filePath)
+	latestFilePath := filepath.Join(homeDir, "ltbr", "progress", baseFileName)
+	latestFile := LatestFile{FileName: filePath, From: 0, To: Advance}
 	if !exists(latestFilePath) {
-		return LatestFile{}, fmt.Errorf("'%s' does not exist", latestFilePath)
+		return latestFile, nil
 	}
 
 	f, err := os.Open(latestFilePath)
@@ -122,21 +118,19 @@ func getFileNameFromLatest() (LatestFile, error) {
 		return LatestFile{}, err
 	}
 	defer f.Close()
-	fileContent, err := ioutil.ReadAll(f)
-	if err != nil {
-		return LatestFile{}, err
-	}
-	latestFileFields := strings.Split(string(fileContent), "|")
-	if len(latestFileFields) != 3 {
+
+	content, err := ioutil.ReadAll(f)
+	latestFileFields := strings.Split(string(content), "|")
+	if len(latestFileFields) != dbFileRequieredNumberFields {
 		return LatestFile{}, fmt.Errorf("Wrong format in '%s'", latestFilePath)
 	}
-	latestFile := LatestFile{}
+
 	latestFile.FileName = latestFileFields[0]
 	fromInt, _ := strconv.ParseInt(latestFileFields[1], 10, 32)
 	toInt, _ := strconv.ParseInt(latestFileFields[2], 10, 32)
-
 	latestFile.From = int(fromInt)
 	latestFile.To = int(toInt)
+
 	return latestFile, nil
 }
 
@@ -373,6 +367,36 @@ func saveNote(fileName string, noteBox *tui.TextEdit) {
 	appendLineToFile(filepath.Join(notesDir, "notes.txt"), noteContent)
 }
 
+func createDirectory(dirPath string) error {
+	if !dirExists(dirPath) {
+		err := os.Mkdir(dirPath, 0755)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func createDirectories() error {
+	// TODO: create a constant for "ltbr"
+	ltbrDir := filepath.Join(os.Getenv("HOME"), "ltbr")
+	if err := createDirectory(ltbrDir); err != nil {
+		return err
+	}
+
+	notesDir := filepath.Join(os.Getenv("HOME"), "ltbr", "notes")
+	if err := createDirectory(notesDir); err != nil {
+		return err
+	}
+
+	progressDir := filepath.Join(os.Getenv("HOME"), "ltbr", "progress")
+	if err := createDirectory(progressDir); err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func createNotesDirForFile(fileName string) error {
 	notesDir := getNotesDirectoryNameForFile(fileName)
 	if !dirExists(notesDir) {
@@ -387,7 +411,7 @@ func getNotesDirectoryNameForFile(fileName string) string {
 	baseFileName := path.Base(absoluteFilePath)
 
 	baseFileName = sanitizeFileName(baseFileName)
-	notesDir := filepath.Join(os.Getenv("HOME"), txtNotesDirName, baseFileName)
+	notesDir := filepath.Join(os.Getenv("HOME"), "ltbr", "notes", baseFileName)
 
 	return notesDir
 }

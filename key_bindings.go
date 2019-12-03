@@ -1,8 +1,6 @@
 package main
 
 import (
-	"path/filepath"
-
 	"github.com/marcusolsson/tui-go"
 )
 
@@ -25,9 +23,7 @@ func addShowStatusKeyBinding(ui tui.UI, inputCommand *tui.Entry) {
 
 func addSaveStatusKeyBinding(ui tui.UI, fileName string, inputCommand *tui.Entry) {
 	ui.SetKeybinding(saveStatusKeyBindingAlternative1, func() {
-		absoluteFilePath, _ := filepath.Abs(fileName)
-		saveStatus(absoluteFilePath, from, to)
-
+		saveStatus(fileName, from, to)
 		inputCommand.SetText(getSavedStatusInformation())
 	})
 }

@@ -185,7 +185,6 @@ func init() {
 		log.Fatal(err)
 	}
 
-	// TODO: create HOME+ltbr directory ...
 	sidebar.Append(refsTable)
 	sidebar.Append(refsStatus)
 }
@@ -321,5 +320,3 @@ func main() {
 		log.Fatal(err)
 	}
 }
-
-// TODO: fix note saving strategies.

@@ -105,7 +105,6 @@ func linesToChangePercentagePoint(currentLine, totalLines int) int {
 
 func getFileNameFromLatest(filePath string) (LatestFile, error) {
 	homeDir := os.Getenv("HOME")
-	// TODO: change this for a constant: txtDBFile
 	baseFileName := filepath.Base(filePath)
 	latestFilePath := filepath.Join(homeDir, "ltbr", "progress", baseFileName)
 	latestFile := LatestFile{FileName: filePath, From: 0, To: Advance}
@@ -379,7 +378,6 @@ func createDirectory(dirPath string) error {
 }
 
 func createDirectories() error {
-	// TODO: create a constant for "ltbr"
 	ltbrDir := filepath.Join(os.Getenv("HOME"), "ltbr")
 	if err := createDirectory(ltbrDir); err != nil {
 		return err

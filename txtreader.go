@@ -209,11 +209,6 @@ func main() {
 
 	from, to, fileName = latestFile.From, latestFile.To, latestFile.FileName
 
-	err = createNotesDirForFile(fileName)
-	if err != nil {
-		log.Fatal(err)
-	}
-
 	fileContent, err = readLines(fileName)
 	check(err)
 

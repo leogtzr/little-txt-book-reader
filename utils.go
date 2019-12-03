@@ -364,7 +364,8 @@ func saveNote(fileName string, noteBox *tui.TextEdit) {
 	noteContent := noteBox.Text()
 	noteContent = removeFirstChar(noteContent)
 	noteContent = fmt.Sprintf("%s\n%s\n", strings.Repeat("_", longestLineLength(noteContent)), noteContent)
-	appendLineToFile(filepath.Join(notesDir, "notes.txt"), noteContent)
+	//appendLineToFile(filepath.Join(notesDir, "notes.txt"), noteContent)
+	appendLineToFile(notesDir, noteContent)
 }
 
 func createDirectory(dirPath string) error {
@@ -398,11 +399,11 @@ func createDirectories() error {
 }
 
 func createNotesDirForFile(fileName string) error {
-	notesDir := getNotesDirectoryNameForFile(fileName)
-	if !dirExists(notesDir) {
-		err := os.Mkdir(notesDir, 0755)
-		return err
-	}
+	// notesDir := getNotesDirectoryNameForFile(fileName)
+	// if !dirExists(notesDir) {
+	// 	err := os.Mkdir(notesDir, 0755)
+	// 	return err
+	// }
 	return nil
 }
 

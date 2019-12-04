@@ -240,11 +240,7 @@ func main() {
 	}
 
 	addUpDownKeyBindings(txtArea, ui, inputCommand)
-
-	// go to:
-	ui.SetKeybinding(gotoKeyBindingAlterntive1, func() {
-		addGotoWidget(txtReader)
-	})
+	addGotoKeyBinding(ui, txtReader)
 
 	// show status key binding:
 	addShowStatusKeyBinding(ui, inputCommand)

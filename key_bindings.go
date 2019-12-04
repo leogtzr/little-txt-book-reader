@@ -113,3 +113,9 @@ func addOnSelectedReference() {
 		}
 	})
 }
+
+func addGotoKeyBinding(ui tui.UI, txtReader *tui.Box) {
+	ui.SetKeybinding(gotoKeyBindingAlterntive1, func() {
+		addGotoWidget(txtReader)
+	})
+}

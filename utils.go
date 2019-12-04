@@ -64,9 +64,8 @@ func prepareReferencesBox(guiComponent *tui.TextEdit) {
 }
 
 func saveStatus(fileName string, from, to int) {
-	homeDir := os.Getenv("HOME")
 	baseFileName := filepath.Base(fileName)
-	f, err := os.Create(filepath.Join(homeDir, "ltbr", "progress", baseFileName))
+	f, err := os.Create(filepath.Join(home(), "ltbr", "progress", baseFileName))
 	if err != nil {
 		log.Fatal(err)
 		return
@@ -76,15 +75,15 @@ func saveStatus(fileName string, from, to int) {
 }
 
 func getNumberLineGoto(line string) string {
-	reg, err := regexp.Compile("[^0-9]+")
+	rgx, err := regexp.Compile("[^0-9]+")
 	if err != nil {
 		return ""
 	}
-	return reg.ReplaceAllString(line, "")
+	return rgx.ReplaceAllString(line, "")
 }
 
-func percent(i, totalLines int) float64 {
-	return float64(i*100.0) / float64(totalLines)
+func percent(currentNumberLine, totalLines int) float64 {
+	return float64(currentNumberLine*100.0) / float64(totalLines)
 }
 
 func linesToChangePercentagePoint(currentLine, totalLines int) int {
@@ -104,9 +103,8 @@ func linesToChangePercentagePoint(currentLine, totalLines int) int {
 }
 
 func getFileNameFromLatest(filePath string) (LatestFile, error) {
-	homeDir := os.Getenv("HOME")
 	baseFileName := filepath.Base(filePath)
-	latestFilePath := filepath.Join(homeDir, "ltbr", "progress", baseFileName)
+	latestFilePath := filepath.Join(home(), "ltbr", "progress", baseFileName)
 	latestFile := LatestFile{FileName: filePath, From: 0, To: Advance}
 	if !exists(latestFilePath) {
 		return latestFile, nil
@@ -363,7 +361,6 @@ func saveNote(fileName string, noteBox *tui.TextEdit) {
 	noteContent := noteBox.Text()
 	noteContent = removeFirstChar(noteContent)
 	noteContent = fmt.Sprintf("%s\n%s\n", strings.Repeat("_", longestLineLength(noteContent)), noteContent)
-	//appendLineToFile(filepath.Join(notesDir, "notes.txt"), noteContent)
 	appendLineToFile(notesDir, noteContent)
 }
 
@@ -378,17 +375,17 @@ func createDirectory(dirPath string) error {
 }
 
 func createDirectories() error {
-	ltbrDir := filepath.Join(os.Getenv("HOME"), "ltbr")
+	ltbrDir := filepath.Join(home(), "ltbr")
 	if err := createDirectory(ltbrDir); err != nil {
 		return err
 	}
 
-	notesDir := filepath.Join(os.Getenv("HOME"), "ltbr", "notes")
+	notesDir := filepath.Join(home(), "ltbr", "notes")
 	if err := createDirectory(notesDir); err != nil {
 		return err
 	}
 
-	progressDir := filepath.Join(os.Getenv("HOME"), "ltbr", "progress")
+	progressDir := filepath.Join(home(), "ltbr", "progress")
 	if err := createDirectory(progressDir); err != nil {
 		return err
 	}
@@ -396,12 +393,16 @@ func createDirectories() error {
 	return nil
 }
 
+func home() string {
+	return os.Getenv("HOME")
+}
+
 func getNotesDirectoryNameForFile(fileName string) string {
 	absoluteFilePath, _ := filepath.Abs(fileName)
 	baseFileName := path.Base(absoluteFilePath)
 
 	baseFileName = sanitizeFileName(baseFileName)
-	notesDir := filepath.Join(os.Getenv("HOME"), "ltbr", "notes", baseFileName)
+	notesDir := filepath.Join(home(), "ltbr", "notes", baseFileName)
 
 	return notesDir
 }

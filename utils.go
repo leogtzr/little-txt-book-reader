@@ -359,6 +359,9 @@ func appendLineToFile(filePath, line string) {
 func saveNote(fileName string, noteBox *tui.TextEdit) {
 	notesDir := getNotesDirectoryNameForFile(fileName)
 	noteContent := noteBox.Text()
+	if len(noteContent) <= 1 {
+		return
+	}
 	noteContent = removeFirstChar(noteContent)
 	noteContent = fmt.Sprintf("%s\n%s\n", strings.Repeat("_", longestLineLength(noteContent)), noteContent)
 	appendLineToFile(notesDir, noteContent)

@@ -31,8 +31,6 @@ const (
 
 	pageSize = 10
 
-	txtNotesDirName = "txtnotes"
-
 	dbFileRequieredNumberFields = 3
 
 	txtDBFile = "txtread"

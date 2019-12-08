@@ -150,8 +150,8 @@ func upText(txtArea *tui.Box) {
 	putText(txtArea, &chunk)
 }
 
-func getSavedStatusInformation() string {
-	return fmt.Sprintf("%s <saved>", getStatusInformation())
+func getSavedStatusInformation(fileName string) string {
+	return fmt.Sprintf(`%s <saved "%s">`, getStatusInformation(), fileName)
 }
 
 func getStatusInformation() string {

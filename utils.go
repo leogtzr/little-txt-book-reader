@@ -351,7 +351,7 @@ func appendLineToFile(filePath, line string) {
 
 	defer f.Close()
 
-	if _, err = f.WriteString("\n" + line + "\n"); err != nil {
+	if _, err = f.WriteString("\n" + line); err != nil {
 		panic(err)
 	}
 }

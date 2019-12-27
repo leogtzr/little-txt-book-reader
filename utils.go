@@ -32,7 +32,6 @@ const (
 	closeApplicationKeyBindingAlternative1      = "Esc"
 	analyzeAndFilterReferencesKeyBinding        = "Alt+b"
 	maxNumberOfElementsInGUIBox                 = 1000
-	vim                                         = "Alt+v"
 )
 
 func clearScreen() {

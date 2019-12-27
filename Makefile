@@ -7,3 +7,8 @@ install:
 clean:
 	go clean
 
+test:
+	go test
+
+check:
+	go test

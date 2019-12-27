@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"strconv"
 
@@ -53,7 +54,7 @@ var (
 	bannedWords                  = []string{}
 	sidebar                      = tui.NewVBox()
 	refsTable                    = tui.NewTable(0, 0)
-	refsStatus                   = tui.NewStatusBar("__________")
+	refsStatus                   = tui.NewStatusBar("_")
 	pageIndex                    = 0
 )
 
@@ -183,7 +184,7 @@ func init() {
 	}
 
 	sidebar.Append(refsTable)
-	sidebar.Append(refsStatus)
+	// sidebar.Append(refsStatus)
 }
 
 func main() {
@@ -221,7 +222,7 @@ func main() {
 	inputCommand.SetEchoMode(tui.EchoModeNormal)
 
 	inputCommandBox := tui.NewHBox(inputCommand)
-	inputCommandBox.SetBorder(true)
+	// inputCommandBox.SetBorder(true)
 	inputCommandBox.SetSizePolicy(tui.Expanding, tui.Maximum)
 
 	txtReader := tui.NewVBox(txtAreaBox, inputCommandBox)
@@ -243,28 +244,26 @@ func main() {
 	// show status key binding:
 	addShowStatusKeyBinding(ui, inputCommand)
 
-	noteBox := tui.NewTextEdit()
-	noteBox.SetText("")
-
-	// new note key binding:
 	ui.SetKeybinding(newNoteKeyBindingAlternative1, func() {
-		prepareNewNoteBox(noteBox)
-		inputCommand.SetFocused(false)
-		inputCommand.SetText("> > > > > Creating note ... ")
-		txtReader.SetFocused(false)
-		txtArea.SetFocused(false)
-		txtAreaScroll.SetFocused(false)
 
-		txtReader.Insert(0, noteBox)
-	})
+		oldStdout := os.Stdout
+		oldStdin := os.Stdin
 
-	ui.SetKeybinding(saveNoteKeyBindingAlternative1, func() {
-		if !noteBox.IsFocused() {
-			return
-		}
-		saveNote(fileName, noteBox)
-		noteBox.SetFocused(false)
-		txtReader.Remove(0)
+		notesFile := getNotesDirectoryNameForFile(fileName)
+
+		cmd := exec.Command("vim", "+$", notesFile)
+		cmd.Stdin = os.Stdin
+		cmd.Stdout = os.Stdout
+		_ = cmd.Run()
+
+		os.Stdout = oldStdout
+		os.Stdin = oldStdin
+
+		txtReader.SetBorder(true)
+
+		chunk := getChunk(&fileContent, from, to)
+		putText(txtArea, &chunk)
+		inputCommand.SetText(getStatusInformation())
 	})
 
 	ui.SetKeybinding(closeGotoKeyBindingAlternative1, func() {
@@ -302,11 +301,13 @@ func main() {
 	})
 
 	addPercentageKeyBindings(ui, inputCommand)
-	addcloseApplicationKeyBinding(ui, txtArea, txtReader, noteBox)
+	addcloseApplicationKeyBinding(ui, txtArea, txtReader)
 	addReferencesNavigationKeyBindings(ui)
 	addOnSelectedReference()
 
 	inputCommand.SetText(getStatusInformation())
+
+	clearScreen()
 
 	if err := ui.Run(); err != nil {
 		log.Fatal(err)

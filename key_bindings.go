@@ -31,14 +31,8 @@ func addSaveStatusKeyBinding(ui tui.UI, fileName string, inputCommand *tui.Entry
 	})
 }
 
-func addcloseApplicationKeyBinding(ui tui.UI, txtArea, txtReader *tui.Box, noteBox *tui.TextEdit) {
+func addcloseApplicationKeyBinding(ui tui.UI, txtArea, txtReader *tui.Box) {
 	ui.SetKeybinding(closeApplicationKeyBindingAlternative1, func() {
-
-		if noteBox.IsFocused() {
-			noteBox.SetFocused(false)
-			txtReader.Remove(0)
-			return
-		}
 
 		switch currentNavMode {
 		case showReferencesNavigationMode:
@@ -51,6 +45,7 @@ func addcloseApplicationKeyBinding(ui tui.UI, txtArea, txtReader *tui.Box, noteB
 			currentNavMode = readingNavigationMode
 			refsTable.SetFocused(false)
 		default:
+			clearScreen()
 			ui.Quit()
 		}
 	})

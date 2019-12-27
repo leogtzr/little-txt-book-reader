@@ -6,6 +6,7 @@ import (
 	"io/ioutil"
 	"log"
 	"os"
+	"os/exec"
 	"path"
 	"path/filepath"
 	"regexp"
@@ -22,7 +23,6 @@ const (
 	upKeyBindingAlternative2                    = "Up"
 	gotoKeyBindingAlterntive1                   = "Alt+g"
 	newNoteKeyBindingAlternative1               = "Alt+n"
-	saveNoteKeyBindingAlternative1              = "Alt+s"
 	showStatusKeyBinding                        = "Alt+."
 	closeGotoKeyBindingAlternative1             = "r"
 	saveStatusKeyBindingAlternative1            = "s"
@@ -32,7 +32,14 @@ const (
 	closeApplicationKeyBindingAlternative1      = "Esc"
 	analyzeAndFilterReferencesKeyBinding        = "Alt+b"
 	maxNumberOfElementsInGUIBox                 = 1000
+	vim                                         = "Alt+v"
 )
+
+func clearScreen() {
+	cmd := exec.Command("clear")
+	cmd.Stdout = os.Stdout
+	cmd.Run()
+}
 
 func loadNonRefsFile(path string) ([]string, error) {
 	file, err := os.Open(path)
@@ -47,13 +54,6 @@ func loadNonRefsFile(path string) ([]string, error) {
 		lines = append(lines, scanner.Text())
 	}
 	return lines, scanner.Err()
-}
-
-func prepareNewNoteBox(noteBox *tui.TextEdit) {
-	noteBox.SetText("")
-	noteBox.SetSizePolicy(tui.Expanding, tui.Expanding)
-	noteBox.SetFocused(true)
-	noteBox.SetWordWrap(true)
 }
 
 func prepareReferencesBox(guiComponent *tui.TextEdit) {
@@ -354,17 +354,6 @@ func appendLineToFile(filePath, line string) {
 	if _, err = f.WriteString("\n" + line); err != nil {
 		panic(err)
 	}
-}
-
-func saveNote(fileName string, noteBox *tui.TextEdit) {
-	notesDir := getNotesDirectoryNameForFile(fileName)
-	noteContent := noteBox.Text()
-	if len(noteContent) <= 1 {
-		return
-	}
-	noteContent = removeFirstChar(noteContent)
-	noteContent = fmt.Sprintf("%s\n%s\n", strings.Repeat("_", longestLineLength(noteContent)), noteContent)
-	appendLineToFile(notesDir, noteContent)
 }
 
 func createDirectory(dirPath string) error {

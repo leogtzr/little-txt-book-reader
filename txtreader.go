@@ -247,18 +247,15 @@ func main() {
 
 	ui.SetKeybinding(newNoteKeyBindingAlternative1, func() {
 
-		oldStdout := os.Stdout
-		oldStdin := os.Stdin
+		oldStdout, oldStdin := os.Stdout, os.Stdin
 
 		notesFile := getNotesDirectoryNameForFile(fileName)
 
 		cmd := exec.Command("vim", "+$", notesFile)
-		cmd.Stdin = os.Stdin
-		cmd.Stdout = os.Stdout
+		cmd.Stdin, cmd.Stdout = os.Stdin, os.Stdout
 		_ = cmd.Run()
 
-		os.Stdout = oldStdout
-		os.Stdin = oldStdin
+		os.Stdout, os.Stdin = oldStdout, oldStdin
 
 		txtReader.SetBorder(true)
 

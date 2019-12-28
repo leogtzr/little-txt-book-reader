@@ -18,6 +18,7 @@ const (
 	readingNavigationMode                    navMode = 1
 	showReferencesNavigationMode             navMode = 2
 	analyzeAndFilterReferencesNavigationMode navMode = 3
+	gotoNavigationMode                       navMode = 4
 
 	// Advance ...
 	Advance int = 30
@@ -123,7 +124,7 @@ func downText(txtArea *tui.Box) {
 	case showReferencesNavigationMode:
 		updateRangesReferenceDown()
 		chunk = getChunk(&references, fromForReferences, toReferences)
-	case analyzeAndFilterReferencesNavigationMode:
+	case analyzeAndFilterReferencesNavigationMode, gotoNavigationMode:
 		return
 	default:
 		updateRangesDown()
@@ -139,7 +140,7 @@ func upText(txtArea *tui.Box) {
 	case showReferencesNavigationMode:
 		updateRangesReferenceUp()
 		chunk = getChunk(&references, fromForReferences, toReferences)
-	case analyzeAndFilterReferencesNavigationMode:
+	case analyzeAndFilterReferencesNavigationMode, gotoNavigationMode:
 		return
 	default:
 		updateRangesUp()
@@ -283,6 +284,7 @@ func main() {
 		}
 		txtReader.Remove(GotoWidgetIndex)
 		inputCommand.SetText(getStatusInformation())
+		currentNavMode = readingNavigationMode
 	})
 
 	addSaveStatusKeyBinding(ui, fileName, inputCommand)

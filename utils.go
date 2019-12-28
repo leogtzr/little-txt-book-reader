@@ -21,7 +21,7 @@ const (
 	downKeyBindingAlternative2                  = "Down"
 	upKeyBindingAlternative1                    = "Alt+k"
 	upKeyBindingAlternative2                    = "Up"
-	gotoKeyBindingAlterntive1                   = "Alt+g"
+	gotoKeyBindingAlternative1                  = "Alt+g"
 	newNoteKeyBindingAlternative1               = "Alt+n"
 	showStatusKeyBinding                        = "Alt+."
 	closeGotoKeyBindingAlternative1             = "r"
@@ -214,6 +214,7 @@ func addGotoWidget(box *tui.Box) {
 		gotoLine = entry.Text()
 	})
 	box.Append(gotoInput)
+	currentNavMode = gotoNavigationMode
 }
 
 func exists(name string) bool {

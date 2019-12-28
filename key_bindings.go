@@ -44,6 +44,9 @@ func addcloseApplicationKeyBinding(ui tui.UI, txtArea, txtReader *tui.Box) {
 			putText(txtArea, &chunk)
 			currentNavMode = readingNavigationMode
 			refsTable.SetFocused(false)
+		case gotoNavigationMode:
+			txtReader.Remove(GotoWidgetIndex)
+			currentNavMode = readingNavigationMode
 		default:
 			clearScreen()
 			ui.Quit()
@@ -113,7 +116,7 @@ func addOnSelectedReference() {
 }
 
 func addGotoKeyBinding(ui tui.UI, txtReader *tui.Box) {
-	ui.SetKeybinding(gotoKeyBindingAlterntive1, func() {
+	ui.SetKeybinding(gotoKeyBindingAlternative1, func() {
 		addGotoWidget(txtReader)
 	})
 }

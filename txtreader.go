@@ -247,7 +247,7 @@ func main() {
 
 	ui.SetKeybinding(newNoteKeyBindingAlternative1, func() {
 
-		oldStdout, oldStdin := os.Stdout, os.Stdin
+		oldStdout, oldStdin, oldSterr := os.Stdout, os.Stdin, os.Stderr
 
 		notesFile := getNotesDirectoryNameForFile(fileName)
 
@@ -255,7 +255,7 @@ func main() {
 		cmd.Stdin, cmd.Stdout = os.Stdin, os.Stdout
 		_ = cmd.Run()
 
-		os.Stdout, os.Stdin = oldStdout, oldStdin
+		os.Stdout, os.Stdin, os.Stderr = oldStdout, oldStdin, oldSterr
 
 		txtReader.SetBorder(true)
 

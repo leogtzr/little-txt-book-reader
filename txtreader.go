@@ -251,9 +251,12 @@ func main() {
 
 		notesFile := getNotesDirectoryNameForFile(fileName)
 
-		cmd := exec.Command("vim", "+$", notesFile)
-		cmd.Stdin, cmd.Stdout = os.Stdin, os.Stdout
-		_ = cmd.Run()
+		cmd := exec.Command("/usr/bin/xterm", "-fa", "Monospace", "-fs", "14", "-e", "/usr/bin/vim", "+$", notesFile)
+		cmd.Stdin, cmd.Stdout, cmd.Stderr = os.Stdin, os.Stdout, os.Stderr
+		cmdErr := cmd.Run()
+		if cmdErr != nil {
+			panic(cmdErr)
+		}
 
 		os.Stdout, os.Stdin, os.Stderr = oldStdout, oldStdin, oldSterr
 

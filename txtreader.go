@@ -7,6 +7,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"runtime"
 	"strconv"
 
 	"github.com/marcusolsson/tui-go"
@@ -188,6 +189,13 @@ func init() {
 	// sidebar.Append(refsStatus)
 }
 
+func command(os, notesFile string) *exec.Cmd {
+	if os == "windows" {
+		return exec.Command("notepad", notesFile)
+	}
+	return exec.Command("/usr/bin/xterm", "-fa", "Monospace", "-fs", "14", "-e", "/usr/bin/vim", "+$", notesFile)
+}
+
 func main() {
 
 	flag.Parse()
@@ -251,7 +259,7 @@ func main() {
 
 		notesFile := getNotesDirectoryNameForFile(fileName)
 
-		cmd := exec.Command("/usr/bin/xterm", "-fa", "Monospace", "-fs", "14", "-e", "/usr/bin/vim", "+$", notesFile)
+		cmd := command(runtime.GOOS, notesFile)
 		cmd.Stdin, cmd.Stdout, cmd.Stderr = os.Stdin, os.Stdout, os.Stderr
 		cmdErr := cmd.Run()
 		if cmdErr != nil {

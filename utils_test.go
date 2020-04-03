@@ -17,9 +17,7 @@ func Test_getNumberLineGoto(t *testing.T) {
 	}
 
 	for _, tc := range tests {
-		got := getNumberLineGoto(tc.line)
-
-		if got != tc.want {
+		if got := getNumberLineGoto(tc.line); got != tc.want {
 			t.Errorf("expected: %s, got: %s", tc.want, got)
 		}
 	}
@@ -42,8 +40,7 @@ func Test_percent(t *testing.T) {
 	}
 
 	for _, tc := range tests {
-		got := percent(tc.currentIndex, tc.totalLines)
-		if got != tc.want {
+		if got := percent(tc.currentIndex, tc.totalLines); got != tc.want {
 			t.Errorf("expected: %f, got: %f", tc.want, got)
 		}
 	}
@@ -80,8 +77,7 @@ func Test_countWithoutWhitespaces(t *testing.T) {
 	}
 
 	for _, tc := range tests {
-		got := countWithoutWhitespaces(tc.strs)
-		if got != tc.want {
+		if got := countWithoutWhitespaces(tc.strs); got != tc.want {
 			t.Errorf("got=%d, expected=%d", got, tc.want)
 		}
 	}

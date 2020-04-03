@@ -11,6 +11,7 @@ import (
 	"strconv"
 
 	"github.com/marcusolsson/tui-go"
+	"github.com/muesli/termenv"
 )
 
 type navMode int
@@ -58,6 +59,7 @@ var (
 	refsTable                    = tui.NewTable(0, 0)
 	refsStatus                   = tui.NewStatusBar("_")
 	pageIndex                    = 0
+	p                            = termenv.ColorProfile()
 )
 
 // LatestFile ...
@@ -153,6 +155,8 @@ func upText(txtArea *tui.Box) {
 
 func getSavedStatusInformation(fileName string) string {
 	return fmt.Sprintf(`%s <saved "%s">`, getStatusInformation(), fileName)
+	//return termenv.String(fmt.Sprintf(`%s <saved "%s">`, getStatusInformation(), fileName)).Foreground(p.Color("#E88388")).String()
+
 }
 
 func getStatusInformation() string {
@@ -189,7 +193,7 @@ func init() {
 	// sidebar.Append(refsStatus)
 }
 
-func command(os, notesFile string) *exec.Cmd {
+func openOSEditor(os, notesFile string) *exec.Cmd {
 	if os == "windows" {
 		return exec.Command("notepad", notesFile)
 	}
@@ -259,7 +263,7 @@ func main() {
 
 		notesFile := getNotesDirectoryNameForFile(fileName)
 
-		cmd := command(runtime.GOOS, notesFile)
+		cmd := openOSEditor(runtime.GOOS, notesFile)
 		cmd.Stdin, cmd.Stdout, cmd.Stderr = os.Stdin, os.Stdout, os.Stderr
 		cmdErr := cmd.Run()
 		if cmdErr != nil {

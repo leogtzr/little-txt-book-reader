@@ -16,8 +16,7 @@ func TestExtractWords(t *testing.T) {
 	}
 
 	for _, tc := range tests {
-		got := extractWords(tc.line)
-		if !reflect.DeepEqual(got, tc.want) {
+		if got := extractWords(tc.line); !reflect.DeepEqual(got, tc.want) {
 			t.Errorf("got=[%s], want=[%s]", got, tc.want)
 		}
 	}
@@ -36,8 +35,7 @@ func Test_SanitizeWord(t *testing.T) {
 	}
 
 	for _, tc := range tests {
-		got := sanitizeWord(tc.line)
-		if got != tc.want {
+		if got := sanitizeWord(tc.line); got != tc.want {
 			t.Errorf("got=[%s], want=[%s]", got, tc.want)
 		}
 	}
@@ -56,8 +54,7 @@ func TestIsTitle(t *testing.T) {
 	}
 
 	for _, tc := range tests {
-		got := isTitle(tc.word)
-		if got != tc.want {
+		if got := isTitle(tc.word); got != tc.want {
 			t.Errorf("got=[%t], want=[%t]", got, tc.want)
 		}
 	}
@@ -75,8 +72,7 @@ func TestWordIsInBannedWords(t *testing.T) {
 	}
 
 	for _, tc := range tests {
-		got := shouldIgnoreWord(tc.word)
-		if got != tc.want {
+		if got := shouldIgnoreWord(tc.word); got != tc.want {
 			t.Errorf("want=[%t], got=[%t]", tc.want, got)
 		}
 	}

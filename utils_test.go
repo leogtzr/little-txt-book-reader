@@ -183,3 +183,33 @@ func Test_findAndRemove(t *testing.T) {
 		}
 	}
 }
+
+func Test_remove(t *testing.T) {
+	type test struct {
+		s     []string
+		index int
+		want  []string
+	}
+
+	tests := []test{
+		{
+			s: []string{
+				"hola",
+				"mundo",
+				"cruel",
+			},
+			index: 1,
+			want: []string{
+				"hola",
+				"cruel",
+			},
+		},
+	}
+
+	for _, tt := range tests {
+		got := remove(tt.s, tt.index)
+		if !equal(got, tt.want) {
+			t.Errorf("got=[%s], want=[%s]", got, tt.want)
+		}
+	}
+}

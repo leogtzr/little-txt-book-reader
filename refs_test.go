@@ -67,3 +67,32 @@ func TestIdentifyReferences(t *testing.T) {
 		}
 	}
 }
+
+func Test_unique(t *testing.T) {
+	type test struct {
+		s, want []string
+	}
+
+	tests := []test{
+		{
+			s: []string{
+				"a",
+				"b",
+				"b",
+				"c",
+			},
+			want: []string{
+				"a",
+				"b",
+				"c",
+			},
+		},
+	}
+
+	for _, tt := range tests {
+		got := unique(tt.s)
+		if !equal(got, tt.want) {
+			t.Errorf("got=[%s], want=[%s]", got, tt.want)
+		}
+	}
+}

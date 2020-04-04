@@ -52,6 +52,10 @@ func TestIdentifyReferences(t *testing.T) {
 			line: "La Lola a Todos Ustedes, Maria, te odio OK bye No hola Hmm Byes",
 			want: []string{"La Lola", "Todos Ustedes", "Maria", "OK", "No", "Hmm Byes"},
 		},
+		{
+			line: "",
+			want: []string{},
+		},
 	}
 
 	for _, tc := range tests {

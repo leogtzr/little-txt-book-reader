@@ -85,9 +85,7 @@ func Test_countWithoutWhitespaces(t *testing.T) {
 
 func TestGetFileToSaveName(t *testing.T) {
 	name := "/home/leo/code/little-txt-book-reader/refs.go"
-	baseFileName := filepath.Base(name)
-
-	if baseFileName != "refs.go" {
+	if baseFileName := filepath.Base(name); baseFileName != "refs.go" {
 		t.Errorf("got=[%s], want=[%s]", baseFileName, "refs.go")
 	}
 }
@@ -122,23 +120,10 @@ func TestGetChunk(t *testing.T) {
 	}
 
 	for _, tt := range tests {
-		got := getChunk(&tt.content, tt.from, tt.to)
-		if !equal(got, tt.want) {
+		if got := getChunk(&tt.content, tt.from, tt.to); !equal(got, tt.want) {
 			t.Errorf("got=[%s], want=[%s]", got, tt.want)
 		}
 	}
-}
-
-func equal(a, b []string) bool {
-	if len(a) != len(b) {
-		return false
-	}
-	for i, v := range a {
-		if v != b[i] {
-			return false
-		}
-	}
-	return true
 }
 
 func Test_findAndRemove(t *testing.T) {
@@ -207,8 +192,7 @@ func Test_remove(t *testing.T) {
 	}
 
 	for _, tt := range tests {
-		got := remove(tt.s, tt.index)
-		if !equal(got, tt.want) {
+		if got := remove(tt.s, tt.index); !equal(got, tt.want) {
 			t.Errorf("got=[%s], want=[%s]", got, tt.want)
 		}
 	}
@@ -237,8 +221,7 @@ a su cuna
 	}
 
 	for _, tt := range tests {
-		got := longestLineLength(tt.text)
-		if got != tt.len {
+		if got := longestLineLength(tt.text); got != tt.len {
 			t.Errorf("got=[%d], want=[%d]", got, tt.len)
 		}
 	}

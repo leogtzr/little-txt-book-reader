@@ -91,8 +91,7 @@ func Test_sanitizeFileName(t *testing.T) {
 	}
 
 	for _, tt := range tests {
-		got := sanitizeFileName(tt.fileName)
-		if got != tt.want {
+		if got := sanitizeFileName(tt.fileName); got != tt.want {
 			t.Errorf("got=[%s], want=[%s]", got, tt.want)
 		}
 	}

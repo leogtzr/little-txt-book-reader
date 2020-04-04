@@ -399,13 +399,6 @@ func getNotesDirectoryNameForFile(fileName string) string {
 	return notesDir
 }
 
-func removeFirstChar(s string) string {
-	if strings.HasPrefix(s, "n") {
-		return s[1:]
-	}
-	return s
-}
-
 func longestLineLength(text string) int {
 	if len(text) == 0 {
 		return 0

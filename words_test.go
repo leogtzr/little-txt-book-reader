@@ -77,3 +77,23 @@ func TestWordIsInBannedWords(t *testing.T) {
 		}
 	}
 }
+
+func Test_sanitizeFileName(t *testing.T) {
+	type test struct {
+		fileName, want string
+	}
+
+	tests := []test{
+		{
+			fileName: "Hola mundo.txt",
+			want:     "Holamundo.txt",
+		},
+	}
+
+	for _, tt := range tests {
+		got := sanitizeFileName(tt.fileName)
+		if got != tt.want {
+			t.Errorf("got=[%s], want=[%s]", got, tt.want)
+		}
+	}
+}

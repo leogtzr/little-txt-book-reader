@@ -213,3 +213,33 @@ func Test_remove(t *testing.T) {
 		}
 	}
 }
+
+func Test_longestLineLength(t *testing.T) {
+	type test struct {
+		text string
+		len  int
+	}
+
+	tests := []test{
+		{
+			text: `
+La navaja
+se fue
+a su cuna
+`,
+			len: len("La navaja"),
+		},
+
+		{
+			text: "",
+			len:  0,
+		},
+	}
+
+	for _, tt := range tests {
+		got := longestLineLength(tt.text)
+		if got != tt.len {
+			t.Errorf("got=[%d], want=[%d]", got, tt.len)
+		}
+	}
+}

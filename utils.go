@@ -140,9 +140,9 @@ func dirExists(dirPath string) bool {
 	return true
 }
 
-func check(e error) {
-	if e != nil {
-		panic(e)
+func check(err error) {
+	if err != nil {
+		panic(err)
 	}
 }
 

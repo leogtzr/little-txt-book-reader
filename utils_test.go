@@ -59,9 +59,26 @@ func Test_linesToChangePercentagePoint(t *testing.T) {
 }
 
 func Test_needsSemiWrap(t *testing.T) {
-	line := "1234567890 1234567890 1234567890 1234567890 1234567890 12345678901234567890 12345678901234567890"
-	if needsSemiWrap(line) {
-		t.Errorf("'%s' should not be wrapped", line)
+	type test struct {
+		line string
+		want bool
+	}
+
+	tests := []test{
+		{
+			line: "1234567890 1234567890 1234567890 1234567890 1234567890 12345678901234567890 12345678901234567890",
+			want: false,
+		},
+		{
+			line: "1234567890 1234567890",
+			want: false,
+		},
+	}
+
+	for _, tt := range tests {
+		if got := needsSemiWrap(tt.line); got != tt.want {
+			t.Errorf("got=[%t], want=[%t]", got, tt.want)
+		}
 	}
 }
 
@@ -223,6 +240,40 @@ a su cuna
 	for _, tt := range tests {
 		if got := longestLineLength(tt.text); got != tt.len {
 			t.Errorf("got=[%d], want=[%d]", got, tt.len)
+		}
+	}
+}
+
+func Test_equal(t *testing.T) {
+	type test struct {
+		a, b          []string
+		shouldBeEqual bool
+	}
+
+	tests := []test{
+		{
+			a:             []string{},
+			b:             []string{},
+			shouldBeEqual: true,
+		},
+
+		{
+			a:             []string{"hola", "ok"},
+			b:             []string{"no"},
+			shouldBeEqual: false,
+		},
+
+		{
+			a:             []string{"a", "b"},
+			b:             []string{"no", "hmm"},
+			shouldBeEqual: false,
+		},
+	}
+
+	for _, tt := range tests {
+		got := equal(tt.a, tt.b)
+		if got != tt.shouldBeEqual {
+			t.Errorf("got=[%t], want=[%t]", got, tt.shouldBeEqual)
 		}
 	}
 }

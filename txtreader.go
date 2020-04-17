@@ -308,7 +308,7 @@ func main() {
 	addPercentageKeyBindings(ui, inputCommand)
 	addcloseApplicationKeyBinding(ui, txtArea, txtReader)
 	addReferencesNavigationKeyBindings(ui)
-	addSaveQuoteKeyBindings(ui)
+	addSaveQuoteKeyBindings(ui, fileName, txtArea, txtReader, inputCommand)
 	addOnSelectedReference()
 
 	inputCommand.SetText(getStatusInformation())

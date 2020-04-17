@@ -10,6 +10,7 @@ import (
 	"path"
 	"path/filepath"
 	"regexp"
+	"runtime"
 	"strconv"
 	"strings"
 
@@ -372,21 +373,22 @@ func createDirectories() error {
 	if err := createDirectory(ltbrDir); err != nil {
 		return err
 	}
+	return create("notes", "quotes", "progress")
+}
 
-	notesDir := filepath.Join(home(), "ltbr", "notes")
-	if err := createDirectory(notesDir); err != nil {
-		return err
+func create(dirs ...string) error {
+	for _, dir := range dirs {
+		if err := createDirectory(filepath.Join(home(), "ltbr", dir)); err != nil {
+			return err
+		}
 	}
-
-	progressDir := filepath.Join(home(), "ltbr", "progress")
-	if err := createDirectory(progressDir); err != nil {
-		return err
-	}
-
 	return nil
 }
 
 func home() string {
+	if runtime.GOOS == "windows" {
+		return os.Getenv("HOMEPATH")
+	}
 	return os.Getenv("HOME")
 }
 
@@ -396,6 +398,16 @@ func getNotesDirectoryNameForFile(fileName string) string {
 
 	baseFileName = sanitizeFileName(baseFileName)
 	notesDir := filepath.Join(home(), "ltbr", "notes", baseFileName)
+
+	return notesDir
+}
+
+func getDirectoryNameForFile(dirType, fileName string) string {
+	absoluteFilePath, _ := filepath.Abs(fileName)
+	baseFileName := path.Base(absoluteFilePath)
+
+	baseFileName = sanitizeFileName(baseFileName)
+	notesDir := filepath.Join(home(), "ltbr", dirType, baseFileName)
 
 	return notesDir
 }

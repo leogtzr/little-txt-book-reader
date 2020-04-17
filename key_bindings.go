@@ -1,10 +1,9 @@
 package main
 
 import (
-	"fmt"
+	"os"
 	"path/filepath"
-
-	"github.com/atotto/clipboard"
+	"runtime"
 
 	"github.com/marcusolsson/tui-go"
 )
@@ -94,14 +93,26 @@ func addReferencesNavigationKeyBindings(ui tui.UI) {
 	})
 }
 
-func addSaveQuoteKeyBindings(ui tui.UI) {
+func addSaveQuoteKeyBindings(ui tui.UI, fileName string, txtArea, txtReader *tui.Box, inputCommand *tui.Entry) {
 	ui.SetKeybinding(saveQuoteKeyBindingAlternative1, func() {
-		// fmt.Println("Hello!")
-		clipboardText, err := clipboard.ReadAll()
-		if err != nil {
-			panic(err)
+		oldStdout, oldStdin, oldSterr := os.Stdout, os.Stdin, os.Stderr
+
+		quotesFile := getDirectoryNameForFile("quotes", fileName)
+
+		cmd := openOSEditor(runtime.GOOS, quotesFile)
+		cmd.Stdin, cmd.Stdout, cmd.Stderr = os.Stdin, os.Stdout, os.Stderr
+		cmdErr := cmd.Run()
+		if cmdErr != nil {
+			panic(cmdErr)
 		}
-		fmt.Println(clipboardText)
+
+		os.Stdout, os.Stdin, os.Stderr = oldStdout, oldStdin, oldSterr
+
+		txtReader.SetBorder(true)
+
+		chunk := getChunk(&fileContent, from, to)
+		putText(txtArea, &chunk)
+		inputCommand.SetText(getStatusInformation())
 	})
 }
 

@@ -31,6 +31,7 @@ const (
 	closeReferencesWindowKeyBindingAlternative1 = "Alt+q"
 	closeApplicationKeyBindingAlternative1      = "Esc"
 	analyzeAndFilterReferencesKeyBinding        = "Alt+b"
+	saveQuoteKeyBindingAlternative1             = "Alt+q"
 	maxNumberOfElementsInGUIBox                 = 1000
 )
 

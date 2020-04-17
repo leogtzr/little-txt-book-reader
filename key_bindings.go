@@ -1,7 +1,10 @@
 package main
 
 import (
+	"fmt"
 	"path/filepath"
+
+	"github.com/atotto/clipboard"
 
 	"github.com/marcusolsson/tui-go"
 )
@@ -88,6 +91,17 @@ func addReferencesNavigationKeyBindings(ui tui.UI) {
 		}
 		pageIndex -= pageSize
 		prepareTableForReferences()
+	})
+}
+
+func addSaveQuoteKeyBindings(ui tui.UI) {
+	ui.SetKeybinding(saveQuoteKeyBindingAlternative1, func() {
+		// fmt.Println("Hello!")
+		clipboardText, err := clipboard.ReadAll()
+		if err != nil {
+			panic(err)
+		}
+		fmt.Println(clipboardText)
 	})
 }
 

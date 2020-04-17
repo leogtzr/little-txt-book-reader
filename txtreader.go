@@ -14,8 +14,6 @@ import (
 	"github.com/muesli/termenv"
 )
 
-type navMode int
-
 const (
 	readingNavigationMode                    navMode = 1
 	showReferencesNavigationMode             navMode = 2
@@ -61,13 +59,6 @@ var (
 	pageIndex                    = 0
 	p                            = termenv.ColorProfile()
 )
-
-// LatestFile ...
-type LatestFile struct {
-	FileName string
-	From     int
-	To       int
-}
 
 func updateRangesUp() {
 	if from <= 0 {
@@ -317,6 +308,7 @@ func main() {
 	addPercentageKeyBindings(ui, inputCommand)
 	addcloseApplicationKeyBinding(ui, txtArea, txtReader)
 	addReferencesNavigationKeyBindings(ui)
+	addSaveQuoteKeyBindings(ui)
 	addOnSelectedReference()
 
 	inputCommand.SetText(getStatusInformation())
@@ -326,4 +318,5 @@ func main() {
 	if err := ui.Run(); err != nil {
 		log.Fatal(err)
 	}
+
 }

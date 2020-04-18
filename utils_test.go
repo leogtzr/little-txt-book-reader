@@ -1,6 +1,8 @@
 package main
 
 import (
+	"io"
+	"os"
 	"path/filepath"
 	"strings"
 	"testing"
@@ -300,10 +302,60 @@ anotaciones sobre la compra de libros a anticuarios parisinos. Ahora lo veía to
 	}
 
 	for _, tt := range tests {
-		got := removeTrailingSpaces(tt.s)
-		if got != tt.want {
+		if got := removeTrailingSpaces(tt.s); got != tt.want {
 			t.Errorf("got=[%s], want=[%s]", strings.ReplaceAll(got, "\n", "@"), strings.ReplaceAll(tt.want, "\n", "@"))
 		}
 	}
 
+}
+
+func Test_home(t *testing.T) {
+
+	type test struct {
+		opSystem    string
+		homeEnvName string
+		want        string
+	}
+
+	tests := []test{
+		test{
+			opSystem:    "windows",
+			homeEnvName: "HOMEPATH",
+			want:        "w",
+		},
+		test{
+			opSystem:    "linux",
+			homeEnvName: "HOME",
+			want:        "*ux",
+		},
+	}
+
+	for _, tt := range tests {
+		currentOsValue := os.Getenv(tt.homeEnvName)
+		os.Setenv(tt.homeEnvName, tt.want)
+		if got := home(tt.opSystem); got != tt.want {
+			t.Errorf("got=[%s], want=[%s]", got, tt.want)
+		}
+		os.Setenv(tt.homeEnvName, currentOsValue)
+	}
+}
+
+func Test_readLines(t *testing.T) {
+	type test struct {
+		file io.Reader
+		want []string
+	}
+
+	tests := []test{
+		test{
+			file: strings.NewReader(`a
+b`), want: []string{"a", "b"},
+		},
+	}
+
+	for _, tt := range tests {
+		if got, _ := readLines(tt.file); !equal(got, tt.want) {
+			t.Errorf("got=[%s], want=[%s]", got, tt.want)
+		}
+	}
 }

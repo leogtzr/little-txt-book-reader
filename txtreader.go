@@ -210,8 +210,10 @@ func main() {
 
 	from, to, fileName = latestFile.From, latestFile.To, latestFile.FileName
 
-	fileContent, err = readLines(fileName)
+	file, err := os.Open(fileName)
+	fileContent, err = readLines(file)
 	check(err)
+	defer file.Close()
 
 	txtArea := tui.NewVBox()
 	txtAreaScroll := tui.NewScrollArea(txtArea)

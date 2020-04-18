@@ -3,6 +3,7 @@ package main
 import (
 	"bufio"
 	"fmt"
+	"io"
 	"io/ioutil"
 	"log"
 	"os"
@@ -66,7 +67,7 @@ func prepareReferencesBox(guiComponent *tui.TextEdit) {
 
 func saveStatus(fileName string, from, to int) {
 	baseFileName := filepath.Base(fileName)
-	f, err := os.Create(filepath.Join(home(), "ltbr", "progress", baseFileName))
+	f, err := os.Create(filepath.Join(home(runtime.GOOS), "ltbr", "progress", baseFileName))
 	if err != nil {
 		log.Fatal(err)
 		return
@@ -105,7 +106,7 @@ func linesToChangePercentagePoint(currentLine, totalLines int) int {
 
 func getFileNameFromLatest(filePath string) (LatestFile, error) {
 	baseFileName := filepath.Base(filePath)
-	latestFilePath := filepath.Join(home(), "ltbr", "progress", baseFileName)
+	latestFilePath := filepath.Join(home(runtime.GOOS), "ltbr", "progress", baseFileName)
 	latestFile := LatestFile{FileName: filePath, From: 0, To: Advance}
 	if !exists(latestFilePath) {
 		return latestFile, nil
@@ -150,13 +151,7 @@ func check(err error) {
 
 // readLines reads a whole file into memory
 // and returns a slice of its lines.
-func readLines(path string) ([]string, error) {
-	file, err := os.Open(path)
-	if err != nil {
-		return nil, err
-	}
-	defer file.Close()
-
+func readLines(file io.Reader) ([]string, error) {
 	var lines []string
 	scanner := bufio.NewScanner(file)
 	for scanner.Scan() {
@@ -369,7 +364,7 @@ func createDirectory(dirPath string) error {
 }
 
 func createDirectories() error {
-	ltbrDir := filepath.Join(home(), "ltbr")
+	ltbrDir := filepath.Join(home(runtime.GOOS), "ltbr")
 	if err := createDirectory(ltbrDir); err != nil {
 		return err
 	}
@@ -378,15 +373,15 @@ func createDirectories() error {
 
 func create(dirs ...string) error {
 	for _, dir := range dirs {
-		if err := createDirectory(filepath.Join(home(), "ltbr", dir)); err != nil {
+		if err := createDirectory(filepath.Join(home(runtime.GOOS), "ltbr", dir)); err != nil {
 			return err
 		}
 	}
 	return nil
 }
 
-func home() string {
-	if runtime.GOOS == "windows" {
+func home(opSystem string) string {
+	if opSystem == "windows" {
 		return os.Getenv("HOMEPATH")
 	}
 	return os.Getenv("HOME")
@@ -397,7 +392,7 @@ func getNotesDirectoryNameForFile(fileName string) string {
 	baseFileName := path.Base(absoluteFilePath)
 
 	baseFileName = sanitizeFileName(baseFileName)
-	notesDir := filepath.Join(home(), "ltbr", "notes", baseFileName)
+	notesDir := filepath.Join(home(runtime.GOOS), "ltbr", "notes", baseFileName)
 
 	return notesDir
 }
@@ -407,7 +402,7 @@ func getDirectoryNameForFile(dirType, fileName string) string {
 	baseFileName := path.Base(absoluteFilePath)
 
 	baseFileName = sanitizeFileName(baseFileName)
-	notesDir := filepath.Join(home(), "ltbr", dirType, baseFileName)
+	notesDir := filepath.Join(home(runtime.GOOS), "ltbr", dirType, baseFileName)
 
 	return notesDir
 }

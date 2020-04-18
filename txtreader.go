@@ -14,30 +14,6 @@ import (
 	"github.com/muesli/termenv"
 )
 
-const (
-	readingNavigationMode                    navMode = 1
-	showReferencesNavigationMode             navMode = 2
-	analyzeAndFilterReferencesNavigationMode navMode = 3
-	gotoNavigationMode                       navMode = 4
-
-	// Advance ...
-	Advance int = 30
-
-	// WrapMax ...
-	WrapMax = 80
-
-	// GotoWidgetIndex ...
-	GotoWidgetIndex = 2
-
-	nonRefsFileName = "non-refs.txt"
-
-	pageSize = 10
-
-	dbFileRequieredNumberFields = 3
-
-	txtDBFile = "txtread"
-)
-
 var (
 	from                 = 0
 	to                   = Advance
@@ -45,7 +21,6 @@ var (
 	toReferences         = Advance
 	gotoLine             = ""
 	fileToOpen           = flag.String("file", "", "File to open")
-	wrapText             = flag.Bool("wrap", false, "Wrap text")
 	percentagePointStats = false
 	absoluteFilePath     string
 	toggleShowStatus             = true
@@ -254,7 +229,7 @@ func main() {
 
 		oldStdout, oldStdin, oldSterr := os.Stdout, os.Stdin, os.Stderr
 
-		notesFile := getNotesDirectoryNameForFile(fileName)
+		notesFile := getDirectoryNameForFile("notes", fileName)
 
 		cmd := openOSEditor(runtime.GOOS, notesFile)
 		cmd.Stdin, cmd.Stdout, cmd.Stderr = os.Stdin, os.Stdout, os.Stderr

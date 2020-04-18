@@ -1,9 +1,11 @@
 package main
 
 import (
+	"fmt"
 	"io"
 	"os"
 	"path/filepath"
+	"sort"
 	"strings"
 	"testing"
 )
@@ -58,30 +60,6 @@ func Test_linesToChangePercentagePoint(t *testing.T) {
 
 	if nextPercentagePoint != expectedLinesToChangePercentagePoint {
 		t.Errorf("expected: %d, got: %d", expectedLinesToChangePercentagePoint, nextPercentagePoint)
-	}
-}
-
-func Test_needsSemiWrap(t *testing.T) {
-	type test struct {
-		line string
-		want bool
-	}
-
-	tests := []test{
-		{
-			line: "1234567890 1234567890 1234567890 1234567890 1234567890 12345678901234567890 12345678901234567890",
-			want: false,
-		},
-		{
-			line: "1234567890 1234567890",
-			want: false,
-		},
-	}
-
-	for _, tt := range tests {
-		if got := needsSemiWrap(tt.line); got != tt.want {
-			t.Errorf("got=[%t], want=[%t]", got, tt.want)
-		}
 	}
 }
 
@@ -358,4 +336,99 @@ b`), want: []string{"a", "b"},
 			t.Errorf("got=[%s], want=[%s]", got, tt.want)
 		}
 	}
+}
+
+func Test_check(t *testing.T) {
+	type test struct {
+		err         error
+		shouldPanic bool
+	}
+
+	tests := []test{
+		test{
+			err:         fmt.Errorf("bye"),
+			shouldPanic: true,
+		},
+
+		test{
+			err:         nil,
+			shouldPanic: false,
+		},
+	}
+
+	for _, tt := range tests {
+		defer func() {
+			if r := recover(); r == nil && !tt.shouldPanic {
+				t.Errorf("The code did not panic")
+			}
+		}()
+		check(tt.err)
+	}
+}
+
+func Test_removeDuplicates(t *testing.T) {
+	type test struct {
+		elements, want []string
+	}
+
+	tests := []test{
+		test{
+			elements: []string{
+				"a", "b", "b", "c", "c", "e", "f", "g", "f", "g",
+			},
+			want: []string{
+				"a", "b", "c", "e", "f", "g",
+			},
+		},
+	}
+
+	for _, tt := range tests {
+		got := removeDuplicates(tt.elements)
+		sort.Strings(got)
+		if !equal(got, tt.want) {
+			t.Errorf("got=[%s], want=[%s]", got, tt.want)
+		}
+	}
+}
+
+func Test_paginate(t *testing.T) {
+	type test struct {
+		elements []string
+		skip     int
+		size     int
+		want     []string
+	}
+
+	elements := []string{
+		"a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n",
+		"o", "p", "q", "r", "s", "t", "u", "v", "w",
+	}
+
+	tests := []test{
+		test{
+			elements: elements,
+			skip:     3,
+			size:     3,
+			want: []string{
+				"d", "e", "f",
+			},
+		},
+
+		test{
+			elements: elements,
+			skip:     len(elements) - 3,
+			size:     3,
+			want: []string{
+				"u", "v", "w",
+			},
+		},
+	}
+
+	for _, tt := range tests {
+		got := paginate(tt.elements, tt.skip, tt.size)
+		if !equal(got, tt.want) {
+			t.Errorf("got=[%s], want=[%s]", got, tt.want)
+		}
+	}
+
 }

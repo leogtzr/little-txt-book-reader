@@ -9,6 +9,7 @@ install:
 clean:
 	go clean
 	rm --force "cp.out"
+	rm --force nohup.out
 
 test:
 	go test

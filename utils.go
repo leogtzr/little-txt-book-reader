@@ -18,25 +18,6 @@ import (
 	"github.com/marcusolsson/tui-go"
 )
 
-const (
-	downKeyBindingAlternative1                  = "Alt+j"
-	downKeyBindingAlternative2                  = "Down"
-	upKeyBindingAlternative1                    = "Alt+k"
-	upKeyBindingAlternative2                    = "Up"
-	gotoKeyBindingAlternative1                  = "Alt+g"
-	newNoteKeyBindingAlternative1               = "Alt+n"
-	showStatusKeyBinding                        = "Alt+."
-	closeGotoKeyBindingAlternative1             = "r"
-	saveStatusKeyBindingAlternative1            = "s"
-	nextPercentagePointKeyBindingAlternative1   = "Alt+p"
-	showReferencesKeyBindingAlternative1        = "Alt+r"
-	closeReferencesWindowKeyBindingAlternative1 = "Alt+q"
-	closeApplicationKeyBindingAlternative1      = "Esc"
-	analyzeAndFilterReferencesKeyBinding        = "Alt+b"
-	saveQuoteKeyBindingAlternative1             = "Alt+q"
-	maxNumberOfElementsInGUIBox                 = 1000
-)
-
 func clearScreen() {
 	cmd := exec.Command("clear")
 	cmd.Stdout = os.Stdout
@@ -70,7 +51,6 @@ func saveStatus(fileName string, from, to int) {
 	f, err := os.Create(filepath.Join(home(runtime.GOOS), "ltbr", "progress", baseFileName))
 	if err != nil {
 		log.Fatal(err)
-		return
 	}
 	defer f.Close()
 	f.WriteString(fmt.Sprintf("%s|%d|%d", fileName, from, to))
@@ -173,34 +153,12 @@ func clearBox(box *tui.Box, contentLen int) {
 	}
 }
 
-func needsSemiWrap(line string) bool {
-	len := len(line)
-	if len < (WrapMax / 2) {
-		return false
-	}
-	return (len > (WrapMax / 2)) && (len < WrapMax)
-}
-
 func countWithoutWhitespaces(words []string) int {
 	count := 0
 	for _, w := range words {
 		count += len(w)
 	}
 	return count
-}
-
-func wrap(line string) string {
-	if !needsSemiWrap(line) {
-		return line
-	}
-	fields := strings.Fields(line)
-	numberOfWords := len(fields)
-	countWithoutSpaces := countWithoutWhitespaces(fields)
-	wrapLength := WrapMax - countWithoutSpaces
-	if numberOfWords == 1 || numberOfWords == 0 {
-		return line
-	}
-	return fmt.Sprintf("%s", strings.Join(fields, strings.Repeat(" ", wrapLength/(numberOfWords-1))))
 }
 
 func addGotoWidget(box *tui.Box) {
@@ -251,9 +209,6 @@ func putText(box *tui.Box, content *[]string) {
 	for _, txt := range *content {
 		txt = strings.Replace(txt, " ", " ", -1)
 		txt = strings.Replace(txt, "\t", "    ", -1)
-		if *wrapText {
-			txt = wrap(txt)
-		}
 		box.Append(tui.NewVBox(
 			tui.NewLabel(txt),
 		))
@@ -385,16 +340,6 @@ func home(opSystem string) string {
 		return os.Getenv("HOMEPATH")
 	}
 	return os.Getenv("HOME")
-}
-
-func getNotesDirectoryNameForFile(fileName string) string {
-	absoluteFilePath, _ := filepath.Abs(fileName)
-	baseFileName := path.Base(absoluteFilePath)
-
-	baseFileName = sanitizeFileName(baseFileName)
-	notesDir := filepath.Join(home(runtime.GOOS), "ltbr", "notes", baseFileName)
-
-	return notesDir
 }
 
 func getDirectoryNameForFile(dirType, fileName string) string {

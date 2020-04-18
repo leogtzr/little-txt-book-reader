@@ -345,7 +345,7 @@ func paginate(x []string, skip, size int) []string {
 	return x[skip:end]
 }
 
-func appendLineToFile(filePath, line string) {
+func appendLineToFile(filePath, line, sep string) {
 	f, err := os.OpenFile(filePath, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
 	if err != nil {
 		panic(err)
@@ -353,7 +353,7 @@ func appendLineToFile(filePath, line string) {
 
 	defer f.Close()
 
-	if _, err = f.WriteString("\n" + line); err != nil {
+	if _, err = f.WriteString(fmt.Sprintf("%s\n%s", sep, line)); err != nil {
 		panic(err)
 	}
 }

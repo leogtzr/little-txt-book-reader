@@ -5,6 +5,8 @@ import (
 	"path/filepath"
 	"runtime"
 
+	"github.com/atotto/clipboard"
+
 	"github.com/marcusolsson/tui-go"
 )
 
@@ -99,6 +101,13 @@ func addSaveQuoteKeyBindings(ui tui.UI, fileName string, txtArea, txtReader *tui
 
 		quotesFile := getDirectoryNameForFile("quotes", fileName)
 
+		clipBoardText, err := clipboard.ReadAll()
+		if err != nil {
+			inputCommand.SetText(err.Error())
+			return
+		}
+		appendLineToFile(quotesFile, clipBoardText, "\n__________")
+
 		cmd := openOSEditor(runtime.GOOS, quotesFile)
 		cmd.Stdin, cmd.Stdout, cmd.Stderr = os.Stdin, os.Stdout, os.Stderr
 		cmdErr := cmd.Run()
@@ -135,7 +144,7 @@ func addOnSelectedReference() {
 		prepareTableForReferences()
 
 		if !contains(bannedWords, itemToAddToNonRefs) {
-			appendLineToFile(nonRefsFileName, itemToAddToNonRefs)
+			appendLineToFile("", nonRefsFileName, itemToAddToNonRefs)
 		}
 	})
 }

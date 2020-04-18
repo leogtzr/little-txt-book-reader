@@ -106,6 +106,8 @@ func addSaveQuoteKeyBindings(ui tui.UI, fileName string, txtArea, txtReader *tui
 			inputCommand.SetText(err.Error())
 			return
 		}
+
+		clipBoardText = removeTrailingSpaces(clipBoardText)
 		appendLineToFile(quotesFile, clipBoardText, "\n__________")
 
 		cmd := openOSEditor(runtime.GOOS, quotesFile)

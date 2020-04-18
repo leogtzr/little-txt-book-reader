@@ -438,3 +438,18 @@ func equal(a, b []string) bool {
 	}
 	return true
 }
+
+func removeTrailingSpaces(s string) string {
+	lines := strings.Split(s, "\n")
+	var sb strings.Builder
+
+	for _, line := range lines {
+		line = strings.TrimSpace(line)
+		if len(line) == 0 {
+			continue
+		}
+		sb.WriteString(strings.TrimSpace(line))
+		sb.WriteString("\n")
+	}
+	return strings.TrimSpace(sb.String())
+}

@@ -218,7 +218,7 @@ func main() {
 	txtAreaScroll.SetAutoscrollToBottom(true)
 
 	txtAreaBox := tui.NewVBox(txtAreaScroll)
-	txtAreaBox.SetBorder(true)
+	// txtAreaBox.SetBorder(true)
 
 	inputCommand := tui.NewEntry()
 	inputCommand.SetFocused(true)
@@ -226,7 +226,7 @@ func main() {
 	inputCommand.SetEchoMode(tui.EchoModeNormal)
 
 	inputCommandBox := tui.NewHBox(inputCommand)
-	// inputCommandBox.SetBorder(true)
+	inputCommandBox.SetBorder(true)
 	inputCommandBox.SetSizePolicy(tui.Expanding, tui.Maximum)
 
 	txtReader := tui.NewVBox(txtAreaBox, inputCommandBox)
@@ -263,7 +263,7 @@ func main() {
 
 		os.Stdout, os.Stdin, os.Stderr = oldStdout, oldStdin, oldSterr
 
-		txtReader.SetBorder(true)
+		// txtReader.SetBorder(true)
 
 		chunk := getChunk(&fileContent, from, to)
 		putText(txtArea, &chunk)

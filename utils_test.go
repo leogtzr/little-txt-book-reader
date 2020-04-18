@@ -2,6 +2,7 @@ package main
 
 import (
 	"path/filepath"
+	"strings"
 	"testing"
 )
 
@@ -276,4 +277,33 @@ func Test_equal(t *testing.T) {
 			t.Errorf("got=[%t], want=[%t]", got, tt.shouldBeEqual)
 		}
 	}
+}
+
+func Test_removeTrailingSpaces(t *testing.T) {
+	type test struct {
+		s, want string
+	}
+
+	tests := []test{
+		test{
+			s: `abc 
+holis 
+`, want: `abc
+holis`,
+		},
+		test{
+			s: `mayor de un señor ordenado que administra con prudencia su trapillo. Algunas                                                                                                                                                                 
+			anotaciones sobre la compra de libros a anticuarios parisinos. Ahora lo veía todo      `,
+			want: `mayor de un señor ordenado que administra con prudencia su trapillo. Algunas
+anotaciones sobre la compra de libros a anticuarios parisinos. Ahora lo veía todo`,
+		},
+	}
+
+	for _, tt := range tests {
+		got := removeTrailingSpaces(tt.s)
+		if got != tt.want {
+			t.Errorf("got=[%s], want=[%s]", strings.ReplaceAll(got, "\n", "@"), strings.ReplaceAll(tt.want, "\n", "@"))
+		}
+	}
+
 }

@@ -117,7 +117,7 @@ func addSaveQuoteKeyBindings(ui tui.UI, fileName string, txtArea, txtReader *tui
 
 		os.Stdout, os.Stdin, os.Stderr = oldStdout, oldStdin, oldSterr
 
-		txtReader.SetBorder(true)
+		// txtReader.SetBorder(true)
 
 		chunk := getChunk(&fileContent, from, to)
 		putText(txtArea, &chunk)

@@ -252,8 +252,7 @@ func Test_equal(t *testing.T) {
 	}
 
 	for _, tt := range tests {
-		got := equal(tt.a, tt.b)
-		if got != tt.shouldBeEqual {
+		if got := equal(tt.a, tt.b); got != tt.shouldBeEqual {
 			t.Errorf("got=[%t], want=[%t]", got, tt.shouldBeEqual)
 		}
 	}

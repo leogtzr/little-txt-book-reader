@@ -7,7 +7,6 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
-	"runtime"
 
 	"github.com/marcusolsson/tui-go"
 	"github.com/muesli/termenv"
@@ -224,28 +223,7 @@ func main() {
 	// show status key binding:
 	addShowStatusKeyBinding(ui, inputCommand)
 
-	ui.SetKeybinding(newNoteKeyBindingAlternative1, func() {
-
-		oldStdout, oldStdin, oldSterr := os.Stdout, os.Stdin, os.Stderr
-
-		notesFile := getDirectoryNameForFile("notes", fileName)
-
-		cmd := openOSEditor(runtime.GOOS, notesFile)
-		cmd.Stdin, cmd.Stdout, cmd.Stderr = os.Stdin, os.Stdout, os.Stderr
-		cmdErr := cmd.Run()
-		if cmdErr != nil {
-			panic(cmdErr)
-		}
-
-		os.Stdout, os.Stdin, os.Stderr = oldStdout, oldStdin, oldSterr
-
-		// txtReader.SetBorder(true)
-
-		chunk := getChunk(&fileContent, from, to)
-		putText(txtArea, &chunk)
-		inputCommand.SetText(getStatusInformation())
-	})
-
+	addNewNoteKeyBinding(ui, txtArea, inputCommand, fileName)
 	addCloseGotoBinding(ui, inputCommand, txtReader, txtArea)
 	addSaveStatusKeyBinding(ui, fileName, inputCommand)
 	addShowReferencesKeyBinding(ui, txtArea)

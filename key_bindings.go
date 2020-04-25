@@ -180,3 +180,25 @@ func addCloseGotoBinding(ui tui.UI, inputCommand *tui.Entry, txtReader, txtArea 
 		currentNavMode = readingNavigationMode
 	})
 }
+
+func addNewNoteKeyBinding(ui tui.UI, txtArea *tui.Box, inputCommand *tui.Entry, fileName string) {
+	ui.SetKeybinding(newNoteKeyBindingAlternative1, func() {
+
+		oldStdout, oldStdin, oldSterr := os.Stdout, os.Stdin, os.Stderr
+
+		notesFile := getDirectoryNameForFile("notes", fileName)
+
+		cmd := openOSEditor(runtime.GOOS, notesFile)
+		cmd.Stdin, cmd.Stdout, cmd.Stderr = os.Stdin, os.Stdout, os.Stderr
+		cmdErr := cmd.Run()
+		if cmdErr != nil {
+			panic(cmdErr)
+		}
+
+		os.Stdout, os.Stdin, os.Stderr = oldStdout, oldStdin, oldSterr
+		// txtReader.SetBorder(true)
+		chunk := getChunk(&fileContent, from, to)
+		putText(txtArea, &chunk)
+		inputCommand.SetText(getStatusInformation())
+	})
+}

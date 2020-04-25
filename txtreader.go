@@ -8,7 +8,6 @@ import (
 	"os/exec"
 	"path/filepath"
 	"runtime"
-	"strconv"
 
 	"github.com/marcusolsson/tui-go"
 	"github.com/muesli/termenv"
@@ -247,26 +246,7 @@ func main() {
 		inputCommand.SetText(getStatusInformation())
 	})
 
-	ui.SetKeybinding(closeGotoKeyBindingAlternative1, func() {
-		// Go to the specified line
-		inputCommand.SetText(getStatusInformation())
-
-		gotoLineNumber := getNumberLineGoto(gotoLine)
-		gotoLineNumberDigits, err := strconv.ParseInt(gotoLineNumber, 10, 64)
-		if err != nil {
-			return
-		}
-		if int(gotoLineNumberDigits) < (len(fileContent) - Advance) {
-			from = int(gotoLineNumberDigits)
-			to = from + Advance
-			putText(txtArea, &chunk)
-			inputCommand.SetText(getStatusInformation())
-		}
-		txtReader.Remove(GotoWidgetIndex)
-		inputCommand.SetText(getStatusInformation())
-		currentNavMode = readingNavigationMode
-	})
-
+	addCloseGotoBinding(ui, inputCommand, txtReader, txtArea)
 	addSaveStatusKeyBinding(ui, fileName, inputCommand)
 	addShowReferencesKeyBinding(ui, txtArea)
 

@@ -4,6 +4,7 @@ import (
 	"os"
 	"path/filepath"
 	"runtime"
+	"strconv"
 
 	"github.com/atotto/clipboard"
 
@@ -154,5 +155,28 @@ func addOnSelectedReference() {
 func addGotoKeyBinding(ui tui.UI, txtReader *tui.Box) {
 	ui.SetKeybinding(gotoKeyBindingAlternative1, func() {
 		addGotoWidget(txtReader)
+	})
+}
+
+func addCloseGotoBinding(ui tui.UI, inputCommand *tui.Entry, txtReader, txtArea *tui.Box) {
+	ui.SetKeybinding(closeGotoKeyBindingAlternative1, func() {
+		// Go to the specified line
+		inputCommand.SetText(getStatusInformation())
+
+		gotoLineNumber := getNumberLineGoto(gotoLine)
+		gotoLineNumberDigits, err := strconv.ParseInt(gotoLineNumber, 10, 64)
+		if err != nil {
+			return
+		}
+		if int(gotoLineNumberDigits) < (len(fileContent) - Advance) {
+			from = int(gotoLineNumberDigits)
+			to = from + Advance
+			chunk := getChunk(&fileContent, from, to)
+			putText(txtArea, &chunk)
+			inputCommand.SetText(getStatusInformation())
+		}
+		txtReader.Remove(GotoWidgetIndex)
+		inputCommand.SetText(getStatusInformation())
+		currentNavMode = readingNavigationMode
 	})
 }

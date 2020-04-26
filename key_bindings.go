@@ -147,7 +147,7 @@ func addOnSelectedReference() {
 		prepareTableForReferences()
 
 		if !contains(bannedWords, itemToAddToNonRefs) {
-			appendLineToFile("", nonRefsFileName, itemToAddToNonRefs)
+			appendLineToFile(nonRefsFileName, itemToAddToNonRefs, "")
 		}
 	})
 }
@@ -200,5 +200,19 @@ func addNewNoteKeyBinding(ui tui.UI, txtArea *tui.Box, inputCommand *tui.Entry, 
 		chunk := getChunk(&fileContent, from, to)
 		putText(txtArea, &chunk)
 		inputCommand.SetText(getStatusInformation())
+	})
+}
+
+func addAnalyzeAndFilterReferencesKeyBinding(ui tui.UI) {
+	ui.SetKeybinding(analyzeAndFilterReferencesKeyBinding, func() {
+		currentNavMode = analyzeAndFilterReferencesNavigationMode
+		sidebar.SetTitle("References ... ")
+		sidebar.SetBorder(true)
+		refsTable.SetColumnStretch(0, 0)
+		loadReferences()
+
+		refsTable.RemoveRows()
+		prepareTableForReferences()
+		refsTable.SetFocused(true)
 	})
 }

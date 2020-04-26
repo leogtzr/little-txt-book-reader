@@ -9,7 +9,6 @@ import (
 	"path/filepath"
 
 	"github.com/marcusolsson/tui-go"
-	"github.com/muesli/termenv"
 )
 
 var (
@@ -21,16 +20,15 @@ var (
 	fileToOpen           = flag.String("file", "", "File to open")
 	percentagePointStats = false
 	absoluteFilePath     string
-	toggleShowStatus             = true
-	references                   = []string{}
-	fileContent                  = []string{}
-	currentNavMode       navMode = readingNavigationMode
-	bannedWords                  = []string{}
-	sidebar                      = tui.NewVBox()
-	refsTable                    = tui.NewTable(0, 0)
-	refsStatus                   = tui.NewStatusBar("_")
-	pageIndex                    = 0
-	p                            = termenv.ColorProfile()
+	toggleShowStatus     = true
+	references           = []string{}
+	fileContent          = []string{}
+	currentNavMode       = readingNavigationMode
+	bannedWords          = []string{}
+	sidebar              = tui.NewVBox()
+	refsTable            = tui.NewTable(0, 0)
+	refsStatus           = tui.NewStatusBar("_")
+	pageIndex            = 0
 )
 
 func updateRangesUp() {
@@ -120,7 +118,6 @@ func upText(txtArea *tui.Box) {
 func getSavedStatusInformation(fileName string) string {
 	return fmt.Sprintf(`%s <saved "%s">`, getStatusInformation(), fileName)
 	//return termenv.String(fmt.Sprintf(`%s <saved "%s">`, getStatusInformation(), fileName)).Foreground(p.Color("#E88388")).String()
-
 }
 
 func getStatusInformation() string {
@@ -219,27 +216,12 @@ func main() {
 
 	addUpDownKeyBindings(txtArea, ui, inputCommand)
 	addGotoKeyBinding(ui, txtReader)
-
-	// show status key binding:
 	addShowStatusKeyBinding(ui, inputCommand)
-
 	addNewNoteKeyBinding(ui, txtArea, inputCommand, fileName)
 	addCloseGotoBinding(ui, inputCommand, txtReader, txtArea)
 	addSaveStatusKeyBinding(ui, fileName, inputCommand)
 	addShowReferencesKeyBinding(ui, txtArea)
-
-	ui.SetKeybinding(analyzeAndFilterReferencesKeyBinding, func() {
-		currentNavMode = analyzeAndFilterReferencesNavigationMode
-		sidebar.SetTitle("References ... ")
-		sidebar.SetBorder(true)
-		refsTable.SetColumnStretch(0, 0)
-		loadReferences()
-
-		refsTable.RemoveRows()
-		prepareTableForReferences()
-		refsTable.SetFocused(true)
-	})
-
+	addAnalyzeAndFilterReferencesKeyBinding(ui)
 	addPercentageKeyBindings(ui, inputCommand)
 	addcloseApplicationKeyBinding(ui, txtArea, txtReader)
 	addReferencesNavigationKeyBindings(ui)

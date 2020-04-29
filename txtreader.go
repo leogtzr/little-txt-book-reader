@@ -117,11 +117,9 @@ func upText(txtArea *tui.Box) {
 
 func getSavedStatusInformation(fileName string) string {
 	return fmt.Sprintf(`%s <saved "%s">`, getStatusInformation(), fileName)
-	//return termenv.String(fmt.Sprintf(`%s <saved "%s">`, getStatusInformation(), fileName)).Foreground(p.Color("#E88388")).String()
 }
 
 func getStatusInformation() string {
-
 	if !toggleShowStatus {
 		return ""
 	}
@@ -192,14 +190,8 @@ func main() {
 	txtAreaBox := tui.NewVBox(txtAreaScroll)
 	// txtAreaBox.SetBorder(true)
 
-	inputCommand := tui.NewEntry()
-	inputCommand.SetFocused(true)
-	inputCommand.SetSizePolicy(tui.Expanding, tui.Maximum)
-	inputCommand.SetEchoMode(tui.EchoModeNormal)
-
-	inputCommandBox := tui.NewHBox(inputCommand)
-	inputCommandBox.SetBorder(true)
-	inputCommandBox.SetSizePolicy(tui.Expanding, tui.Maximum)
+	inputCommand := newInputCommandEntry()
+	inputCommandBox := newInputCommandBox(inputCommand)
 
 	txtReader := tui.NewVBox(txtAreaBox, inputCommandBox)
 	txtReader.SetSizePolicy(tui.Expanding, tui.Expanding)
@@ -235,5 +227,4 @@ func main() {
 	if err := ui.Run(); err != nil {
 		log.Fatal(err)
 	}
-
 }

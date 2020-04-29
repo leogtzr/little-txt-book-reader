@@ -129,8 +129,6 @@ func check(err error) {
 	}
 }
 
-// readLines reads a whole file into memory
-// and returns a slice of its lines.
 func readLines(file io.Reader) ([]string, error) {
 	var lines []string
 	scanner := bufio.NewScanner(file)
@@ -310,8 +308,7 @@ func appendLineToFile(filePath, line, sep string) {
 
 func createDirectory(dirPath string) error {
 	if !dirExists(dirPath) {
-		err := os.Mkdir(dirPath, 0755)
-		if err != nil {
+		if err := os.Mkdir(dirPath, 0755); err != nil {
 			return err
 		}
 	}
@@ -392,4 +389,23 @@ func removeTrailingSpaces(s string) string {
 		sb.WriteString("\n")
 	}
 	return strings.TrimSpace(sb.String())
+}
+
+func newInputCommandEntry() *tui.Entry {
+	inputCommand := tui.NewEntry()
+	inputCommand.SetFocused(true)
+	inputCommand.SetSizePolicy(tui.Expanding, tui.Maximum)
+	inputCommand.SetEchoMode(tui.EchoModeNormal)
+
+	inputCommandBox := tui.NewHBox(inputCommand)
+	inputCommandBox.SetBorder(true)
+	inputCommandBox.SetSizePolicy(tui.Expanding, tui.Maximum)
+	return inputCommand
+}
+
+func newInputCommandBox(input *tui.Entry) *tui.Box {
+	inputCommandBox := tui.NewHBox(input)
+	inputCommandBox.SetBorder(true)
+	inputCommandBox.SetSizePolicy(tui.Expanding, tui.Maximum)
+	return inputCommandBox
 }

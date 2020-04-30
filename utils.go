@@ -409,3 +409,9 @@ func newInputCommandBox(input *tui.Entry) *tui.Box {
 	inputCommandBox.SetSizePolicy(tui.Expanding, tui.Maximum)
 	return inputCommandBox
 }
+
+func getPercentage(currentPosition int, fileContent *[]string) float64 {
+	percent := float64(to) * 100.00
+	percent = percent / float64(len(*fileContent))
+	return percent
+}

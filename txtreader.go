@@ -7,28 +7,32 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"time"
 
 	"github.com/marcusolsson/tui-go"
 )
 
 var (
-	from                 = 0
-	to                   = Advance
-	fromForReferences    = 0
-	toReferences         = Advance
-	gotoLine             = ""
-	fileToOpen           = flag.String("file", "", "File to open")
-	percentagePointStats = false
-	absoluteFilePath     string
-	toggleShowStatus     = true
-	references           = []string{}
-	fileContent          = []string{}
-	currentNavMode       = readingNavigationMode
-	bannedWords          = []string{}
-	sidebar              = tui.NewVBox()
-	refsTable            = tui.NewTable(0, 0)
-	refsStatus           = tui.NewStatusBar("_")
-	pageIndex            = 0
+	from                              = 0
+	to                                = Advance
+	fromForReferences                 = 0
+	toReferences                      = Advance
+	gotoLine                          = ""
+	fileToOpen                        = flag.String("file", "", "File to open")
+	percentagePointStats              = false
+	absoluteFilePath                  string
+	toggleShowStatus                  = true
+	references                        = []string{}
+	fileContent                       = []string{}
+	currentNavMode                    = readingNavigationMode
+	bannedWords                       = []string{}
+	sidebar                           = tui.NewVBox()
+	refsTable                         = tui.NewTable(0, 0)
+	refsStatus                        = tui.NewStatusBar("_")
+	pageIndex                         = 0
+	minutesToReachNextPercentagePoint map[int]int
+	startTime                         time.Time
+	currentPercentage                 int
 )
 
 func updateRangesUp() {
@@ -124,8 +128,14 @@ func getStatusInformation() string {
 		return ""
 	}
 
-	percent := float64(to) * 100.00
-	percent = percent / float64(len(fileContent))
+	percent := getPercentage(to, &fileContent)
+
+	if int(percent) > currentPercentage {
+		currentPercentage = int(percent)
+		now := time.Now()
+		minutesToReachNextPercentagePoint[int(percent)] = int(now.Sub(startTime).Minutes())
+	}
+
 	if percentagePointStats {
 		return fmt.Sprintf(".   %d of %d lines (%.3f%%) [%d lines to next percentage point]                    ",
 			to,
@@ -140,6 +150,8 @@ func init() {
 	if err := createDirectories(); err != nil {
 		log.Fatal(err)
 	}
+
+	minutesToReachNextPercentagePoint = make(map[int]int)
 
 	// load words from file
 	var err error
@@ -183,6 +195,9 @@ func main() {
 	check(err)
 	defer file.Close()
 
+	startTime = time.Now()
+	currentPercentage = int(getPercentage(to, &fileContent))
+
 	txtArea := tui.NewVBox()
 	txtAreaScroll := tui.NewScrollArea(txtArea)
 	txtAreaScroll.SetAutoscrollToBottom(true)
@@ -215,7 +230,7 @@ func main() {
 	addShowReferencesKeyBinding(ui, txtArea)
 	addAnalyzeAndFilterReferencesKeyBinding(ui)
 	addPercentageKeyBindings(ui, inputCommand)
-	addcloseApplicationKeyBinding(ui, txtArea, txtReader)
+	addCloseApplicationKeyBinding(ui, txtArea, txtReader)
 	addReferencesNavigationKeyBindings(ui)
 	addSaveQuoteKeyBindings(ui, fileName, txtArea, txtReader, inputCommand)
 	addOnSelectedReference()

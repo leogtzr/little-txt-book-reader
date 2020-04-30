@@ -36,7 +36,7 @@ func addSaveStatusKeyBinding(ui tui.UI, fileName string, inputCommand *tui.Entry
 	})
 }
 
-func addcloseApplicationKeyBinding(ui tui.UI, txtArea, txtReader *tui.Box) {
+func addCloseApplicationKeyBinding(ui tui.UI, txtArea, txtReader *tui.Box) {
 	ui.SetKeybinding(closeApplicationKeyBindingAlternative1, func() {
 
 		switch currentNavMode {

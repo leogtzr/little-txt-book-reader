@@ -30,7 +30,7 @@ var (
 	refsTable                         = tui.NewTable(0, 0)
 	refsStatus                        = tui.NewStatusBar("_")
 	pageIndex                         = 0
-	minutesToReachNextPercentagePoint map[int]int
+	minutesToReachNextPercentagePoint map[int]time.Duration
 	startTime                         time.Time
 	currentPercentage                 int
 )
@@ -124,16 +124,17 @@ func getSavedStatusInformation(fileName string) string {
 }
 
 func getStatusInformation() string {
-	if !toggleShowStatus {
-		return ""
-	}
 
 	percent := getPercentage(to, &fileContent)
-
 	if int(percent) > currentPercentage {
+		log.Print(fmt.Sprintf("Reached -> %d", int(percent)))
 		currentPercentage = int(percent)
 		now := time.Now()
-		minutesToReachNextPercentagePoint[int(percent)] = int(now.Sub(startTime).Minutes())
+		minutesToReachNextPercentagePoint[int(percent)] = now.Sub(startTime)
+	}
+
+	if !toggleShowStatus {
+		return ""
 	}
 
 	if percentagePointStats {
@@ -151,7 +152,7 @@ func init() {
 		log.Fatal(err)
 	}
 
-	minutesToReachNextPercentagePoint = make(map[int]int)
+	minutesToReachNextPercentagePoint = make(map[int]time.Duration)
 
 	// load words from file
 	var err error
@@ -195,6 +196,15 @@ func main() {
 	check(err)
 	defer file.Close()
 
+	logFile, err := os.OpenFile("debug.log", os.O_CREATE|os.O_APPEND|os.O_WRONLY, 0644)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer logFile.Close()
+
+	log.SetOutput(logFile)
+	log.Print("Logging to a file in Go!")
+
 	startTime = time.Now()
 	currentPercentage = int(getPercentage(to, &fileContent))
 
@@ -234,6 +244,7 @@ func main() {
 	addReferencesNavigationKeyBindings(ui)
 	addSaveQuoteKeyBindings(ui, fileName, txtArea, txtReader, inputCommand)
 	addOnSelectedReference()
+	addShowMinutesTakenToReachPercentagePointKeyBinding(ui, txtReader)
 
 	inputCommand.SetText(getStatusInformation())
 

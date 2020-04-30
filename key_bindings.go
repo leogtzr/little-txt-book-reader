@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"os"
 	"path/filepath"
 	"runtime"
@@ -50,6 +51,9 @@ func addCloseApplicationKeyBinding(ui tui.UI, txtArea, txtReader *tui.Box) {
 			currentNavMode = readingNavigationMode
 			refsTable.SetFocused(false)
 		case gotoNavigationMode:
+			txtReader.Remove(GotoWidgetIndex)
+			currentNavMode = readingNavigationMode
+		case showTimePercentagePointsMode:
 			txtReader.Remove(GotoWidgetIndex)
 			currentNavMode = readingNavigationMode
 		default:
@@ -121,7 +125,6 @@ func addSaveQuoteKeyBindings(ui tui.UI, fileName string, txtArea, txtReader *tui
 		os.Stdout, os.Stdin, os.Stderr = oldStdout, oldStdin, oldSterr
 
 		// txtReader.SetBorder(true)
-
 		chunk := getChunk(&fileContent, from, to)
 		putText(txtArea, &chunk)
 		inputCommand.SetText(getStatusInformation())
@@ -214,5 +217,27 @@ func addAnalyzeAndFilterReferencesKeyBinding(ui tui.UI) {
 		refsTable.RemoveRows()
 		prepareTableForReferences()
 		refsTable.SetFocused(true)
+	})
+}
+
+func addShowMinutesTakenToReachPercentagePointKeyBinding(ui tui.UI, txtReader *tui.Box) {
+	ui.SetKeybinding(showMinutesTakenToReachPercentagePointKeyBinding, func() {
+		currentNavMode = showTimePercentagePointsMode
+
+		l := tui.NewList()
+		var strs []string
+
+		for percentage, duration := range minutesToReachNextPercentagePoint {
+			strs = append(strs, fmt.Sprintf("%d%%  took %.1f:%.1f", percentage, duration.Hours(), duration.Minutes()))
+		}
+
+		l.AddItems(strs...)
+		s := tui.NewScrollArea(l)
+		s.SetFocused(true)
+
+		txtReader.Append(s)
+
+		ui.SetKeybinding("Alt+Up", func() { s.Scroll(0, -1) })
+		ui.SetKeybinding("Alt+Down", func() { s.Scroll(0, 1) })
 	})
 }

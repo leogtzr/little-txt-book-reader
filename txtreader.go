@@ -127,7 +127,7 @@ func getStatusInformation() string {
 
 	percent := getPercentage(to, &fileContent)
 	if int(percent) > currentPercentage {
-		log.Print(fmt.Sprintf("Reached -> %d", int(percent)))
+		// log.Print(fmt.Sprintf("Reached -> %d", int(percent)))
 		currentPercentage = int(percent)
 		now := time.Now()
 		minutesToReachNextPercentagePoint[int(percent)] = now.Sub(startTime)
@@ -195,15 +195,6 @@ func main() {
 	fileContent, err = readLines(file)
 	check(err)
 	defer file.Close()
-
-	logFile, err := os.OpenFile("debug.log", os.O_CREATE|os.O_APPEND|os.O_WRONLY, 0644)
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer logFile.Close()
-
-	log.SetOutput(logFile)
-	log.Print("Logging to a file in Go!")
 
 	startTime = time.Now()
 	currentPercentage = int(getPercentage(to, &fileContent))

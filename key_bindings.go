@@ -228,7 +228,7 @@ func addShowMinutesTakenToReachPercentagePointKeyBinding(ui tui.UI, txtReader *t
 		var strs []string
 
 		for percentage, duration := range minutesToReachNextPercentagePoint {
-			strs = append(strs, fmt.Sprintf("%d%%  took %.1f:%.1f", percentage, duration.Hours(), duration.Minutes()))
+			strs = append(strs, fmt.Sprintf("%d%%  took %.1f hours with %.1f seconds", percentage, duration.Hours(), duration.Minutes()))
 		}
 
 		l.AddItems(strs...)

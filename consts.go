@@ -16,7 +16,8 @@ const (
 	closeApplicationKeyBindingAlternative1           = "Esc"
 	analyzeAndFilterReferencesKeyBinding             = "Alt+b"
 	saveQuoteKeyBindingAlternative1                  = "Alt+q"
-	showMinutesTakenToReachPercentagePointKeyBinding = "Alt+t"
+	showMinutesTakenToReachPercentagePointKeyBinding = "Alt+m"
+	showHelpKeyBinding                               = "Alt+h"
 	maxNumberOfElementsInGUIBox                      = 200
 )
 

@@ -5,6 +5,7 @@ import (
 	"os"
 	"path/filepath"
 	"runtime"
+	"sort"
 	"strconv"
 
 	"github.com/atotto/clipboard"
@@ -233,8 +234,15 @@ func addShowMinutesTakenToReachPercentagePointKeyBinding(ui tui.UI, txtReader *t
 		l := tui.NewList()
 		var strs []string
 
-		for percentage, duration := range minutesToReachNextPercentagePoint {
-			strs = append(strs, fmt.Sprintf("%d%%  took %.1f hours with %.1f seconds", percentage, duration.Hours(), duration.Minutes()))
+		percentages := make([]int, 0)
+		for p := range minutesToReachNextPercentagePoint {
+			percentages = append(percentages, p)
+		}
+		sort.Ints(percentages)
+
+		for _, v := range percentages {
+			duration := minutesToReachNextPercentagePoint[v]
+			strs = append(strs, fmt.Sprintf("%d%% took you %.1f minutes", v, duration.Minutes()))
 		}
 
 		l.AddItems(strs...)

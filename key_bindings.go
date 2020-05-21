@@ -222,6 +222,12 @@ func addAnalyzeAndFilterReferencesKeyBinding(ui tui.UI) {
 
 func addShowMinutesTakenToReachPercentagePointKeyBinding(ui tui.UI, txtReader *tui.Box) {
 	ui.SetKeybinding(showMinutesTakenToReachPercentagePointKeyBinding, func() {
+
+		// Check if we are already in that mode ...
+		if currentNavMode == showTimePercentagePointsMode {
+			return
+		}
+
 		currentNavMode = showTimePercentagePointsMode
 
 		l := tui.NewList()

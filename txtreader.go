@@ -127,10 +127,10 @@ func getStatusInformation() string {
 
 	percent := getPercentage(to, &fileContent)
 	if int(percent) > currentPercentage {
-		// log.Print(fmt.Sprintf("Reached -> %d", int(percent)))
 		currentPercentage = int(percent)
 		now := time.Now()
 		minutesToReachNextPercentagePoint[int(percent)] = now.Sub(startTime)
+		startTime = now
 	}
 
 	if !toggleShowStatus {

@@ -17,7 +17,7 @@ const (
 	analyzeAndFilterReferencesKeyBinding             = "Alt+b"
 	saveQuoteKeyBindingAlternative1                  = "Alt+q"
 	showMinutesTakenToReachPercentagePointKeyBinding = "Alt+m"
-	showHelpKeyBinding                               = "Alt+h"
+	showHelpKeyBinding                               = "Alt+y"
 	maxNumberOfElementsInGUIBox                      = 200
 )
 
@@ -27,6 +27,7 @@ const (
 	analyzeAndFilterReferencesNavigationMode navMode = 3
 	gotoNavigationMode                       navMode = 4
 	showTimePercentagePointsMode             navMode = 5
+	showHelpMode                             navMode = 6
 
 	// Advance ...
 	Advance int = 30

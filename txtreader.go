@@ -236,6 +236,7 @@ func main() {
 	addSaveQuoteKeyBindings(ui, fileName, txtArea, txtReader, inputCommand)
 	addOnSelectedReference()
 	addShowMinutesTakenToReachPercentagePointKeyBinding(ui, txtReader)
+	addShowHelpKeyBinding(ui, txtReader)
 
 	inputCommand.SetText(getStatusInformation())
 

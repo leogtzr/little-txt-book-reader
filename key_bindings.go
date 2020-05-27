@@ -51,10 +51,7 @@ func addCloseApplicationKeyBinding(ui tui.UI, txtArea, txtReader *tui.Box) {
 			putText(txtArea, &chunk)
 			currentNavMode = readingNavigationMode
 			refsTable.SetFocused(false)
-		case gotoNavigationMode:
-			txtReader.Remove(GotoWidgetIndex)
-			currentNavMode = readingNavigationMode
-		case showTimePercentagePointsMode:
+		case gotoNavigationMode, showTimePercentagePointsMode, showHelpMode:
 			txtReader.Remove(GotoWidgetIndex)
 			currentNavMode = readingNavigationMode
 		default:
@@ -244,6 +241,58 @@ func addShowMinutesTakenToReachPercentagePointKeyBinding(ui tui.UI, txtReader *t
 			duration := minutesToReachNextPercentagePoint[v]
 			strs = append(strs, fmt.Sprintf("%d%% took you %.1f minutes", v, duration.Minutes()))
 		}
+
+		l.AddItems(strs...)
+		s := tui.NewScrollArea(l)
+		s.SetFocused(true)
+
+		txtReader.Append(s)
+
+		ui.SetKeybinding("Alt+Up", func() { s.Scroll(0, -1) })
+		ui.SetKeybinding("Alt+Down", func() { s.Scroll(0, 1) })
+	})
+}
+
+/*
+showHelpKeyBinding                               = "Alt+h"
+*/
+
+func addShowHelpKeyBinding(ui tui.UI, txtReader *tui.Box) {
+	ui.SetKeybinding(showHelpKeyBinding, func() {
+
+		// Check if we are already in that mode ...
+		if currentNavMode == showHelpMode {
+			return
+		}
+
+		currentNavMode = showHelpMode
+
+		l := tui.NewList()
+		var strs []string
+
+		percentages := make([]int, 0)
+		for p := range minutesToReachNextPercentagePoint {
+			percentages = append(percentages, p)
+		}
+		sort.Ints(percentages)
+
+		strs = append(strs, "Alt+j    -> Go Down")
+		strs = append(strs, "Down     -> Go Down")
+		strs = append(strs, "Alt+k    -> Go Up")
+		strs = append(strs, "Up       -> Go Up")
+		strs = append(strs, "Go To    -> Go To")
+		strs = append(strs, "Alt+n    -> New Note")
+		strs = append(strs, "Alt+.    -> Show Status")
+		strs = append(strs, "r        -> Closes the Goto Dialog")
+		strs = append(strs, "s        -> Save Progress")
+		strs = append(strs, "Alt+p    -> Shows Next Percentage Point Stats")
+		strs = append(strs, "Alt+r    -> Shows the References Dialog")
+		strs = append(strs, "Alt+q    -> Closes the References Dialog")
+		strs = append(strs, "Esc      -> Closes the program")
+		strs = append(strs, "Alt+b    -> Analyze and filter references")
+		strs = append(strs, "Alt+q    -> Add a Quote, gets the text from the clipboard.")
+		strs = append(strs, "Alt+m    -> Shows Time Stats for each percentage point.")
+		strs = append(strs, "Alt+y    -> Shows this Dialog")
 
 		l.AddItems(strs...)
 		s := tui.NewScrollArea(l)

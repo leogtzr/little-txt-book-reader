@@ -17,6 +17,7 @@ const (
 	analyzeAndFilterReferencesKeyBinding             = "Alt+b"
 	saveQuoteKeyBindingAlternative1                  = "Alt+q"
 	showMinutesTakenToReachPercentagePointKeyBinding = "Alt+m"
+	openRAEWebSiteKeyBinging                         = "Alt+o"
 	showHelpKeyBinding                               = "Alt+y"
 	maxNumberOfElementsInGUIBox                      = 200
 )

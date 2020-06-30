@@ -3,10 +3,12 @@ package main
 import (
 	"fmt"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"runtime"
 	"sort"
 	"strconv"
+	"strings"
 
 	"github.com/atotto/clipboard"
 
@@ -215,6 +217,25 @@ func addAnalyzeAndFilterReferencesKeyBinding(ui tui.UI) {
 		refsTable.RemoveRows()
 		prepareTableForReferences()
 		refsTable.SetFocused(true)
+	})
+}
+
+func addOpenRAEWebSite(ui tui.UI, inputCommand *tui.Entry) {
+	// openRAEWebSiteKeyBinging
+	ui.SetKeybinding(openRAEWebSiteKeyBinging, func() {
+		clipBoardText, err := clipboard.ReadAll()
+		if err != nil {
+			inputCommand.SetText(err.Error())
+			return
+		}
+		if len(strings.TrimSpace(clipBoardText)) == 0 {
+			return
+		}
+		url := fmt.Sprintf("https://dle.rae.es/%s", clipBoardText)
+		if err = exec.Command("xdg-open", url).Start(); err != nil {
+			inputCommand.SetText(err.Error())
+			return
+		}
 	})
 }
 

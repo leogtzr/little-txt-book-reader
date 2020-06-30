@@ -237,6 +237,7 @@ func main() {
 	addOnSelectedReference()
 	addShowMinutesTakenToReachPercentagePointKeyBinding(ui, txtReader)
 	addShowHelpKeyBinding(ui, txtReader)
+	addOpenRAEWebSite(ui, inputCommand)
 
 	inputCommand.SetText(getStatusInformation())
 

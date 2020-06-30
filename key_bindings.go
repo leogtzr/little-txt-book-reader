@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"net/url"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -221,7 +222,6 @@ func addAnalyzeAndFilterReferencesKeyBinding(ui tui.UI) {
 }
 
 func addOpenRAEWebSite(ui tui.UI, inputCommand *tui.Entry) {
-	// openRAEWebSiteKeyBinging
 	ui.SetKeybinding(openRAEWebSiteKeyBinging, func() {
 		clipBoardText, err := clipboard.ReadAll()
 		if err != nil {
@@ -232,6 +232,24 @@ func addOpenRAEWebSite(ui tui.UI, inputCommand *tui.Entry) {
 			return
 		}
 		url := fmt.Sprintf("https://dle.rae.es/%s", clipBoardText)
+		if err = exec.Command("xdg-open", url).Start(); err != nil {
+			inputCommand.SetText(err.Error())
+			return
+		}
+	})
+}
+
+func addOpenGoodReadsWebSite(ui tui.UI, inputCommand *tui.Entry) {
+	ui.SetKeybinding(openGoodReadsWebSiteKeyBinding, func() {
+		clipBoardText, err := clipboard.ReadAll()
+		if err != nil {
+			inputCommand.SetText(err.Error())
+			return
+		}
+		if len(strings.TrimSpace(clipBoardText)) == 0 {
+			return
+		}
+		url := fmt.Sprintf(`https://www.goodreads.com/search?q=%s`, url.QueryEscape(clipBoardText))
 		if err = exec.Command("xdg-open", url).Start(); err != nil {
 			inputCommand.SetText(err.Error())
 			return
@@ -274,10 +292,6 @@ func addShowMinutesTakenToReachPercentagePointKeyBinding(ui tui.UI, txtReader *t
 	})
 }
 
-/*
-showHelpKeyBinding                               = "Alt+h"
-*/
-
 func addShowHelpKeyBinding(ui tui.UI, txtReader *tui.Box) {
 	ui.SetKeybinding(showHelpKeyBinding, func() {
 
@@ -297,23 +311,23 @@ func addShowHelpKeyBinding(ui tui.UI, txtReader *tui.Box) {
 		}
 		sort.Ints(percentages)
 
-		strs = append(strs, "Alt+j    -> Go Down")
-		strs = append(strs, "Down     -> Go Down")
-		strs = append(strs, "Alt+k    -> Go Up")
-		strs = append(strs, "Up       -> Go Up")
-		strs = append(strs, "Go To    -> Go To")
-		strs = append(strs, "Alt+n    -> New Note")
-		strs = append(strs, "Alt+.    -> Show Status")
-		strs = append(strs, "r        -> Closes the Goto Dialog")
-		strs = append(strs, "s        -> Save Progress")
-		strs = append(strs, "Alt+p    -> Shows Next Percentage Point Stats")
-		strs = append(strs, "Alt+r    -> Shows the References Dialog")
-		strs = append(strs, "Alt+q    -> Closes the References Dialog")
-		strs = append(strs, "Esc      -> Closes the program")
-		strs = append(strs, "Alt+b    -> Analyze and filter references")
-		strs = append(strs, "Alt+q    -> Add a Quote, gets the text from the clipboard.")
-		strs = append(strs, "Alt+m    -> Shows Time Stats for each percentage point.")
-		strs = append(strs, "Alt+y    -> Shows this Dialog")
+		addKeyBindingDescription(fmt.Sprintf("%s/%s    -> Go Down", downKeyBindingAlternative1, downKeyBindingAlternative2), &strs)
+		addKeyBindingDescription(fmt.Sprintf("%s/%s    -> Go Up", upKeyBindingAlternative1, upKeyBindingAlternative2), &strs)
+		addKeyBindingDescription(fmt.Sprintf("%s    -> Go To", gotoKeyBindingAlternative1), &strs)
+		addKeyBindingDescription(fmt.Sprintf("%s    -> New Note", newNoteKeyBindingAlternative1), &strs)
+		addKeyBindingDescription(fmt.Sprintf("%s    -> Show Status", showStatusKeyBinding), &strs)
+		addKeyBindingDescription(fmt.Sprintf("%s        -> Closes the Goto Dialog", closeGotoKeyBindingAlternative1), &strs)
+		addKeyBindingDescription(fmt.Sprintf("%s        -> Save Progress", saveStatusKeyBindingAlternative1), &strs)
+		addKeyBindingDescription(fmt.Sprintf("%s    -> Shows Next Percentage Point Stats", nextPercentagePointKeyBindingAlternative1), &strs)
+		addKeyBindingDescription(fmt.Sprintf("%s    -> Shows the References Dialog", showReferencesKeyBindingAlternative1), &strs)
+		addKeyBindingDescription(fmt.Sprintf("%s    -> Closes the References Dialog", closeReferencesWindowKeyBindingAlternative1), &strs)
+		addKeyBindingDescription(fmt.Sprintf("%s      -> Closes the program", closeApplicationKeyBindingAlternative1), &strs)
+		addKeyBindingDescription(fmt.Sprintf("%s    -> Analyze and filter references", analyzeAndFilterReferencesKeyBinding), &strs)
+		addKeyBindingDescription(fmt.Sprintf("%s    -> Add a Quote, gets the text from the clipboard.", saveQuoteKeyBindingAlternative1), &strs)
+		addKeyBindingDescription(fmt.Sprintf("%s    -> Shows Time Stats for each percentage point.", showMinutesTakenToReachPercentagePointKeyBinding), &strs)
+		addKeyBindingDescription(fmt.Sprintf("%s    -> Shows this Dialog", showHelpKeyBinding), &strs)
+		addKeyBindingDescription(fmt.Sprintf("%s    -> Opens RAE Web site with search from the clipboard.", openRAEWebSiteKeyBinging), &strs)
+		addKeyBindingDescription(fmt.Sprintf("%s    -> Opens GoodReads Web site with search from the clipboard.", openGoodReadsWebSiteKeyBinding), &strs)
 
 		l.AddItems(strs...)
 		s := tui.NewScrollArea(l)
@@ -324,4 +338,8 @@ func addShowHelpKeyBinding(ui tui.UI, txtReader *tui.Box) {
 		ui.SetKeybinding("Alt+Up", func() { s.Scroll(0, -1) })
 		ui.SetKeybinding("Alt+Down", func() { s.Scroll(0, 1) })
 	})
+}
+
+func addKeyBindingDescription(desc string, keyBindings *[]string) {
+	*keyBindings = append(*keyBindings, desc)
 }

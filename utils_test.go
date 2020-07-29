@@ -431,3 +431,29 @@ func Test_paginate(t *testing.T) {
 	}
 
 }
+
+func Test_removeWhiteSpaces(t *testing.T) {
+	type test struct {
+		input string
+		want  string
+	}
+
+	tests := []test{
+		test{
+			input: `He considerado que Dios, siendo                                                                   improbable`,
+			want:  `He considerado que Dios, siendo improbable`,
+		},
+		test{
+			input: `  He considerado que Dios, siendo                                                                   improbable`,
+			want:  ` He considerado que Dios, siendo improbable`,
+		},
+	}
+
+	for _, tc := range tests {
+		got := removeWhiteSpaces(tc.input)
+		if got != tc.want {
+			t.Errorf("got=[%s], want=[%s]", got, tc.want)
+		}
+	}
+
+}

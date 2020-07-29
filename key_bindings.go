@@ -114,6 +114,7 @@ func addSaveQuoteKeyBindings(ui tui.UI, fileName string, txtArea, txtReader *tui
 		}
 
 		clipBoardText = removeTrailingSpaces(clipBoardText)
+		clipBoardText = removeWhiteSpaces(clipBoardText)
 		appendLineToFile(quotesFile, clipBoardText, "\n__________")
 
 		cmd := openOSEditor(runtime.GOOS, quotesFile)

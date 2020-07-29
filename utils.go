@@ -415,3 +415,8 @@ func getPercentage(currentPosition int, fileContent *[]string) float64 {
 	percent = percent / float64(len(*fileContent))
 	return percent
 }
+
+func removeWhiteSpaces(input string) string {
+	re := regexp.MustCompile(`( |\t){2,}`)
+	return re.ReplaceAllString(input, ` `)
+}

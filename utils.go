@@ -39,11 +39,11 @@ func loadNonRefsFile(path string) ([]string, error) {
 	return lines, scanner.Err()
 }
 
-func prepareReferencesBox(guiComponent *tui.TextEdit) {
-	guiComponent.SetText("")
-	guiComponent.SetSizePolicy(tui.Expanding, tui.Expanding)
-	guiComponent.SetFocused(true)
-	guiComponent.SetWordWrap(true)
+func prepareReferencesBox(txtArea *tui.TextEdit) {
+	txtArea.SetText("")
+	txtArea.SetSizePolicy(tui.Expanding, tui.Expanding)
+	txtArea.SetFocused(true)
+	txtArea.SetWordWrap(true)
 }
 
 func saveStatus(fileName string, from, to int) {
@@ -411,7 +411,7 @@ func newInputCommandBox(input *tui.Entry) *tui.Box {
 }
 
 func getPercentage(currentPosition int, fileContent *[]string) float64 {
-	percent := float64(to) * 100.00
+	percent := float64(currentPosition) * 100.00
 	percent = percent / float64(len(*fileContent))
 	return percent
 }

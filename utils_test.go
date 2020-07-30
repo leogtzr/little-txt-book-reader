@@ -457,3 +457,32 @@ func Test_removeWhiteSpaces(t *testing.T) {
 	}
 
 }
+
+func Test_getPercentage(t *testing.T) {
+	type test struct {
+		position    int
+		fileContent []string
+		want        float64
+	}
+
+	tests := []test{
+		test{
+			position:    4,
+			fileContent: []string{"a", "b", "c", "d", "e", "f", "g", "h", "i", "j"},
+			want:        40.0,
+		},
+		test{
+			position:    9,
+			fileContent: []string{"a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o"},
+			want:        60.0,
+		},
+	}
+
+	for _, tc := range tests {
+		got := getPercentage(tc.position, &tc.fileContent)
+		if got != tc.want {
+			t.Errorf("got=[%f], want=[%f]", got, tc.want)
+		}
+	}
+
+}

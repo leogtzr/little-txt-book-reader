@@ -4,3 +4,5 @@ little-txt-book-reader
 txt/
 cp.out
 nohup.out
+py/*.txt
+

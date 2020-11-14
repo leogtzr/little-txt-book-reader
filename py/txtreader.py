@@ -45,7 +45,8 @@ def main(stdscr):
         ADVANCE = MAX_HEIGHT
         from_line = 0
         to_line = ADVANCE
-        current_row = ADVANCE//2
+        current_row = 0
+        line_number = 1
 
         book_page = book_chunk(lines, from_line, to_line, book_number_of_lines)
         print_page(stdscr, current_row, book_page)
@@ -60,22 +61,24 @@ def main(stdscr):
                 sys.exit(0)
 
             elif key == curses.KEY_UP:
-                # from_line -= 1
-                current_row -= 1
+                if line_number > 1:
+                    line_number -= 1
+                    current_row -= 1
+                if from_line > 0:
+                    from_line -= 1
+                    to_line -= 1
+                    line_number -= 1
 
             elif key == curses.KEY_DOWN:
-                if current_row >= (MAX_HEIGHT - 2):
-                    # current_row -= 1
-                    # current_row = 0
-                    # current_row += 1
-                    # from_line += ADVANCE
-                    # to_line = from_line + ADVANCE
-                    from_line += 1
-                    to_line += 1
-                    stdscr.clear()
-                else:
-                    current_row += 1
-                # to_line += 1
+                if line_number < book_number_of_lines:
+                    if current_row >= (MAX_HEIGHT - 2):
+                        from_line += 1
+                        to_line += 1
+                        line_number += 1
+                        stdscr.clear()
+                    else:
+                        current_row += 1
+                        line_number += 1
 
             stdscr.refresh()
 
@@ -84,7 +87,7 @@ def main(stdscr):
                 lines, from_line, to_line-1, book_number_of_lines)
             print_page(stdscr, current_row, book_page)
             stdscr.addstr(MAX_HEIGHT - 1, 0,
-                          f"Current line: {current_row}, max: {MAX_HEIGHT}")
+                          f"Current line: {line_number}, from_line: {from_line}, to_line: {to_line}")
 
 
 curses.wrapper(main)

@@ -125,16 +125,16 @@ func getSavedStatusInformation(fileName string) string {
 
 func getStatusInformation() string {
 
+	if !toggleShowStatus {
+		return ""
+	}
+
 	percent := getPercentage(to, &fileContent)
 	if int(percent) > currentPercentage {
 		currentPercentage = int(percent)
 		now := time.Now()
 		minutesToReachNextPercentagePoint[int(percent)] = now.Sub(startTime)
 		startTime = now
-	}
-
-	if !toggleShowStatus {
-		return ""
 	}
 
 	if percentagePointStats {

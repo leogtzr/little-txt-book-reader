@@ -5,6 +5,7 @@ from curses import textpad
 import sys
 from sys import stderr
 from enum import Enum
+import utils
 
 
 class WindowMode(Enum):
@@ -63,7 +64,10 @@ def print_page_section(stdscr, selected_row_idx, book_page):
 def print_status_bar(stdscr, bookwnd_nav):
     if not bookwnd_nav.show_status_bar:
         return
-    status_text = f"Current line: {bookwnd_nav.line_number}"
+
+    perc = utils.percent(bookwnd_nav.line_number,
+                         bookwnd_nav.book_number_lines())
+    status_text = f"{bookwnd_nav.line_number} of {bookwnd_nav.book_number_lines()}      (%{perc:.1f})"
     pos_height = bookwnd_nav.window_height - 1
     pos_width = bookwnd_nav.window_width
     stdscr.attron(curses.color_pair(STATUSBAR_COLOR_PAIRCODE))

@@ -49,9 +49,8 @@ def main(stdscr):
         book_number_of_lines = len(lines)
 
         MAX_HEIGHT, _ = stdscr.getmaxyx()
-        ADVANCE = MAX_HEIGHT
         from_line = 0
-        to_line = ADVANCE
+        to_line = MAX_HEIGHT
         current_row = 0
         line_number = 1
 

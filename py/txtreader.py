@@ -8,12 +8,9 @@ if len(sys.argv) != 2:
 filename = sys.argv[1]
 
 # The following constant is "temporary", ideally it should be calculated based:
-# ADVANCE = 30
 KEY_ESCAPE_CODE = 27
 HIGHLIGHT_COLOR_PAIRCODE = 1
 STATUSBAR_COLOR_PAIRCODE = 2
-
-# book_page could probably a slice.
 
 
 def book_chunk(lines, from_line, to_line, book_number_of_lines):
@@ -92,7 +89,6 @@ def main(stdscr):
 
             stdscr.refresh()
 
-            # Update status bar:
             book_page = book_chunk(
                 lines, from_line, to_line-1, book_number_of_lines)
             print_page(stdscr, current_row, book_page)

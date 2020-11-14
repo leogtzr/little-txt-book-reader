@@ -67,7 +67,14 @@ def print_status_bar(stdscr, bookwnd_nav):
 
     perc = utils.percent(bookwnd_nav.line_number,
                          bookwnd_nav.book_number_lines())
-    status_text = f"{bookwnd_nav.line_number} of {bookwnd_nav.book_number_lines()}      (%{perc:.1f})"
+
+    if bookwnd_nav.show_percentage_points:
+        lines_to_new_p_point = utils.lines_to_change_percentage_point(
+            bookwnd_nav.line_number, bookwnd_nav.book_number_lines())
+        status_text = f"{bookwnd_nav.line_number} of {bookwnd_nav.book_number_lines()}      (%{perc:.1f})  (> {lines_to_new_p_point})"
+    else:
+        status_text = f"{bookwnd_nav.line_number} of {bookwnd_nav.book_number_lines()}      (%{perc:.1f})"
+
     pos_height = bookwnd_nav.window_height - 1
     pos_width = bookwnd_nav.window_width
     stdscr.attron(curses.color_pair(STATUSBAR_COLOR_PAIRCODE))

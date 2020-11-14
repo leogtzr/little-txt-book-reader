@@ -8,8 +8,9 @@ if len(sys.argv) != 2:
 filename = sys.argv[1]
 
 # The following constant is "temporary", ideally it should be calculated based:
-ADVANCE = 30
+# ADVANCE = 30
 KEY_ESCAPE_CODE = 27
+STATUSBAR_COLOR_PAIRCODE = 2
 
 # book_page could probably a slice.
 
@@ -20,13 +21,18 @@ def book_chunk(lines, from_line, to_line, book_number_of_lines):
 
 def print_page(stdscr, selected_row_idx, book_page):
     for idx, book_page_line in enumerate(book_page):
-        # Optional code:
         if idx == selected_row_idx:
             stdscr.attron(curses.color_pair(1))
             stdscr.addstr(idx, 0, book_page_line)
             stdscr.attroff(curses.color_pair(1))
         else:
             stdscr.addstr(idx, 0, book_page_line)
+
+
+def print_status_bar(stdscr, position, status_text):
+    stdscr.attron(curses.color_pair(STATUSBAR_COLOR_PAIRCODE))
+    stdscr.addstr(position, 0, status_text)
+    stdscr.attroff(curses.color_pair(1))
 
 
 def main(stdscr):
@@ -38,6 +44,8 @@ def main(stdscr):
     else:
         curses.curs_set(0)
         curses.init_pair(1, curses.COLOR_BLACK, curses.COLOR_WHITE)
+        curses.init_pair(STATUSBAR_COLOR_PAIRCODE,
+                         curses.COLOR_BLACK, curses.COLOR_GREEN)
 
         book_number_of_lines = len(lines)
 
@@ -50,6 +58,8 @@ def main(stdscr):
 
         book_page = book_chunk(lines, from_line, to_line, book_number_of_lines)
         print_page(stdscr, current_row, book_page)
+        print_status_bar(
+            stdscr, MAX_HEIGHT - 1, f"Current line: {line_number}, from_line: {from_line}, to_line: {to_line}")
 
         # Loop
         while True:
@@ -86,11 +96,8 @@ def main(stdscr):
             book_page = book_chunk(
                 lines, from_line, to_line-1, book_number_of_lines)
             print_page(stdscr, current_row, book_page)
-            stdscr.addstr(MAX_HEIGHT - 1, 0,
-                          f"Current line: {line_number}, from_line: {from_line}, to_line: {to_line}")
+            print_status_bar(
+                stdscr, MAX_HEIGHT - 1, f"Current line: {line_number}, from_line: {from_line}, to_line: {to_line}")
 
 
 curses.wrapper(main)
-
-# TODO:
-# current_row will be the one that be highlighted.

@@ -26,6 +26,8 @@ class BookWindowNavigation:
         self.current_row = 0
         self.line_number = 1
         self.window_mode = WindowMode.reading
+        self.show_status_bar = True
+        self.show_percentage_points = False
 
     def book_number_lines(self):
         return self._book_number_of_lines
@@ -40,6 +42,8 @@ KEY_ESCAPE_CODE = 27
 HIGHLIGHT_COLOR_PAIRCODE = 1
 STATUSBAR_COLOR_PAIRCODE = 2
 HELP_KEY_CODES = [ord('h'), ord('H')]
+TOGGLE_STATUSBAR_KEY_CODE = ord('.')
+SHOW_PERCENTAGE_POINTS_KEY_CODES = [ord('P'), ord('p')]
 
 
 def book_chunk(lines, from_line, to_line, book_number_of_lines):
@@ -56,7 +60,12 @@ def print_page_section(stdscr, selected_row_idx, book_page):
             stdscr.addstr(idx, 0, book_page_line)
 
 
-def print_status_bar(stdscr, pos_height, pos_width, status_text):
+def print_status_bar(stdscr, bookwnd_nav):
+    if not bookwnd_nav.show_status_bar:
+        return
+    status_text = f"Current line: {bookwnd_nav.line_number}"
+    pos_height = bookwnd_nav.window_height - 1
+    pos_width = bookwnd_nav.window_width
     stdscr.attron(curses.color_pair(STATUSBAR_COLOR_PAIRCODE))
     stdscr.addstr(pos_height, pos_width//2, status_text)
     stdscr.attroff(curses.color_pair(1))
@@ -77,7 +86,8 @@ def print_help_screen(stdscr):
         '.       -> Toggle Status Bar',
         'ESC     -> Closes the program/Dialogs',
         'S       -> Save Progress',
-        'H       -> Show the Help Dialog'
+        'H       -> Show the Help Dialog',
+        'P       -> Show Percentage Points'
     ]
 
     for idx, help_entry in enumerate(help_entries):
@@ -88,8 +98,7 @@ def print_page(stdscr, lines, bookwnd_nav):
     book_page = book_chunk(lines, bookwnd_nav.from_line,
                            bookwnd_nav.to_line, bookwnd_nav.book_number_lines())
     print_page_section(stdscr, bookwnd_nav.current_row, book_page)
-    print_status_bar(
-        stdscr, bookwnd_nav.window_height - 1, bookwnd_nav.window_width, f"Current line: {bookwnd_nav.line_number}")
+    print_status_bar(stdscr, bookwnd_nav)
 
 
 def main(stdscr):
@@ -145,6 +154,12 @@ def main(stdscr):
                     else:
                         bookwnd_nav.current_row += 1
                     bookwnd_nav.line_number += 1
+
+            elif key == TOGGLE_STATUSBAR_KEY_CODE:
+                bookwnd_nav.show_status_bar = not bookwnd_nav.show_status_bar
+
+            elif key in SHOW_PERCENTAGE_POINTS_KEY_CODES:
+                bookwnd_nav.show_percentage_points = not bookwnd_nav.show_percentage_points
 
             if bookwnd_nav.window_mode == WindowMode.reading:
                 stdscr.clear()

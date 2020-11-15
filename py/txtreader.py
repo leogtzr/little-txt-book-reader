@@ -1,16 +1,16 @@
-# TODO: finish the help screen.
-
 import curses
 from curses import textpad
 import sys
 from sys import stderr
 from enum import Enum
 import utils
+import re
 
 
 class WindowMode(Enum):
     reading = 1
     help = 2
+    goto = 3
 
 
 class BookWindowNavigation:
@@ -45,6 +45,7 @@ STATUSBAR_COLOR_PAIRCODE = 2
 HELP_KEY_CODES = [ord('h'), ord('H')]
 TOGGLE_STATUSBAR_KEY_CODE = ord('.')
 SHOW_PERCENTAGE_POINTS_KEY_CODES = [ord('P'), ord('p')]
+GOTO_KEY_CODES = [ord('g'), ord('G')]
 
 
 def book_chunk(lines, from_line, to_line, book_number_of_lines):
@@ -73,7 +74,7 @@ def print_status_bar(stdscr, bookwnd_nav):
             bookwnd_nav.line_number, bookwnd_nav.book_number_lines())
         status_text = f"{bookwnd_nav.line_number} of {bookwnd_nav.book_number_lines()}      (%{perc:.1f})  (> {lines_to_new_p_point})"
     else:
-        status_text = f"{bookwnd_nav.line_number} of {bookwnd_nav.book_number_lines()}      (%{perc:.1f})"
+        status_text = f"{bookwnd_nav.line_number} of {bookwnd_nav.book_number_lines()}      (%{perc:.1f}) [cr: {bookwnd_nav.current_row}] - [wh: {bookwnd_nav.window_height}]: from: {bookwnd_nav.from_line}, to: {bookwnd_nav.to_line}"
 
     pos_height = bookwnd_nav.window_height - 1
     pos_width = bookwnd_nav.window_width
@@ -103,6 +104,24 @@ def print_help_screen(stdscr):
 
     for idx, help_entry in enumerate(help_entries):
         stdscr.addstr(border_offset + idx + 1, border_offset+1, help_entry)
+
+
+def show_goto_dialog(stdscr, bookwnd_nav):
+    screen_height, screen_width = stdscr.getmaxyx()
+    border_offset = 2
+    box = [[border_offset, border_offset], [
+        screen_height-border_offset, screen_width-border_offset]]
+    textpad.rectangle(
+        stdscr, box[0][0], box[0][1], box[1][0], box[1][1])
+    stdscr.addstr(border_offset + 1, border_offset + 1, "Go To: ")
+    curses.echo()
+    input = stdscr.getstr(
+        border_offset + 1, (border_offset + 1) + len('Go To: '), 20)
+    input = input.strip()
+    input = input.rstrip()
+
+    curses.noecho()
+    return re.sub('\D', '', input.decode("utf-8"))
 
 
 def print_page(stdscr, lines, bookwnd_nav):
@@ -141,30 +160,48 @@ def main(stdscr):
                 elif bookwnd_nav.window_mode == WindowMode.reading:
                     stdscr.refresh()
                     sys.exit(0)
+                elif bookwnd_nav.window_mode == WindowMode.goto:
+                    bookwnd_nav.window_mode = WindowMode.reading
 
             elif key in HELP_KEY_CODES:
                 stdscr.clear()
                 bookwnd_nav.window_mode = WindowMode.help
                 print_help_screen(stdscr)
 
-            elif key == curses.KEY_UP:
-                if bookwnd_nav.line_number > 1:
-                    bookwnd_nav.current_row -= 1
-                    bookwnd_nav.line_number -= 1
-                if bookwnd_nav.from_line > 0:
-                    bookwnd_nav.from_line -= 1
-                    bookwnd_nav.to_line -= 1
-                    bookwnd_nav.line_number -= 1
+            elif key in GOTO_KEY_CODES:
+                stdscr.clear()
+                bookwnd_nav.window_mode = WindowMode.goto
+                input_goto = show_goto_dialog(stdscr, bookwnd_nav)
+                if input_goto:
+                    bookwnd_nav.from_line = int(input_goto)
+                    bookwnd_nav.to_line = bookwnd_nav.from_line + bookwnd_nav.window_height
+                    bookwnd_nav.line_number = bookwnd_nav.from_line
+                    bookwnd_nav.current_row = 1
+                bookwnd_nav.window_mode = WindowMode.reading
 
             elif key == curses.KEY_DOWN:
-                if bookwnd_nav.line_number < book_number_of_lines:
-                    if bookwnd_nav.current_row >= (bookwnd_nav.window_height - 2):
-                        bookwnd_nav.from_line += 1
-                        bookwnd_nav.to_line += 1
-                        stdscr.clear()
-                    else:
-                        bookwnd_nav.current_row += 1
+                if bookwnd_nav.current_row == (bookwnd_nav.window_height - 1):
+                    # Reset:
+                    bookwnd_nav.current_row = 0
                     bookwnd_nav.line_number += 1
+                    bookwnd_nav.from_line += bookwnd_nav.window_height
+                    bookwnd_nav.to_line = bookwnd_nav.from_line + bookwnd_nav.window_height
+                else:
+                    bookwnd_nav.current_row += 1
+                    bookwnd_nav.line_number += 1
+
+            elif key == curses.KEY_UP:
+                if bookwnd_nav.current_row == 0:
+                    # Do we have enough space to sub up?
+                    if bookwnd_nav.line_number > bookwnd_nav.window_height:
+                        bookwnd_nav.current_row = bookwnd_nav.window_height - 1
+                        bookwnd_nav.line_number -= 1
+                        bookwnd_nav.from_line -= bookwnd_nav.window_height
+                        bookwnd_nav.to_line -= bookwnd_nav.window_height
+                        # bookwnd_nav.to_line = bookwnd_nav.from_line - bookwnd_nav.window_height
+                else:
+                    bookwnd_nav.current_row -= 1
+                    bookwnd_nav.line_number -= 1
 
             elif key == TOGGLE_STATUSBAR_KEY_CODE:
                 bookwnd_nav.show_status_bar = not bookwnd_nav.show_status_bar

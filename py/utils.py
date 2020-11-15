@@ -14,3 +14,14 @@ def lines_to_change_percentage_point(current_line, total_lines):
             break
 
     return lines_to_change_percentage - start
+
+
+def go_to(bookwnd_nav, goto_line):
+    number_of_lines = bookwnd_nav.book_number_lines()
+    sum = 0
+    while (sum < number_of_lines) and (sum < goto_line):
+        sum += bookwnd_nav.window_height
+
+    if sum > goto_line:
+        sum -= bookwnd_nav.window_height
+    return sum

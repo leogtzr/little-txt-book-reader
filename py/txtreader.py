@@ -5,33 +5,7 @@ from sys import stderr
 from enum import Enum
 import utils
 import re
-
-
-class WindowMode(Enum):
-    reading = 1
-    help = 2
-    goto = 3
-
-
-class BookWindowNavigation:
-    '''This class will contain everything related with the object navigation
-        Current page number, navigation mode (help, reading), etc
-    '''
-
-    def __init__(self, book_number_lines, window_height, window_width):
-        self._book_number_of_lines = book_number_lines
-        self.window_height = window_height
-        self.window_width = window_width
-        self.from_line = 0
-        self.to_line = window_height
-        self.current_row = 0
-        self.line_number = 1
-        self.window_mode = WindowMode.reading
-        self.show_status_bar = True
-        self.show_percentage_points = False
-
-    def book_number_lines(self):
-        return self._book_number_of_lines
+import book
 
 
 if len(sys.argv) != 2:
@@ -146,7 +120,7 @@ def main(stdscr):
         book_number_of_lines = len(lines)
         MAX_HEIGHT, MAX_WIDTH = stdscr.getmaxyx()
 
-        bookwnd_nav = BookWindowNavigation(
+        bookwnd_nav = book.BookWindowNavigation(
             book_number_of_lines, MAX_HEIGHT, MAX_WIDTH)
 
         print_page(stdscr, lines, bookwnd_nav)
@@ -155,29 +129,29 @@ def main(stdscr):
             key = stdscr.getch()
 
             if key in [KEY_ESCAPE_CODE]:
-                if bookwnd_nav.window_mode == WindowMode.help:
-                    bookwnd_nav.window_mode = WindowMode.reading
-                elif bookwnd_nav.window_mode == WindowMode.reading:
+                if bookwnd_nav.window_mode == book.WindowMode.help:
+                    bookwnd_nav.window_mode = book.WindowMode.reading
+                elif bookwnd_nav.window_mode == book.WindowMode.reading:
                     stdscr.refresh()
                     sys.exit(0)
-                elif bookwnd_nav.window_mode == WindowMode.goto:
-                    bookwnd_nav.window_mode = WindowMode.reading
+                elif bookwnd_nav.window_mode == book.WindowMode.goto:
+                    bookwnd_nav.window_mode = book.WindowMode.reading
 
             elif key in HELP_KEY_CODES:
                 stdscr.clear()
-                bookwnd_nav.window_mode = WindowMode.help
+                bookwnd_nav.window_mode = book.WindowMode.help
                 print_help_screen(stdscr)
 
             elif key in GOTO_KEY_CODES:
                 stdscr.clear()
-                bookwnd_nav.window_mode = WindowMode.goto
+                bookwnd_nav.window_mode = book.WindowMode.goto
                 input_goto = show_goto_dialog(stdscr, bookwnd_nav)
                 if input_goto:
                     bookwnd_nav.from_line = int(input_goto)
                     bookwnd_nav.to_line = bookwnd_nav.from_line + bookwnd_nav.window_height
                     bookwnd_nav.line_number = bookwnd_nav.from_line
-                    bookwnd_nav.current_row = 1
-                bookwnd_nav.window_mode = WindowMode.reading
+                    bookwnd_nav.current_row = 0
+                bookwnd_nav.window_mode = book.WindowMode.reading
 
             elif key == curses.KEY_DOWN:
                 if bookwnd_nav.current_row == (bookwnd_nav.window_height - 1):
@@ -198,7 +172,6 @@ def main(stdscr):
                         bookwnd_nav.line_number -= 1
                         bookwnd_nav.from_line -= bookwnd_nav.window_height
                         bookwnd_nav.to_line -= bookwnd_nav.window_height
-                        # bookwnd_nav.to_line = bookwnd_nav.from_line - bookwnd_nav.window_height
                 else:
                     bookwnd_nav.current_row -= 1
                     bookwnd_nav.line_number -= 1
@@ -209,7 +182,7 @@ def main(stdscr):
             elif key in SHOW_PERCENTAGE_POINTS_KEY_CODES:
                 bookwnd_nav.show_percentage_points = not bookwnd_nav.show_percentage_points
 
-            if bookwnd_nav.window_mode == WindowMode.reading:
+            if bookwnd_nav.window_mode == book.WindowMode.reading:
                 stdscr.clear()
                 print_page(stdscr, lines, bookwnd_nav)
 

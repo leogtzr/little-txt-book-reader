@@ -1,9 +1,6 @@
-
-# TODO: end key
 import curses
 from curses import textpad
 import sys
-from sys import stderr
 from enum import Enum
 import utils
 import re
@@ -163,11 +160,18 @@ def parse_progress_file(progress_file_path):
             return reading_progress
 
 
-def go_start_book(bookwnd_nav):
+def goto_beginning_book(bookwnd_nav):
     bookwnd_nav.from_line = 0
     bookwnd_nav.to_line = bookwnd_nav.window_height
     bookwnd_nav.current_row = 0
     bookwnd_nav.line_number = 1
+
+
+def adjust_book_position_toline(bookwnd_nav, to_line):
+    bookwnd_nav.from_line = to_line + 1
+    bookwnd_nav.to_line = bookwnd_nav.from_line + bookwnd_nav.window_height
+    bookwnd_nav.line_number = bookwnd_nav.from_line
+    bookwnd_nav.current_row = 0
 
 
 def main(stdscr):
@@ -222,10 +226,8 @@ def main(stdscr):
                 bookwnd_nav.window_mode = book.WindowMode.goto
                 input_goto = show_goto_dialog(stdscr, bookwnd_nav)
                 if input_goto:
-                    bookwnd_nav.from_line = int(input_goto)
-                    bookwnd_nav.to_line = bookwnd_nav.from_line + bookwnd_nav.window_height
-                    bookwnd_nav.line_number = bookwnd_nav.from_line
-                    bookwnd_nav.current_row = 0
+                    goto_line = utils.go_to(bookwnd_nav, int(input_goto))
+                    adjust_book_position_toline(bookwnd_nav, goto_line)
                 bookwnd_nav.window_mode = book.WindowMode.reading
 
             elif key == curses.KEY_DOWN:
@@ -241,7 +243,6 @@ def main(stdscr):
 
             elif key == curses.KEY_UP:
                 if bookwnd_nav.current_row == 0:
-                    # Do we have enough space to sub up?
                     if bookwnd_nav.line_number > bookwnd_nav.window_height:
                         bookwnd_nav.current_row = bookwnd_nav.window_height - 1
                         bookwnd_nav.line_number -= 1
@@ -263,7 +264,12 @@ def main(stdscr):
                 stdscr.getch()
 
             elif key == curses.KEY_HOME:
-                go_start_book(bookwnd_nav)
+                goto_beginning_book(bookwnd_nav)
+
+            elif key == curses.KEY_END:
+                goto_line = utils.go_to(
+                    bookwnd_nav, bookwnd_nav.book_number_lines())
+                adjust_book_position_toline(bookwnd_nav, goto_line)
 
             if bookwnd_nav.window_mode == book.WindowMode.reading:
                 stdscr.clear()

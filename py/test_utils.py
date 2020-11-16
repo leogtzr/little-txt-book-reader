@@ -1,17 +1,10 @@
 import unittest
-from unittest import TestCase
 import utils
 import book
 
 
-class UtilFunctionTestCase(TestCase):
+class UtilFunctionTestCase(unittest.TestCase):
     """Tests for 'utils.py'."""
-
-    def test_x(self):
-        """ doc """
-        # got = ...
-        # self.assertEqual(got, expected)
-        pass
 
     def test_percent(self):
         param_list = [(150, 30, 20.0)]

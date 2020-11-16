@@ -6,6 +6,7 @@ from enum import Enum
 import utils
 import re
 import book
+import progress
 import os
 from pathlib import Path
 
@@ -127,6 +128,11 @@ def print_page(stdscr, lines, bookwnd_nav):
     print_status_bar(stdscr, bookwnd_nav)
 
 
+def get_progress_filepath(filename):
+    base_filename = os.path.basename(filename)
+    return os.path.join(PROGRAM_PROGRESS_PATH_DIR, base_filename)
+
+
 def save_progress(filename, bookwnd_nav):
     abs_path = os.path.abspath(filename)
     base_filename = os.path.basename(filename)
@@ -135,6 +141,24 @@ def save_progress(filename, bookwnd_nav):
     with open(os.path.join(PROGRAM_PROGRESS_PATH_DIR, base_filename), 'w') as progress_file:
         progress_file.write(
             f"{abs_path}|{bookwnd_nav.from_line}|{bookwnd_nav.to_line}")
+
+
+def parse_progress_file(progress_file_path):
+    reading_progress = progress.ReadingProgressBook(
+        os.path.basename(progress_file_path), -1, -1)
+    try:
+        with open(progress_file_path, 'r') as progress_file_object:
+            text = progress_file_object.read()
+    except FileNotFoundError:
+        return None
+    else:
+        text_fields = text.split('|')
+        if len(text_fields) != 3:
+            return None
+        else:
+            reading_progress.from_line = int(text_fields[1])
+            reading_progress.to_line = int(text_fields[2])
+            return reading_progress
 
 
 def main(stdscr):
@@ -154,6 +178,15 @@ def main(stdscr):
 
         bookwnd_nav = book.BookWindowNavigation(
             book_number_of_lines, MAX_HEIGHT, MAX_WIDTH)
+
+        # Initialize stuff ...
+        progress_file = get_progress_filepath(filename)
+        if os.path.exists(progress_file):
+            reading_progress = parse_progress_file(progress_file)
+            if reading_progress:
+                bookwnd_nav.from_line = reading_progress.from_line
+                bookwnd_nav.to_line = reading_progress.to_line
+                bookwnd_nav.line_number = reading_progress.from_line
 
         print_page(stdscr, lines, bookwnd_nav)
 

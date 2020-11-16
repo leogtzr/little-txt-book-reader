@@ -8,7 +8,8 @@ import book
 import progress
 import os
 from pathlib import Path
-
+import subprocess
+import shutil
 
 if len(sys.argv) != 2:
     sys.exit(1)
@@ -18,6 +19,7 @@ filename = sys.argv[1]
 # Note: the following might change:
 PROGRAM_PATH_DIR = os.path.join(os.environ.get('HOME'), 'txt')
 PROGRAM_PROGRESS_PATH_DIR = os.path.join(PROGRAM_PATH_DIR, 'progress')
+PROGRAM_NOTES_PATH_DIR = os.path.join(PROGRAM_PATH_DIR, 'notes')
 
 KEY_ESCAPE_CODE = 27
 HIGHLIGHT_COLOR_PAIRCODE = 1
@@ -27,6 +29,8 @@ TOGGLE_STATUSBAR_KEY_CODE = ord('.')
 SHOW_PERCENTAGE_POINTS_KEY_CODES = [ord('P'), ord('p')]
 GOTO_KEY_CODES = [ord('g'), ord('G')]
 SAVE_PROGRESS_KEY_CODE = [ord('s'), ord('S')]
+EDITOR = os.environ.get('EDITOR', 'vim')  # that easy!
+ADD_NOTES_KEY_CODE = [ord('n'), ord('N')]
 
 
 def book_chunk(lines, from_line, to_line, book_number_of_lines):
@@ -95,7 +99,8 @@ def print_help_screen(stdscr):
         'ESC     -> Closes the program/Dialogs',
         'S       -> Save Progress',
         'H       -> Show the Help Dialog',
-        'P       -> Show Percentage Points'
+        'P       -> Show Percentage Points',
+        'N       -> Open Notes file',
     ]
 
     for idx, help_entry in enumerate(help_entries):
@@ -172,6 +177,19 @@ def adjust_book_position_toline(bookwnd_nav, to_line):
     bookwnd_nav.to_line = bookwnd_nav.from_line + bookwnd_nav.window_height
     bookwnd_nav.line_number = bookwnd_nav.from_line
     bookwnd_nav.current_row = 0
+
+
+def open_notes_file(PROGRAM_NOTES_PATH_DIR, filename):
+    notes_file = os.path.join(PROGRAM_NOTES_PATH_DIR,
+                              os.path.basename(filename))
+    if sys.platform == 'linux':
+        if shutil.which('xterm') and shutil.which('vim'):
+            subprocess.call(
+                ["/usr/bin/xterm", "-fa", "Monospace", "-fs", "14", "-e", "/usr/bin/vim", '+$', notes_file])
+    else:
+        if shutil.which('notepad'):
+            subprocess.call(
+                ['notepad', notes_file])
 
 
 def main(stdscr):
@@ -271,6 +289,9 @@ def main(stdscr):
                     bookwnd_nav, bookwnd_nav.book_number_lines())
                 adjust_book_position_toline(bookwnd_nav, goto_line)
 
+            elif key in ADD_NOTES_KEY_CODE:
+                open_notes_file(PROGRAM_NOTES_PATH_DIR, filename)
+
             if bookwnd_nav.window_mode == book.WindowMode.reading:
                 stdscr.clear()
                 print_page(stdscr, lines, bookwnd_nav)
@@ -279,5 +300,6 @@ def main(stdscr):
 # Create program's directories:
 Path(PROGRAM_PATH_DIR).mkdir(parents=True, exist_ok=True)
 Path(PROGRAM_PROGRESS_PATH_DIR).mkdir(parents=True, exist_ok=True)
+Path(PROGRAM_NOTES_PATH_DIR).mkdir(parents=True, exist_ok=True)
 
 curses.wrapper(main)

@@ -1,4 +1,4 @@
-# TODO: home key
+
 # TODO: end key
 import curses
 from curses import textpad
@@ -163,6 +163,13 @@ def parse_progress_file(progress_file_path):
             return reading_progress
 
 
+def go_start_book(bookwnd_nav):
+    bookwnd_nav.from_line = 0
+    bookwnd_nav.to_line = bookwnd_nav.window_height
+    bookwnd_nav.current_row = 0
+    bookwnd_nav.line_number = 1
+
+
 def main(stdscr):
     try:
         with open(filename, 'r') as f:
@@ -254,6 +261,9 @@ def main(stdscr):
                 save_progress(filename, bookwnd_nav)
                 print_save_progress_status(stdscr, bookwnd_nav, filename)
                 stdscr.getch()
+
+            elif key == curses.KEY_HOME:
+                go_start_book(bookwnd_nav)
 
             if bookwnd_nav.window_mode == book.WindowMode.reading:
                 stdscr.clear()

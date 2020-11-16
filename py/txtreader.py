@@ -1,3 +1,5 @@
+# TODO: home key
+# TODO: end key
 import curses
 from curses import textpad
 import sys
@@ -186,7 +188,8 @@ def main(stdscr):
             if reading_progress:
                 bookwnd_nav.from_line = reading_progress.from_line
                 bookwnd_nav.to_line = reading_progress.to_line
-                bookwnd_nav.line_number = reading_progress.from_line
+                bookwnd_nav.line_number = reading_progress.from_line + 1
+                bookwnd_nav.current_row = 0
 
         print_page(stdscr, lines, bookwnd_nav)
 

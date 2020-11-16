@@ -29,7 +29,6 @@ TOGGLE_STATUSBAR_KEY_CODE = ord('.')
 SHOW_PERCENTAGE_POINTS_KEY_CODES = [ord('P'), ord('p')]
 GOTO_KEY_CODES = [ord('g'), ord('G')]
 SAVE_PROGRESS_KEY_CODE = [ord('s'), ord('S')]
-EDITOR = os.environ.get('EDITOR', 'vim')  # that easy!
 ADD_NOTES_KEY_CODE = [ord('n'), ord('N')]
 
 
@@ -101,6 +100,7 @@ def print_help_screen(stdscr):
         'H       -> Show the Help Dialog',
         'P       -> Show Percentage Points',
         'N       -> Open Notes file',
+        'T       -> Toggle Status Bar Versions'
     ]
 
     for idx, help_entry in enumerate(help_entries):

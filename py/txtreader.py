@@ -6,12 +6,18 @@ from enum import Enum
 import utils
 import re
 import book
+import os
+from pathlib import Path
 
 
 if len(sys.argv) != 2:
     sys.exit(1)
 
 filename = sys.argv[1]
+
+# Note: the following might change:
+PROGRAM_PATH_DIR = os.path.join(os.environ.get('HOME'), 'txt')
+PROGRAM_PROGRESS_PATH_DIR = os.path.join(PROGRAM_PATH_DIR, 'progress')
 
 KEY_ESCAPE_CODE = 27
 HIGHLIGHT_COLOR_PAIRCODE = 1
@@ -20,6 +26,7 @@ HELP_KEY_CODES = [ord('h'), ord('H')]
 TOGGLE_STATUSBAR_KEY_CODE = ord('.')
 SHOW_PERCENTAGE_POINTS_KEY_CODES = [ord('P'), ord('p')]
 GOTO_KEY_CODES = [ord('g'), ord('G')]
+SAVE_PROGRESS_KEY_CODE = [ord('s'), ord('S')]
 
 
 def book_chunk(lines, from_line, to_line, book_number_of_lines):
@@ -36,6 +43,21 @@ def print_page_section(stdscr, selected_row_idx, book_page):
             stdscr.addstr(idx, 0, book_page_line)
 
 
+def print_save_progress_status(stdscr, bookwnd_nav, filename):
+    if not bookwnd_nav.show_status_bar:
+        return
+
+    base_filename = os.path.basename(filename)
+
+    status_text = f"Status saved for: '{base_filename}''"
+
+    pos_height = bookwnd_nav.window_height - 1
+    pos_width = bookwnd_nav.window_width
+    stdscr.attron(curses.color_pair(STATUSBAR_COLOR_PAIRCODE))
+    stdscr.addstr(pos_height, pos_width//2, status_text)
+    stdscr.attroff(curses.color_pair(1))
+
+
 def print_status_bar(stdscr, bookwnd_nav):
     if not bookwnd_nav.show_status_bar:
         return
@@ -48,7 +70,7 @@ def print_status_bar(stdscr, bookwnd_nav):
             bookwnd_nav.line_number, bookwnd_nav.book_number_lines())
         status_text = f"{bookwnd_nav.line_number} of {bookwnd_nav.book_number_lines()}      (%{perc:.1f})  (> {lines_to_new_p_point})"
     else:
-        status_text = f"{bookwnd_nav.line_number} of {bookwnd_nav.book_number_lines()}      (%{perc:.1f}) [cr: {bookwnd_nav.current_row}] - [wh: {bookwnd_nav.window_height}]: from: {bookwnd_nav.from_line}, to: {bookwnd_nav.to_line}"
+        status_text = f"{bookwnd_nav.line_number} of {bookwnd_nav.book_number_lines()}      (%{perc:.1f})"
 
     pos_height = bookwnd_nav.window_height - 1
     pos_width = bookwnd_nav.window_width
@@ -103,6 +125,16 @@ def print_page(stdscr, lines, bookwnd_nav):
                            bookwnd_nav.to_line, bookwnd_nav.book_number_lines())
     print_page_section(stdscr, bookwnd_nav.current_row, book_page)
     print_status_bar(stdscr, bookwnd_nav)
+
+
+def save_progress(filename, bookwnd_nav):
+    abs_path = os.path.abspath(filename)
+    base_filename = os.path.basename(filename)
+
+    # PROGRAM_PROGRESS_PATH_DIR
+    with open(os.path.join(PROGRAM_PROGRESS_PATH_DIR, base_filename), 'w') as progress_file:
+        progress_file.write(
+            f"{abs_path}|{bookwnd_nav.from_line}|{bookwnd_nav.to_line}")
 
 
 def main(stdscr):
@@ -182,9 +214,18 @@ def main(stdscr):
             elif key in SHOW_PERCENTAGE_POINTS_KEY_CODES:
                 bookwnd_nav.show_percentage_points = not bookwnd_nav.show_percentage_points
 
+            elif key in SAVE_PROGRESS_KEY_CODE:
+                save_progress(filename, bookwnd_nav)
+                print_save_progress_status(stdscr, bookwnd_nav, filename)
+                stdscr.getch()
+
             if bookwnd_nav.window_mode == book.WindowMode.reading:
                 stdscr.clear()
                 print_page(stdscr, lines, bookwnd_nav)
 
+
+# Create program's directories:
+Path(PROGRAM_PATH_DIR).mkdir(parents=True, exist_ok=True)
+Path(PROGRAM_PROGRESS_PATH_DIR).mkdir(parents=True, exist_ok=True)
 
 curses.wrapper(main)

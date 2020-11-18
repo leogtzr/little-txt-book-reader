@@ -10,6 +10,7 @@ import os
 from pathlib import Path
 import subprocess
 import shutil
+import clipboard
 
 if len(sys.argv) != 2:
     sys.exit(1)
@@ -30,6 +31,8 @@ SHOW_PERCENTAGE_POINTS_KEY_CODES = [ord('P'), ord('p')]
 GOTO_KEY_CODES = [ord('g'), ord('G')]
 SAVE_PROGRESS_KEY_CODE = [ord('s'), ord('S')]
 ADD_NOTES_KEY_CODE = [ord('n'), ord('N')]
+OPEN_RAE_WEBSITE_KEY_CODES = [ord('o'), ord('O')]
+OPEN_GOODREADS_WEBSITE_KEY_CODES = [ord('r'), ord('R')]
 
 
 def book_chunk(lines, from_line, to_line, book_number_of_lines):
@@ -100,7 +103,9 @@ def print_help_screen(stdscr):
         'H       -> Show the Help Dialog',
         'P       -> Show Percentage Points',
         'N       -> Open Notes file',
-        'T       -> Toggle Status Bar Versions'
+        'T       -> Toggle Status Bar Versions',
+        'O       -> Opens RAE Web site with search from the clipboard.',
+        'R       -> Opens GoodReads Web site with search from the clipboard.'
     ]
 
     for idx, help_entry in enumerate(help_entries):
@@ -141,7 +146,6 @@ def save_progress(filename, bookwnd_nav):
     abs_path = os.path.abspath(filename)
     base_filename = os.path.basename(filename)
 
-    # PROGRAM_PROGRESS_PATH_DIR
     with open(os.path.join(PROGRAM_PROGRESS_PATH_DIR, base_filename), 'w') as progress_file:
         progress_file.write(
             f"{abs_path}|{bookwnd_nav.from_line}|{bookwnd_nav.to_line}")
@@ -188,8 +192,16 @@ def open_notes_file(PROGRAM_NOTES_PATH_DIR, filename):
                 ["/usr/bin/xterm", "-fa", "Monospace", "-fs", "14", "-e", "/usr/bin/vim", '+$', notes_file])
     else:
         if shutil.which('notepad'):
+            subprocess.call(['notepad', notes_file])
+
+
+def open_url_in_browser(url_search_type):
+    if shutil.which('xdg-open'):
+        clipboard_content = clipboard.paste()
+        if clipboard_content:
+            url_search = url_search_type.value.format(clipboard_content)
             subprocess.call(
-                ['notepad', notes_file])
+                ["xdg-open", url_search])
 
 
 def main(stdscr):
@@ -291,6 +303,12 @@ def main(stdscr):
 
             elif key in ADD_NOTES_KEY_CODE:
                 open_notes_file(PROGRAM_NOTES_PATH_DIR, filename)
+
+            elif key in OPEN_RAE_WEBSITE_KEY_CODES:
+                open_url_in_browser(book.URLSearch.rae)
+
+            elif key in OPEN_GOODREADS_WEBSITE_KEY_CODES:
+                open_url_in_browser(book.URLSearch.good_reads)
 
             if bookwnd_nav.window_mode == book.WindowMode.reading:
                 stdscr.clear()

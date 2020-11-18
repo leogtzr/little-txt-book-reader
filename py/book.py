@@ -7,6 +7,11 @@ class WindowMode(Enum):
     goto = 3
 
 
+class URLSearch(Enum):
+    rae = "https://dle.rae.es/{}"
+    good_reads = 'https://www.goodreads.com/search?q={}'
+
+
 class BookWindowNavigation:
     '''This class will contain everything related with the object navigation
         Current page number, navigation mode (help, reading), etc

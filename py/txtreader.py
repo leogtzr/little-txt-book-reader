@@ -1,4 +1,3 @@
-# TODO: word building mode.
 import curses
 from curses import textpad
 import sys
@@ -86,7 +85,9 @@ def print_help_screen(stdscr):
         'N       -> Open Notes file',
         'T       -> Toggle Status Bar Versions',
         'O       -> Opens RAE Web site with search from the clipboard.',
-        'R       -> Opens GoodReads Web site with search from the clipboard.'
+        'R       -> Opens GoodReads Web site with search from the clipboard.',
+        'W       -> Open Word Building Mode with current sentence',
+        'V       -> View Words added to the Word Building Database'
     ]
 
     for idx, help_entry in enumerate(help_entries):
@@ -108,7 +109,7 @@ def show_goto_dialog(stdscr, bookwnd_nav):
     input = input.rstrip()
 
     curses.noecho()
-    return re.sub('\D', '', input.decode("utf-8"))
+    return re.sub(r'\D', '', input.decode("utf-8"))
 
 
 def print_page(stdscr, lines, bookwnd_nav):
@@ -296,6 +297,9 @@ def main(stdscr):
                     bookwnd_nav.window_mode = book.WindowMode.word_building
                     utils.word_building_mode(
                         bookwnd_nav, stdscr, lines, filename)
+
+            elif key in VIEW_FROM_WORDBUILDING_KEY_CODES:
+                utils.view_words(bookwnd_nav, stdscr)
 
             if bookwnd_nav.window_mode == book.WindowMode.reading:
                 stdscr.clear()

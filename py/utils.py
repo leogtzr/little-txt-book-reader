@@ -4,6 +4,124 @@ from book import WindowMode
 from constants import STATUSBAR_COLOR_PAIRCODE
 from constants import ENTER_KEY_CODES
 from constants import PROGRAM_WORDS_PATH_DIR
+from math import ceil
+
+
+def word_building_words(bookwnd_nav):
+    base_filename = os.path.basename(bookwnd_nav.filename)
+    try:
+        with open(os.path.join(PROGRAM_WORDS_PATH_DIR, base_filename), 'r') as f:
+            lines = [line.rstrip('\n') for line in f.readlines()]
+    except FileNotFoundError:
+        return []
+    else:
+        return lines
+
+
+def view_words(bookwnd_nav, stdscr):
+    bookwnd_nav.window_mode = WindowMode.view_words
+
+    words = word_building_words(bookwnd_nav)
+
+    stdscr = curses.initscr()
+    curses.noecho()
+    curses.cbreak()
+    curses.start_color()
+    stdscr.keypad(1)
+    curses.init_pair(1, curses.COLOR_BLACK, curses.COLOR_CYAN)
+    highlightText = curses.color_pair(1)
+    normalText = curses.A_NORMAL
+    stdscr.border(0)
+    curses.curs_set(0)
+    # max_row = 30  # max number of rows
+    max_row = 10
+
+    if len(words) >= bookwnd_nav.window_height:
+        max_row = bookwnd_nav.window_height // 2
+    else:
+        max_row = len(words)
+
+    box = curses.newwin(max_row + 2, 100, 1, 1)
+    box.box()
+
+
+# words = ["a", "b", "c", "d", "e", "f", "g", "h", "i", "l",
+#          "m", "n", "1", "2", "3", "4", "5"]  # list of words
+
+    row_num = len(words)
+
+    pages = int(ceil(row_num / max_row))
+    position = 1
+    page = 1
+
+    for i in range(1, max_row + 1):
+        if i == position:
+            box.addstr(i, 2, str(i) + " - " + words[i - 1], highlightText)
+        else:
+            box.addstr(i, 2, str(i) + " - " + words[i - 1], normalText)
+
+    stdscr.refresh()
+    box.refresh()
+
+    x = stdscr.getch()
+    while x != 27:
+        if x == curses.KEY_DOWN:
+            if page == 1:
+                if position < i:
+                    position = position + 1
+                else:
+                    if pages > 1:
+                        page += 1
+                        position = 1 + (max_row * (page - 1))
+            elif page == pages:
+                if position < row_num:
+                    position += 1
+            else:
+                if position < max_row + (max_row * (page - 1)):
+                    position += 1
+                else:
+                    page += 1
+                    position = 1 + (max_row * (page - 1))
+        if x == curses.KEY_UP:
+            if page == 1:
+                if position > 1:
+                    position -= 1
+            else:
+                if position > (1 + (max_row * (page - 1))):
+                    position -= 1
+                else:
+                    page -= 1
+                    position = max_row + (max_row * (page - 1))
+        if x == curses.KEY_LEFT:
+            if page > 1:
+                page -= 1
+                position = 1 + (max_row * (page - 1))
+
+        if x == curses.KEY_RIGHT:
+            if page < pages:
+                page += 1
+                position = (1 + (max_row * (page - 1)))
+
+        box.erase()
+        stdscr.border(0)
+        box.border(0)
+
+        # TODO: create a function for this.
+        for i in range(1 + (max_row * (page - 1)), max_row + 1 + (max_row * (page - 1))):
+            if (i + (max_row * (page - 1)) == position + (max_row * (page - 1))):
+                box.addstr(i - (max_row * (page - 1)), 2, str(i) +
+                           " - " + words[i - 1], highlightText)
+            else:
+                box.addstr(i - (max_row * (page - 1)), 2, str(i) +
+                           " - " + words[i - 1], normalText)
+            if i == row_num:
+                break
+
+        stdscr.refresh()
+        box.refresh()
+        x = stdscr.getch()
+
+    bookwnd_nav.window_mode = WindowMode.reading
 
 
 def words_with_brackets(words, select_idx, stdscr):
@@ -15,11 +133,10 @@ def words_with_brackets(words, select_idx, stdscr):
     return text_sentence_brackets
 
 
-# PROGRAM_WORDS_PATH_DIR = os.path.join(PROGRAM_PATH_DIR, 'words')
 def write_to_words_file(bookwnd_nav, word):
     base_filename = os.path.basename(bookwnd_nav.filename)
 
-    with open(os.path.join(PROGRAM_WORDS_PATH_DIR, base_filename), "a") as word_file:
+    with open(os.path.join(PROGRAM_WORDS_PATH_DIR, base_filename), 'a') as word_file:
         word_file.write(f"{word}\n")
 
 

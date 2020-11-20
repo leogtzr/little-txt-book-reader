@@ -1,4 +1,11 @@
 import curses
+import os
+
+# Note: the following might change:
+PROGRAM_PATH_DIR = os.path.join(os.environ.get('HOME'), 'txt')
+PROGRAM_PROGRESS_PATH_DIR = os.path.join(PROGRAM_PATH_DIR, 'progress')
+PROGRAM_NOTES_PATH_DIR = os.path.join(PROGRAM_PATH_DIR, 'notes')
+PROGRAM_WORDS_PATH_DIR = os.path.join(PROGRAM_PATH_DIR, 'words')
 
 KEY_ESCAPE_CODE = 27
 HIGHLIGHT_COLOR_PAIRCODE = 1

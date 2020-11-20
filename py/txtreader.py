@@ -19,12 +19,6 @@ if len(sys.argv) != 2:
 
 filename = sys.argv[1]
 
-# Note: the following might change:
-PROGRAM_PATH_DIR = os.path.join(os.environ.get('HOME'), 'txt')
-PROGRAM_PROGRESS_PATH_DIR = os.path.join(PROGRAM_PATH_DIR, 'progress')
-PROGRAM_NOTES_PATH_DIR = os.path.join(PROGRAM_PATH_DIR, 'notes')
-PROGRAM_WORDS_PATH_DIR = os.path.join(PROGRAM_PATH_DIR, 'words')
-
 
 def print_page_section(stdscr, selected_row_idx, book_page):
     for idx, book_page_line in enumerate(book_page):
@@ -207,8 +201,7 @@ def main(stdscr):
         MAX_HEIGHT, MAX_WIDTH = stdscr.getmaxyx()
 
         bookwnd_nav = book.BookWindowNavigation(
-            book_number_of_lines, MAX_HEIGHT, MAX_WIDTH)
-
+            book_number_of_lines, MAX_HEIGHT, MAX_WIDTH, filename)
         # Initialize stuff ...
         progress_file = get_progress_filepath(filename)
         if os.path.exists(progress_file):
@@ -301,7 +294,8 @@ def main(stdscr):
                                              bookwnd_nav.to_line, bookwnd_nav.book_number_lines())
                 if book_page:
                     bookwnd_nav.window_mode = book.WindowMode.word_building
-                    utils.word_building_mode(bookwnd_nav, stdscr, lines)
+                    utils.word_building_mode(
+                        bookwnd_nav, stdscr, lines, filename)
 
             if bookwnd_nav.window_mode == book.WindowMode.reading:
                 stdscr.clear()

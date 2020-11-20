@@ -18,7 +18,7 @@ class BookWindowNavigation:
         Current page number, navigation mode (help, reading), etc
     '''
 
-    def __init__(self, book_number_lines, window_height, window_width):
+    def __init__(self, book_number_lines, window_height, window_width, filename):
         self._book_number_of_lines = book_number_lines
         self.window_height = window_height
         self.window_width = window_width
@@ -29,6 +29,7 @@ class BookWindowNavigation:
         self.window_mode = WindowMode.reading
         self.show_status_bar = True
         self.show_percentage_points = False
+        self.filename = filename
 
     def book_number_lines(self):
         return self._book_number_of_lines

@@ -5,6 +5,7 @@ class WindowMode(Enum):
     reading = 1
     help = 2
     goto = 3
+    word_building = 4
 
 
 class URLSearch(Enum):

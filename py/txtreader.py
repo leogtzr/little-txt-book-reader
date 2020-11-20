@@ -12,6 +12,7 @@ from pathlib import Path
 import subprocess
 import shutil
 import clipboard
+from constants import *
 
 if len(sys.argv) != 2:
     sys.exit(1)
@@ -23,23 +24,6 @@ PROGRAM_PATH_DIR = os.path.join(os.environ.get('HOME'), 'txt')
 PROGRAM_PROGRESS_PATH_DIR = os.path.join(PROGRAM_PATH_DIR, 'progress')
 PROGRAM_NOTES_PATH_DIR = os.path.join(PROGRAM_PATH_DIR, 'notes')
 PROGRAM_WORDS_PATH_DIR = os.path.join(PROGRAM_PATH_DIR, 'words')
-
-KEY_ESCAPE_CODE = 27
-HIGHLIGHT_COLOR_PAIRCODE = 1
-STATUSBAR_COLOR_PAIRCODE = 2
-HELP_KEY_CODES = [ord('h'), ord('H')]
-TOGGLE_STATUSBAR_KEY_CODE = ord('.')
-SHOW_PERCENTAGE_POINTS_KEY_CODES = [ord('P'), ord('p')]
-GOTO_KEY_CODES = [ord('g'), ord('G')]
-SAVE_PROGRESS_KEY_CODE = [ord('s'), ord('S')]
-ADD_NOTES_KEY_CODE = [ord('n'), ord('N')]
-OPEN_RAE_WEBSITE_KEY_CODES = [ord('o'), ord('O')]
-OPEN_GOODREADS_WEBSITE_KEY_CODES = [ord('r'), ord('R')]
-WORD_BUILDING_KEY_CODES = [ord('w'), ord('W')]
-
-
-def book_chunk(lines, from_line, to_line, book_number_of_lines):
-    return lines[from_line:to_line]
 
 
 def print_page_section(stdscr, selected_row_idx, book_page):
@@ -134,8 +118,8 @@ def show_goto_dialog(stdscr, bookwnd_nav):
 
 
 def print_page(stdscr, lines, bookwnd_nav):
-    book_page = book_chunk(lines, bookwnd_nav.from_line,
-                           bookwnd_nav.to_line, bookwnd_nav.book_number_lines())
+    book_page = utils.book_chunk(lines, bookwnd_nav.from_line,
+                                 bookwnd_nav.to_line, bookwnd_nav.book_number_lines())
     print_page_section(stdscr, bookwnd_nav.current_row, book_page)
     print_status_bar(stdscr, bookwnd_nav)
 
@@ -313,16 +297,11 @@ def main(stdscr):
                 open_url_in_browser(book.URLSearch.good_reads)
 
             elif key in WORD_BUILDING_KEY_CODES:
-                book_page = book_chunk(lines, bookwnd_nav.from_line,
-                                       bookwnd_nav.to_line, bookwnd_nav.book_number_lines())
+                book_page = utils.book_chunk(lines, bookwnd_nav.from_line,
+                                             bookwnd_nav.to_line, bookwnd_nav.book_number_lines())
                 if book_page:
-                    stdscr.clear()
-                    row_line = book_page[bookwnd_nav.current_row]
-                    stdscr.attron(curses.color_pair(STATUSBAR_COLOR_PAIRCODE))
-                    words = row_line.split()
-                    stdscr.addstr(0, 0, row_line)
-                    stdscr.attroff(curses.color_pair(STATUSBAR_COLOR_PAIRCODE))
-                    stdscr.getch()
+                    bookwnd_nav.window_mode = book.WindowMode.word_building
+                    utils.word_building_mode(bookwnd_nav, stdscr, lines)
 
             if bookwnd_nav.window_mode == book.WindowMode.reading:
                 stdscr.clear()

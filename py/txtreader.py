@@ -1,3 +1,4 @@
+# TODO: word building mode.
 import curses
 from curses import textpad
 import sys
@@ -21,6 +22,7 @@ filename = sys.argv[1]
 PROGRAM_PATH_DIR = os.path.join(os.environ.get('HOME'), 'txt')
 PROGRAM_PROGRESS_PATH_DIR = os.path.join(PROGRAM_PATH_DIR, 'progress')
 PROGRAM_NOTES_PATH_DIR = os.path.join(PROGRAM_PATH_DIR, 'notes')
+PROGRAM_WORDS_PATH_DIR = os.path.join(PROGRAM_PATH_DIR, 'words')
 
 KEY_ESCAPE_CODE = 27
 HIGHLIGHT_COLOR_PAIRCODE = 1
@@ -33,6 +35,7 @@ SAVE_PROGRESS_KEY_CODE = [ord('s'), ord('S')]
 ADD_NOTES_KEY_CODE = [ord('n'), ord('N')]
 OPEN_RAE_WEBSITE_KEY_CODES = [ord('o'), ord('O')]
 OPEN_GOODREADS_WEBSITE_KEY_CODES = [ord('r'), ord('R')]
+WORD_BUILDING_KEY_CODES = [ord('w'), ord('W')]
 
 
 def book_chunk(lines, from_line, to_line, book_number_of_lines):
@@ -61,7 +64,7 @@ def print_save_progress_status(stdscr, bookwnd_nav, filename):
     pos_width = bookwnd_nav.window_width
     stdscr.attron(curses.color_pair(STATUSBAR_COLOR_PAIRCODE))
     stdscr.addstr(pos_height, pos_width//2, status_text)
-    stdscr.attroff(curses.color_pair(1))
+    stdscr.attroff(curses.color_pair(STATUSBAR_COLOR_PAIRCODE))
 
 
 def print_status_bar(stdscr, bookwnd_nav):
@@ -291,7 +294,6 @@ def main(stdscr):
             elif key in SAVE_PROGRESS_KEY_CODE:
                 save_progress(filename, bookwnd_nav)
                 print_save_progress_status(stdscr, bookwnd_nav, filename)
-                stdscr.getch()
 
             elif key == curses.KEY_HOME:
                 goto_beginning_book(bookwnd_nav)
@@ -310,6 +312,18 @@ def main(stdscr):
             elif key in OPEN_GOODREADS_WEBSITE_KEY_CODES:
                 open_url_in_browser(book.URLSearch.good_reads)
 
+            elif key in WORD_BUILDING_KEY_CODES:
+                book_page = book_chunk(lines, bookwnd_nav.from_line,
+                                       bookwnd_nav.to_line, bookwnd_nav.book_number_lines())
+                if book_page:
+                    stdscr.clear()
+                    row_line = book_page[bookwnd_nav.current_row]
+                    stdscr.attron(curses.color_pair(STATUSBAR_COLOR_PAIRCODE))
+                    words = row_line.split()
+                    stdscr.addstr(0, 0, row_line)
+                    stdscr.attroff(curses.color_pair(STATUSBAR_COLOR_PAIRCODE))
+                    stdscr.getch()
+
             if bookwnd_nav.window_mode == book.WindowMode.reading:
                 stdscr.clear()
                 print_page(stdscr, lines, bookwnd_nav)
@@ -319,5 +333,6 @@ def main(stdscr):
 Path(PROGRAM_PATH_DIR).mkdir(parents=True, exist_ok=True)
 Path(PROGRAM_PROGRESS_PATH_DIR).mkdir(parents=True, exist_ok=True)
 Path(PROGRAM_NOTES_PATH_DIR).mkdir(parents=True, exist_ok=True)
+Path(PROGRAM_WORDS_PATH_DIR).mkdir(parents=True, exist_ok=True)
 
 curses.wrapper(main)

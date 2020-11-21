@@ -65,35 +65,6 @@ def print_status_bar(stdscr, bookwnd_nav):
     stdscr.attroff(curses.color_pair(1))
 
 
-def print_help_screen(stdscr):
-    screen_height, screen_width = stdscr.getmaxyx()
-    border_offset = 3
-    box = [[border_offset, border_offset], [
-        screen_height-border_offset, screen_width-border_offset]]
-    textpad.rectangle(
-        stdscr, box[0][0], box[0][1], box[1][0], box[1][1])
-
-    help_entries = [
-        'Down    -> Go Down',
-        'Up      -> Go Up',
-        'G       -> Go To',
-        '.       -> Toggle Status Bar',
-        'ESC     -> Closes the program/Dialogs',
-        'S       -> Save Progress',
-        'H       -> Show the Help Dialog',
-        'P       -> Show Percentage Points',
-        'N       -> Open Notes file',
-        'T       -> Toggle Status Bar Versions',
-        'O       -> Opens RAE Web site with search from the clipboard.',
-        'R       -> Opens GoodReads Web site with search from the clipboard.',
-        'W       -> Open Word Building Mode with current sentence',
-        'V       -> View Words added to the Word Building Database'
-    ]
-
-    for idx, help_entry in enumerate(help_entries):
-        stdscr.addstr(border_offset + idx + 1, border_offset+1, help_entry)
-
-
 def show_goto_dialog(stdscr, bookwnd_nav):
     screen_height, screen_width = stdscr.getmaxyx()
     border_offset = 2
@@ -203,7 +174,7 @@ def main(stdscr):
 
         bookwnd_nav = book.BookWindowNavigation(
             book_number_of_lines, MAX_HEIGHT, MAX_WIDTH, filename)
-        # Initialize stuff ...
+
         progress_file = get_progress_filepath(filename)
         if os.path.exists(progress_file):
             reading_progress = parse_progress_file(progress_file)
@@ -230,7 +201,7 @@ def main(stdscr):
             elif key in HELP_KEY_CODES:
                 stdscr.clear()
                 bookwnd_nav.window_mode = book.WindowMode.help
-                print_help_screen(stdscr)
+                utils.print_help_screen(stdscr)
 
             elif key in GOTO_KEY_CODES:
                 stdscr.clear()
@@ -300,6 +271,11 @@ def main(stdscr):
 
             elif key in VIEW_FROM_WORDBUILDING_KEY_CODES:
                 utils.view_words(bookwnd_nav, stdscr)
+
+            elif key in STATS_KEY_CODES:
+                stdscr.clear()
+                bookwnd_nav.window_mode = book.WindowMode.stats
+                utils.view_stats(lines, bookwnd_nav, stdscr)
 
             if bookwnd_nav.window_mode == book.WindowMode.reading:
                 stdscr.clear()

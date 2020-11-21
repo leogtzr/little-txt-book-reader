@@ -1,10 +1,42 @@
 import curses
 import os
+from curses import textpad
 from book import WindowMode
 from constants import STATUSBAR_COLOR_PAIRCODE
 from constants import ENTER_KEY_CODES
 from constants import PROGRAM_WORDS_PATH_DIR
+from constants import KEY_ESCAPE_CODE
 from math import ceil
+
+
+def print_help_screen(stdscr):
+    screen_height, screen_width = stdscr.getmaxyx()
+    border_offset = 3
+    box = [[border_offset, border_offset], [
+        screen_height-border_offset, screen_width-border_offset]]
+    textpad.rectangle(
+        stdscr, box[0][0], box[0][1], box[1][0], box[1][1])
+
+    help_entries = [
+        'Down    -> Go Down',
+        'Up      -> Go Up',
+        'G       -> Go To',
+        '.       -> Toggle Status Bar',
+        'ESC     -> Closes the program/Dialogs',
+        'S       -> Save Progress',
+        'H       -> Show the Help Dialog',
+        'P       -> Show Percentage Points',
+        'N       -> Open Notes file',
+        'T       -> Toggle Status Bar Versions',
+        'O       -> Opens RAE Web site with search from the clipboard.',
+        'R       -> Opens GoodReads Web site with search from the clipboard.',
+        'W       -> Open Word Building Mode with current sentence',
+        'V       -> View Words added to the Word Building Database',
+        'T       -> View Stats'
+    ]
+
+    for idx, help_entry in enumerate(help_entries):
+        stdscr.addstr(border_offset + idx + 1, border_offset+1, help_entry)
 
 
 def word_building_words(bookwnd_nav):
@@ -16,6 +48,36 @@ def word_building_words(bookwnd_nav):
         return []
     else:
         return lines
+
+
+def word_count(lines):
+    count = 0
+    for line in lines:
+        count += len(line.split())
+    return count
+
+
+def view_stats(lines, bookwnd_nav, stdscr):
+    screen_height, screen_width = stdscr.getmaxyx()
+    border_offset = 3
+    box = [[border_offset, border_offset], [
+        screen_height-border_offset, screen_width-border_offset]]
+    textpad.rectangle(
+        stdscr, box[0][0], box[0][1], box[1][0], box[1][1])
+    perc = percent(bookwnd_nav.line_number,
+                   bookwnd_nav.book_number_lines())
+
+    stat_entries = [
+        f"Progress {perc:.1f}%, line: {bookwnd_nav.line_number}",
+        f"Pages:   {bookwnd_nav.book_number_lines()}",
+        f"Words:   ~{word_count(lines)}"
+    ]
+
+    for idx, entry in enumerate(stat_entries):
+        stdscr.addstr(border_offset + idx + 1, border_offset+1, entry)
+
+    bookwnd_nav.window_mode = WindowMode.reading
+    stdscr.getch()
 
 
 def view_words(bookwnd_nav, stdscr):
@@ -33,7 +95,6 @@ def view_words(bookwnd_nav, stdscr):
     normalText = curses.A_NORMAL
     stdscr.border(0)
     curses.curs_set(0)
-    # max_row = 30  # max number of rows
     max_row = 10
 
     if len(words) >= bookwnd_nav.window_height:
@@ -43,11 +104,6 @@ def view_words(bookwnd_nav, stdscr):
 
     box = curses.newwin(max_row + 2, 100, 1, 1)
     box.box()
-
-
-# words = ["a", "b", "c", "d", "e", "f", "g", "h", "i", "l",
-#          "m", "n", "1", "2", "3", "4", "5"]  # list of words
-
     row_num = len(words)
 
     pages = int(ceil(row_num / max_row))
@@ -64,7 +120,7 @@ def view_words(bookwnd_nav, stdscr):
     box.refresh()
 
     x = stdscr.getch()
-    while x != 27:
+    while x not in [KEY_ESCAPE_CODE]:
         if x == curses.KEY_DOWN:
             if page == 1:
                 if position < i:
@@ -108,7 +164,7 @@ def view_words(bookwnd_nav, stdscr):
 
         # TODO: create a function for this.
         for i in range(1 + (max_row * (page - 1)), max_row + 1 + (max_row * (page - 1))):
-            if (i + (max_row * (page - 1)) == position + (max_row * (page - 1))):
+            if i + (max_row * (page - 1)) == position + (max_row * (page - 1)):
                 box.addstr(i - (max_row * (page - 1)), 2, str(i) +
                            " - " + words[i - 1], highlightText)
             else:

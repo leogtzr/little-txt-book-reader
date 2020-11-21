@@ -1,3 +1,4 @@
+# TODO add another navigation mode ...
 import curses
 from curses import textpad
 import sys
@@ -213,26 +214,10 @@ def main(stdscr):
                 bookwnd_nav.window_mode = book.WindowMode.reading
 
             elif key == curses.KEY_DOWN:
-                if bookwnd_nav.current_row == (bookwnd_nav.window_height - 1):
-                    # Reset:
-                    bookwnd_nav.current_row = 0
-                    bookwnd_nav.line_number += 1
-                    bookwnd_nav.from_line += bookwnd_nav.window_height
-                    bookwnd_nav.to_line = bookwnd_nav.from_line + bookwnd_nav.window_height
-                else:
-                    bookwnd_nav.current_row += 1
-                    bookwnd_nav.line_number += 1
+                utils.check_key_down(bookwnd_nav)
 
             elif key == curses.KEY_UP:
-                if bookwnd_nav.current_row == 0:
-                    if bookwnd_nav.line_number > bookwnd_nav.window_height:
-                        bookwnd_nav.current_row = bookwnd_nav.window_height - 1
-                        bookwnd_nav.line_number -= 1
-                        bookwnd_nav.from_line -= bookwnd_nav.window_height
-                        bookwnd_nav.to_line -= bookwnd_nav.window_height
-                else:
-                    bookwnd_nav.current_row -= 1
-                    bookwnd_nav.line_number -= 1
+                utils.check_key_up(bookwnd_nav)
 
             elif key == TOGGLE_STATUSBAR_KEY_CODE:
                 bookwnd_nav.show_status_bar = not bookwnd_nav.show_status_bar
@@ -276,6 +261,11 @@ def main(stdscr):
                 stdscr.clear()
                 bookwnd_nav.window_mode = book.WindowMode.stats
                 utils.view_stats(lines, bookwnd_nav, stdscr)
+
+            elif key in TOGGLE_NAV_MODE:
+                bookwnd_nav.toggle_nav_mode()
+                if bookwnd_nav.nav_mode() == book.NavigationMode.line_by_line:
+                    bookwnd_nav.current_row = bookwnd_nav.window_height - 1
 
             if bookwnd_nav.window_mode == book.WindowMode.reading:
                 stdscr.clear()

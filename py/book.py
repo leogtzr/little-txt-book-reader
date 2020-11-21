@@ -10,6 +10,11 @@ class WindowMode(Enum):
     stats = 6
 
 
+class NavigationMode(Enum):
+    by_page = 0
+    line_by_line = 1
+
+
 class URLSearch(Enum):
     rae = "https://dle.rae.es/{}"
     good_reads = 'https://www.goodreads.com/search?q={}'
@@ -32,6 +37,13 @@ class BookWindowNavigation:
         self.show_status_bar = True
         self.show_percentage_points = False
         self.filename = filename
+        self.navigation_mode = NavigationMode.by_page
 
     def book_number_lines(self):
         return self._book_number_of_lines
+
+    def nav_mode(self):
+        return self.navigation_mode
+
+    def toggle_nav_mode(self):
+        self.navigation_mode = NavigationMode(self.navigation_mode.value ^ 1)

@@ -2,11 +2,50 @@ import curses
 import os
 from curses import textpad
 from book import WindowMode
+from book import NavigationMode
 from constants import STATUSBAR_COLOR_PAIRCODE
 from constants import ENTER_KEY_CODES
 from constants import PROGRAM_WORDS_PATH_DIR
 from constants import KEY_ESCAPE_CODE
 from math import ceil
+
+
+def check_key_down(bookwnd_nav):
+    if bookwnd_nav.nav_mode() == NavigationMode.by_page:
+        if bookwnd_nav.current_row == (bookwnd_nav.window_height - 1):
+            # Reset:
+            bookwnd_nav.current_row = 0
+            bookwnd_nav.line_number += 1
+            bookwnd_nav.from_line += bookwnd_nav.window_height
+            bookwnd_nav.to_line = bookwnd_nav.from_line + bookwnd_nav.window_height
+        else:
+            bookwnd_nav.current_row += 1
+            bookwnd_nav.line_number += 1
+    else:
+        if bookwnd_nav.line_number < bookwnd_nav.book_number_lines():
+            bookwnd_nav.current_row = bookwnd_nav.window_height - 1
+            bookwnd_nav.line_number += 1
+            bookwnd_nav.from_line += 1
+            bookwnd_nav.to_line += 1
+
+
+def check_key_up(bookwnd_nav):
+    if bookwnd_nav.nav_mode() == NavigationMode.by_page:
+        if bookwnd_nav.current_row == 0:
+            if bookwnd_nav.line_number > bookwnd_nav.window_height:
+                bookwnd_nav.current_row = bookwnd_nav.window_height - 1
+                bookwnd_nav.line_number -= 1
+                bookwnd_nav.from_line -= bookwnd_nav.window_height
+                bookwnd_nav.to_line -= bookwnd_nav.window_height
+        else:
+            bookwnd_nav.current_row -= 1
+            bookwnd_nav.line_number -= 1
+    else:
+        if bookwnd_nav.line_number > 0:
+            bookwnd_nav.current_row = bookwnd_nav.window_height - 1
+            bookwnd_nav.line_number -= 1
+            bookwnd_nav.from_line -= 1
+            bookwnd_nav.to_line -= 1
 
 
 def print_help_screen(stdscr):

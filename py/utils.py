@@ -66,7 +66,6 @@ def print_help_screen(stdscr):
         'H       -> Show the Help Dialog',
         'P       -> Show Percentage Points',
         'N       -> Open Notes file',
-        'T       -> Toggle Status Bar Versions',
         'O       -> Opens RAE Web site with search from the clipboard.',
         'R       -> Opens GoodReads Web site with search from the clipboard.',
         'W       -> Open Word Building Mode with current sentence',

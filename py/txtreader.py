@@ -20,14 +20,18 @@ if len(sys.argv) != 2:
 filename = sys.argv[1]
 
 
-def print_page_section(stdscr, selected_row_idx, book_page):
+def print_page_section(stdscr, bookwnd_nav, book_page):
+
+    selected_row_idx = bookwnd_nav.current_row
+
+    book_page = book_page[:bookwnd_nav.window_height]
     for idx, book_page_line in enumerate(book_page):
         if idx == selected_row_idx:
             stdscr.attron(curses.color_pair(HIGHLIGHT_COLOR_PAIRCODE))
             stdscr.addstr(idx, 0, book_page_line)
             stdscr.attroff(curses.color_pair(HIGHLIGHT_COLOR_PAIRCODE))
         else:
-            stdscr.addstr(idx, 0, book_page_line)
+            stdscr.addstr(idx, 1, book_page_line)
 
 
 def print_save_progress_status(stdscr, bookwnd_nav, filename):
@@ -87,7 +91,7 @@ def show_goto_dialog(stdscr, bookwnd_nav):
 def print_page(stdscr, lines, bookwnd_nav):
     book_page = utils.book_chunk(lines, bookwnd_nav.from_line,
                                  bookwnd_nav.to_line, bookwnd_nav.book_number_lines())
-    print_page_section(stdscr, bookwnd_nav.current_row, book_page)
+    print_page_section(stdscr, bookwnd_nav, book_page)
     print_status_bar(stdscr, bookwnd_nav)
 
 

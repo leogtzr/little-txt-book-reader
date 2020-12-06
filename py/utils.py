@@ -70,7 +70,8 @@ def print_help_screen(stdscr):
         'R       -> Opens GoodReads Web site with search from the clipboard.',
         'W       -> Open Word Building Mode with current sentence',
         'V       -> View Words added to the Word Building Database',
-        'T       -> View Stats'
+        'T       -> View Stats',
+        'ESPACE  -> Toggle Navigation Mode',
     ]
 
     for idx, help_entry in enumerate(help_entries):

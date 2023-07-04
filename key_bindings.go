@@ -19,11 +19,9 @@ import (
 func addUpDownKeyBindings(txtArea *tui.Box, ui tui.UI, inputCommand *tui.Entry) {
 	// down ...
 	ui.SetKeybinding(downKeyBindingAlternative1, addDownBinding(txtArea, inputCommand))
-	ui.SetKeybinding(downKeyBindingAlternative2, addDownBinding(txtArea, inputCommand))
 
 	// Up ...
 	ui.SetKeybinding(upKeyBindingAlternative1, addUpBinding(txtArea, inputCommand))
-	ui.SetKeybinding(upKeyBindingAlternative2, addUpBinding(txtArea, inputCommand))
 }
 
 func addShowStatusKeyBinding(ui tui.UI, inputCommand *tui.Entry) {
@@ -312,23 +310,23 @@ func addShowHelpKeyBinding(ui tui.UI, txtReader *tui.Box) {
 		}
 		sort.Ints(percentages)
 
-		addKeyBindingDescription(fmt.Sprintf("%s/%s    -> Go Down", downKeyBindingAlternative1, downKeyBindingAlternative2), &strs)
-		addKeyBindingDescription(fmt.Sprintf("%s/%s    -> Go Up", upKeyBindingAlternative1, upKeyBindingAlternative2), &strs)
-		addKeyBindingDescription(fmt.Sprintf("%s    -> Go To", gotoKeyBindingAlternative1), &strs)
-		addKeyBindingDescription(fmt.Sprintf("%s    -> New Note", newNoteKeyBindingAlternative1), &strs)
-		addKeyBindingDescription(fmt.Sprintf("%s    -> Show Status", showStatusKeyBinding), &strs)
-		addKeyBindingDescription(fmt.Sprintf("%s        -> Closes the Goto Dialog", closeGotoKeyBindingAlternative1), &strs)
-		addKeyBindingDescription(fmt.Sprintf("%s        -> Save Progress", saveStatusKeyBindingAlternative1), &strs)
-		addKeyBindingDescription(fmt.Sprintf("%s    -> Shows Next Percentage Point Stats", nextPercentagePointKeyBindingAlternative1), &strs)
-		addKeyBindingDescription(fmt.Sprintf("%s    -> Shows the References Dialog", showReferencesKeyBindingAlternative1), &strs)
-		addKeyBindingDescription(fmt.Sprintf("%s    -> Closes the References Dialog", closeReferencesWindowKeyBindingAlternative1), &strs)
-		addKeyBindingDescription(fmt.Sprintf("%s      -> Closes the program", closeApplicationKeyBindingAlternative1), &strs)
-		addKeyBindingDescription(fmt.Sprintf("%s    -> Analyze and filter references", analyzeAndFilterReferencesKeyBinding), &strs)
-		addKeyBindingDescription(fmt.Sprintf("%s    -> Add a Quote, gets the text from the clipboard.", saveQuoteKeyBindingAlternative1), &strs)
-		addKeyBindingDescription(fmt.Sprintf("%s    -> Shows Time Stats for each percentage point.", showMinutesTakenToReachPercentagePointKeyBinding), &strs)
-		addKeyBindingDescription(fmt.Sprintf("%s    -> Shows this Dialog", showHelpKeyBinding), &strs)
-		addKeyBindingDescription(fmt.Sprintf("%s    -> Opens RAE Web site with search from the clipboard.", openRAEWebSiteKeyBinging), &strs)
-		addKeyBindingDescription(fmt.Sprintf("%s    -> Opens GoodReads Web site with search from the clipboard.", openGoodReadsWebSiteKeyBinding), &strs)
+		addKeyBindingDescription(fmt.Sprintf("%10s -> Go Down", downKeyBindingAlternative1), &strs)
+		addKeyBindingDescription(fmt.Sprintf("%10s -> Go Up", upKeyBindingAlternative1), &strs)
+		addKeyBindingDescription(fmt.Sprintf("%10s -> Go To", gotoKeyBindingAlternative1), &strs)
+		addKeyBindingDescription(fmt.Sprintf("%10s -> New Note", newNoteKeyBindingAlternative1), &strs)
+		addKeyBindingDescription(fmt.Sprintf("%10s -> Show Status", showStatusKeyBinding), &strs)
+		addKeyBindingDescription(fmt.Sprintf("%10s -> Closes the Goto Dialog", closeGotoKeyBindingAlternative1), &strs)
+		addKeyBindingDescription(fmt.Sprintf("%10s -> Save Progress", saveStatusKeyBindingAlternative1), &strs)
+		addKeyBindingDescription(fmt.Sprintf("%10s -> Shows Next Percentage Point Stats", nextPercentagePointKeyBindingAlternative1), &strs)
+		addKeyBindingDescription(fmt.Sprintf("%10s -> Shows the References Dialog", showReferencesKeyBindingAlternative1), &strs)
+		addKeyBindingDescription(fmt.Sprintf("%10s -> Closes the References Dialog", closeReferencesWindowKeyBindingAlternative1), &strs)
+		addKeyBindingDescription(fmt.Sprintf("%10s -> Closes the program", closeApplicationKeyBindingAlternative1), &strs)
+		addKeyBindingDescription(fmt.Sprintf("%10s -> Analyze and filter references", analyzeAndFilterReferencesKeyBinding), &strs)
+		addKeyBindingDescription(fmt.Sprintf("%10s -> Add a Quote, gets the text from the clipboard.", saveQuoteKeyBindingAlternative1), &strs)
+		addKeyBindingDescription(fmt.Sprintf("%10s -> Shows Time Stats for each percentage point.", showMinutesTakenToReachPercentagePointKeyBinding), &strs)
+		addKeyBindingDescription(fmt.Sprintf("%10s -> Shows this Dialog", showHelpKeyBinding), &strs)
+		addKeyBindingDescription(fmt.Sprintf("%10s -> Opens RAE Web site with search from the clipboard.", openRAEWebSiteKeyBinging), &strs)
+		addKeyBindingDescription(fmt.Sprintf("%10s -> Opens GoodReads Web site with search from the clipboard.", openGoodReadsWebSiteKeyBinding), &strs)
 
 		l.AddItems(strs...)
 		s := tui.NewScrollArea(l)

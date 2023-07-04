@@ -1,10 +1,8 @@
 package main
 
 const (
-	downKeyBindingAlternative1                       = "Alt+j"
-	downKeyBindingAlternative2                       = "Down"
-	upKeyBindingAlternative1                         = "Alt+k"
-	upKeyBindingAlternative2                         = "Up"
+	downKeyBindingAlternative1                       = "k"
+	upKeyBindingAlternative1                         = "j"
 	gotoKeyBindingAlternative1                       = "Alt+g"
 	newNoteKeyBindingAlternative1                    = "Alt+n"
 	showStatusKeyBinding                             = "."

@@ -7,10 +7,10 @@ const (
 	upKeyBindingAlternative2                         = "Up"
 	gotoKeyBindingAlternative1                       = "Alt+g"
 	newNoteKeyBindingAlternative1                    = "Alt+n"
-	showStatusKeyBinding                             = "Alt+."
+	showStatusKeyBinding                             = "."
 	closeGotoKeyBindingAlternative1                  = "r"
 	saveStatusKeyBindingAlternative1                 = "s"
-	nextPercentagePointKeyBindingAlternative1        = "Alt+p"
+	nextPercentagePointKeyBindingAlternative1        = "p"
 	showReferencesKeyBindingAlternative1             = "Alt+r"
 	closeReferencesWindowKeyBindingAlternative1      = "Alt+q"
 	closeApplicationKeyBindingAlternative1           = "Esc"
@@ -19,7 +19,7 @@ const (
 	showMinutesTakenToReachPercentagePointKeyBinding = "Alt+m"
 	openRAEWebSiteKeyBinging                         = "Alt+o"
 	openGoodReadsWebSiteKeyBinding                   = "Alt+d"
-	showHelpKeyBinding                               = "Alt+y"
+	showHelpKeyBinding                               = "h"
 	maxNumberOfElementsInGUIBox                      = 200
 )
 

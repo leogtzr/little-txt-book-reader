@@ -2,15 +2,17 @@ package main
 
 const (
 	downKeyBindingAlternative1                       = "k"
+	downKeyBindingAlternative2                       = "Down"
 	upKeyBindingAlternative1                         = "j"
-	gotoKeyBindingAlternative1                       = "Alt+g"
+	upKeyBindingAlternative2                         = "Up"
+	gotoKeyBindingAlternative1                       = "g"
 	newNoteKeyBindingAlternative1                    = "Alt+n"
 	showStatusKeyBinding                             = "."
 	closeGotoKeyBindingAlternative1                  = "r"
 	saveStatusKeyBindingAlternative1                 = "s"
 	nextPercentagePointKeyBindingAlternative1        = "p"
-	showReferencesKeyBindingAlternative1             = "Alt+r"
-	closeReferencesWindowKeyBindingAlternative1      = "Alt+q"
+	showReferencesKeyBindingAlternative1             = "f"
+	closeReferencesWindowKeyBindingAlternative1      = "q"
 	closeApplicationKeyBindingAlternative1           = "Esc"
 	analyzeAndFilterReferencesKeyBinding             = "Alt+b"
 	saveQuoteKeyBindingAlternative1                  = "Alt+q"
@@ -40,6 +42,4 @@ const (
 	pageSize = 10
 
 	dbFileRequieredNumberFields = 3
-
-	txtDBFile = "txtread"
 )

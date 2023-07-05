@@ -1,3 +1,4 @@
+// main is ...
 package main
 
 const (
@@ -41,5 +42,5 @@ const (
 
 	pageSize = 10
 
-	dbFileRequieredNumberFields = 3
+	dbFileRequieredNumbermields = 3
 )

@@ -218,9 +218,8 @@ func removeDuplicates(elements []string) []string {
 	result := []string{}
 
 	for v := range elements {
-		if encountered[elements[v]] == true {
-			// Do not add duplicate.
-		} else {
+		// Do not add duplicate.
+		if !encountered[elements[v]] {
 			// Record this element as an encountered element.
 			encountered[elements[v]] = true
 			// Append to result slice.

@@ -233,7 +233,7 @@ func main() {
 	addPercentageKeyBindings(ui, inputCommand)
 	addCloseApplicationKeyBinding(ui, txtArea, txtReader)
 	addReferencesNavigationKeyBindings(ui)
-	addSaveQuoteKeyBindings(ui, fileName, txtArea, txtReader, inputCommand)
+	addSaveQuoteKeyBindings(ui, fileName, txtArea, inputCommand)
 	addOnSelectedReference()
 	addShowMinutesTakenToReachPercentagePointKeyBinding(ui, txtReader)
 	addShowHelpKeyBinding(ui, txtReader)

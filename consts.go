@@ -42,5 +42,5 @@ const (
 
 	pageSize = 10
 
-	dbFileRequieredNumbermields = 3
+	dbFileRequiredNumbermields = 3
 )

@@ -99,7 +99,7 @@ func addReferencesNavigationKeyBindings(ui tui.UI) {
 	})
 }
 
-func addSaveQuoteKeyBindings(ui tui.UI, fileName string, txtArea, inputCommand *tui.Entry) {
+func addSaveQuoteKeyBindings(ui tui.UI, fileName string, txtArea *tui.Box, inputCommand *tui.Entry) {
 	ui.SetKeybinding(saveQuoteKeyBindingAlternative1, func() {
 		oldStdout, oldStdin, oldSterr := os.Stdout, os.Stdin, os.Stderr
 

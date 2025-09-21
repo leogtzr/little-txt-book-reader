@@ -20,7 +20,6 @@ var (
 	gotoLine                          = ""
 	fileToOpen                        = flag.String("file", "", "File to open")
 	percentagePointStats              = false
-	absoluteFilePath                  string
 	toggleShowStatus                  = true
 	references                        = []string{}
 	fileContent                       = []string{}
@@ -28,7 +27,6 @@ var (
 	bannedWords                       = []string{}
 	sidebar                           = tui.NewVBox()
 	refsTable                         = tui.NewTable(0, 0)
-	refsStatus                        = tui.NewStatusBar("_")
 	pageIndex                         = 0
 	minutesToReachNextPercentagePoint map[int]time.Duration
 	startTime                         time.Time
@@ -169,6 +167,13 @@ func openOSEditor(os, notesFile string) *exec.Cmd {
 	if os == "windows" {
 		return exec.Command("notepad", notesFile)
 	}
+	if os == "darwin" {
+		script := fmt.Sprintf(`tell application "Terminal"
+	activate
+	do script "vim +$ %s; exit"
+end tell`, notesFile)
+		return exec.Command("osascript", "-e", script)
+	}
 	return exec.Command("/usr/bin/xterm", "-fa", "Monospace", "-fs", "14", "-e", "/usr/bin/vim", "+$", notesFile)
 }
 
@@ -192,6 +197,7 @@ func main() {
 	from, to, fileName = latestFile.From, latestFile.To, latestFile.FileName
 
 	file, err := os.Open(fileName)
+	check(err)
 	fileContent, err = readLines(file)
 	check(err)
 	defer file.Close()

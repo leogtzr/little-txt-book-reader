@@ -7,7 +7,7 @@ const (
 	upKeyBindingAlternative1                         = "j"
 	upKeyBindingAlternative2                         = "Up"
 	gotoKeyBindingAlternative1                       = "g"
-	newNoteKeyBindingAlternative1                    = "Alt+n"
+	newNoteKeyBindingAlternative1                    = "n"
 	showStatusKeyBinding                             = "."
 	closeGotoKeyBindingAlternative1                  = "r"
 	saveStatusKeyBindingAlternative1                 = "s"

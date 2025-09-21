@@ -7,3 +7,4 @@ cp.out
 nohup.out
 py/*.txt
 py/__pycache__/
+.idea/

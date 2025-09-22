@@ -101,7 +101,7 @@ func getFileNameFromLatest(filePath string) (LatestFile, error) {
 	content, err := ioutil.ReadAll(f)
 	latestFileFields := strings.Split(string(content), "|")
 	if len(latestFileFields) != dbFileRequiredNumbermields {
-		return LatestFile{}, fmt.Errorf("Wrong format in '%s'", latestFilePath)
+		return LatestFile{}, fmt.Errorf("wrong format in '%s'", latestFilePath)
 	}
 
 	latestFile.FileName = latestFileFields[0]

@@ -182,7 +182,7 @@ func main() {
 	flag.Parse()
 	fileName := *fileToOpen
 	if fileName == "" {
-		fmt.Fprintln(os.Stderr, "error: missing file to read")
+		_, _ = fmt.Fprintln(os.Stderr, "error: missing file to read")
 		os.Exit(1)
 	}
 
@@ -210,7 +210,7 @@ func main() {
 	txtAreaScroll.SetAutoscrollToBottom(true)
 
 	txtAreaBox := tui.NewVBox(txtAreaScroll)
-	// txtAreaBox.SetBorder(true)
+	txtAreaBox.SetBorder(true)
 
 	inputCommand := newInputCommandEntry()
 	inputCommandBox := newInputCommandBox(inputCommand)

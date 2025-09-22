@@ -1,10 +1,9 @@
-// main is ...
 package main
 
 const (
-	downKeyBindingAlternative1                       = "k"
+	downKeyBindingAlternative1                       = "j"
 	downKeyBindingAlternative2                       = "Down"
-	upKeyBindingAlternative1                         = "j"
+	upKeyBindingAlternative1                         = "k"
 	upKeyBindingAlternative2                         = "Up"
 	gotoKeyBindingAlternative1                       = "g"
 	newNoteKeyBindingAlternative1                    = "n"
@@ -18,7 +17,7 @@ const (
 	analyzeAndFilterReferencesKeyBinding             = "Alt+b"
 	saveQuoteKeyBindingAlternative1                  = "Alt+q"
 	showMinutesTakenToReachPercentagePointKeyBinding = "Alt+m"
-	openRAEWebSiteKeyBinging                         = "Alt+o"
+	openRAEWebSiteKeyBinging                         = "o"
 	openGoodReadsWebSiteKeyBinding                   = "Alt+d"
 	showHelpKeyBinding                               = "h"
 	maxNumberOfElementsInGUIBox                      = 200

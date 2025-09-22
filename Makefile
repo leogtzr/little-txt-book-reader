@@ -8,8 +8,8 @@ install:
 
 clean:
 	go clean
-	rm --force "cp.out"
-	rm --force nohup.out
+	rm -f "cp.out"
+	rm -f nohup.out
 
 test:
 	go test

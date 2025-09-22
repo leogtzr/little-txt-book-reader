@@ -16,7 +16,7 @@ const (
 	closeApplicationKeyBindingAlternative1           = "Esc"
 	analyzeAndFilterReferencesKeyBinding             = "Alt+b"
 	saveQuoteKeyBindingAlternative1                  = "Alt+q"
-	showMinutesTakenToReachPercentagePointKeyBinding = "Alt+m"
+	showMinutesTakenToReachPercentagePointKeyBinding = "m"
 	openRAEWebSiteKeyBinging                         = "o"
 	openGoodReadsWebSiteKeyBinding                   = "d"
 	showHelpKeyBinding                               = "h"

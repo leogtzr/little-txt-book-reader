@@ -18,7 +18,7 @@ const (
 	saveQuoteKeyBindingAlternative1                  = "Alt+q"
 	showMinutesTakenToReachPercentagePointKeyBinding = "Alt+m"
 	openRAEWebSiteKeyBinging                         = "o"
-	openGoodReadsWebSiteKeyBinding                   = "Alt+d"
+	openGoodReadsWebSiteKeyBinding                   = "d"
 	showHelpKeyBinding                               = "h"
 	maxNumberOfElementsInGUIBox                      = 200
 )

@@ -220,6 +220,19 @@ func addAnalyzeAndFilterReferencesKeyBinding(ui tui.UI) {
 	})
 }
 
+func browserOpenURLCommand(osName, url string) *exec.Cmd {
+	switch osName {
+	case "linux":
+		return exec.Command("xdg-open", url)
+	case "windows":
+		return exec.Command("rundll32", "url.dll,FileProtocolHandler", url)
+	case "darwin":
+		return exec.Command("open", url)
+	default:
+		return nil
+	}
+}
+
 func addOpenRAEWebSite(ui tui.UI, inputCommand *tui.Entry) {
 	ui.SetKeybinding(openRAEWebSiteKeyBinging, func() {
 		clipBoardText, err := clipboard.ReadAll()
@@ -230,12 +243,25 @@ func addOpenRAEWebSite(ui tui.UI, inputCommand *tui.Entry) {
 		if len(strings.TrimSpace(clipBoardText)) == 0 {
 			return
 		}
-		url := fmt.Sprintf("https://dle.rae.es/%s", clipBoardText)
-		if err = exec.Command("xdg-open", url).Start(); err != nil {
+		raeURL := fmt.Sprintf("https://dle.rae.es/%s", clipBoardText)
+		if err = browserOpenURLCommand(runtime.GOOS, raeURL).Start(); err != nil {
 			inputCommand.SetText(err.Error())
 			return
 		}
 	})
+}
+
+func browserOpenGoodReadsURLCommand(osName, url string) *exec.Cmd {
+	switch osName {
+	case "linux":
+		return exec.Command("xdg-open", url)
+	case "windows":
+		return exec.Command("rundll32", "url.dll,FileProtocolHandler", url)
+	case "darwin":
+		return exec.Command("open", url)
+	default:
+		return nil
+	}
 }
 
 func addOpenGoodReadsWebSite(ui tui.UI, inputCommand *tui.Entry) {
@@ -248,8 +274,8 @@ func addOpenGoodReadsWebSite(ui tui.UI, inputCommand *tui.Entry) {
 		if len(strings.TrimSpace(clipBoardText)) == 0 {
 			return
 		}
-		url := fmt.Sprintf(`https://www.goodreads.com/search?q=%s`, url.QueryEscape(clipBoardText))
-		if err = exec.Command("xdg-open", url).Start(); err != nil {
+		goodreadsURL := fmt.Sprintf(`https://www.goodreads.com/search?q=%s`, url.QueryEscape(clipBoardText))
+		if err = browserOpenGoodReadsURLCommand(runtime.GOOS, goodreadsURL).Start(); err != nil {
 			inputCommand.SetText(err.Error())
 			return
 		}

@@ -41,5 +41,5 @@ func contains(words []string, word string) bool {
 }
 
 func shouldIgnoreWord(word string) bool {
-	return contains(bannedWords, word)
+	return contains(BannedWords, word)
 }

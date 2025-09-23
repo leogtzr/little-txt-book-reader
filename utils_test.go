@@ -82,7 +82,7 @@ func Test_countWithoutWhitespaces(t *testing.T) {
 }
 
 func TestGetFileToSaveName(t *testing.T) {
-	name := "/home/leo/code/little-txt-book-reader/refs.go"
+	name := "/getHomeDirectoryPath/leo/code/little-txt-book-reader/refs.go"
 	if baseFileName := filepath.Base(name); baseFileName != "refs.go" {
 		t.Errorf("got=[%s], want=[%s]", baseFileName, "refs.go")
 	}
@@ -310,7 +310,7 @@ func Test_home(t *testing.T) {
 	for _, tt := range tests {
 		currentOsValue := os.Getenv(tt.homeEnvName)
 		os.Setenv(tt.homeEnvName, tt.want)
-		if got := home(tt.opSystem); got != tt.want {
+		if got := getHomeDirectoryPath(tt.opSystem); got != tt.want {
 			t.Errorf("got=[%s], want=[%s]", got, tt.want)
 		}
 		os.Setenv(tt.homeEnvName, currentOsValue)

@@ -13,109 +13,56 @@ import (
 	"golang.org/x/term"
 )
 
-var (
-	from                              = 0
-	to                                = Advance
-	fromForReferences                 = 0
-	toReferences                      = 10
-	gotoLine                          = ""
-	fileToOpen                        = flag.String("file", "", "File to open")
-	percentagePointStats              = false
-	toggleShowStatus                  = true
-	references                        = []string{}
-	fileContent                       = []string{}
-	currentNavMode                    = readingNavigationMode
-	bannedWords                       = []string{}
-	sidebar                           = tui.NewVBox()
-	refsTable                         = tui.NewTable(0, 0)
-	pageIndex                         = 0
-	minutesToReachNextPercentagePoint map[int]time.Duration
-	startTime                         time.Time
-	currentPercentage                 int
-)
-
 func updateRangesUp() {
-	if from <= 0 {
+	if From <= 0 {
 		return
 	}
 
-	if from > 0 {
-		from--
+	if From > 0 {
+		From--
 	}
 
-	to--
+	To--
 }
 
 func updateRangesReferenceUp() {
-	if fromForReferences <= 0 {
+	if FromForReferences <= 0 {
 		return
 	}
 
-	if fromForReferences > 0 {
-		fromForReferences--
+	if FromForReferences > 0 {
+		FromForReferences--
 	}
 
-	toReferences--
+	ToReferences--
 }
 
 func updateRangesDown() {
-	if from < len(fileContent) {
-		from++
+	if From < len(FileContent) {
+		From++
 	}
 
-	if to >= len(fileContent) {
+	if To >= len(FileContent) {
 		return
 	}
 
-	if to < len(fileContent) {
-		to++
+	if To < len(FileContent) {
+		To++
 	}
 }
 
 func updateRangesReferenceDown() {
-	if fromForReferences < len(references) {
-		fromForReferences++
+	if FromForReferences < len(References) {
+		FromForReferences++
 	}
 
-	if toReferences >= len(references) {
+	if ToReferences >= len(References) {
 		return
 	}
 
-	if toReferences < len(references) {
-		toReferences++
+	if ToReferences < len(References) {
+		ToReferences++
 	}
-}
-
-func downText(txtArea *tui.Box, txtAreaScroll *tui.ScrollArea) {
-	chunk := []string{}
-	switch currentNavMode {
-	case showReferencesNavigationMode:
-		updateRangesReferenceDown()
-		chunk = getChunk(&references, fromForReferences, toReferences)
-	case analyzeAndFilterReferencesNavigationMode, gotoNavigationMode:
-		return
-	default:
-		updateRangesDown()
-		chunk = getChunk(&fileContent, from, to)
-	}
-
-	putText(txtArea, &chunk, txtAreaScroll)
-}
-
-func upText(txtArea *tui.Box, txtAreaScroll *tui.ScrollArea) {
-	chunk := []string{}
-	switch currentNavMode {
-	case showReferencesNavigationMode:
-		updateRangesReferenceUp()
-		chunk = getChunk(&references, fromForReferences, toReferences)
-	case analyzeAndFilterReferencesNavigationMode, gotoNavigationMode:
-		return
-	default:
-		updateRangesUp()
-		chunk = getChunk(&fileContent, from, to)
-	}
-
-	putText(txtArea, &chunk, txtAreaScroll)
 }
 
 func getSavedStatusInformation(fileName string) string {
@@ -123,26 +70,25 @@ func getSavedStatusInformation(fileName string) string {
 }
 
 func getStatusInformation() string {
-
-	if !toggleShowStatus {
+	if !ToggleShowStatus {
 		return ""
 	}
 
-	percent := getPercentage(to, &fileContent)
-	if int(percent) > currentPercentage {
-		currentPercentage = int(percent)
+	percent := getPercentage(To, &FileContent)
+	if int(percent) > CurrentPercentage {
+		CurrentPercentage = int(percent)
 		now := time.Now()
-		minutesToReachNextPercentagePoint[int(percent)] = now.Sub(startTime)
-		startTime = now
+		MinutesToReachNextPercentagePoint[int(percent)] = now.Sub(StartTime)
+		StartTime = now
 	}
 
-	if percentagePointStats {
-		return fmt.Sprintf(".   %d of %d lines (%.3f%%) [%d lines to next percentage point]                    ",
-			to,
-			len(fileContent), percent, linesToChangePercentagePoint(to, len(fileContent)))
+	if PercentagePointStats {
+		return fmt.Sprintf(".   %d of %d lines (%.3f%%) [%d lines To next percentage point]                    ",
+			To,
+			len(FileContent), percent, linesToChangePercentagePoint(To, len(FileContent)))
 	}
 	return fmt.Sprintf(".   %d of %d lines (%.3f%%)                                            ",
-		to, len(fileContent), percent)
+		To, len(FileContent), percent)
 
 }
 
@@ -151,17 +97,17 @@ func init() {
 		log.Fatal(err)
 	}
 
-	minutesToReachNextPercentagePoint = make(map[int]time.Duration)
+	MinutesToReachNextPercentagePoint = make(map[int]time.Duration)
 
-	// load words from file
+	// load words From file
 	var err error
-	bannedWords, err = loadNonRefsFile(nonRefsFileName)
+	BannedWords, err = loadNonRefsFile(NonRefsFileName)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	sidebar.Append(refsTable)
-	// sidebar.Append(refsStatus)
+	Sidebar.Append(RefsTable)
+	// Sidebar.Append(refsStatus)
 }
 
 func openOSEditor(os, notesFile string) *exec.Cmd {
@@ -178,14 +124,12 @@ end tell`, notesFile)
 	return exec.Command("/usr/bin/xterm", "-fa", "Monospace", "-fs", "14", "-e", "/usr/bin/vim", "+$", notesFile)
 }
 
-var Advance int
-
 func main() {
 
 	flag.Parse()
-	fileName := *fileToOpen
+	fileName := *FileToOpen
 	if fileName == "" {
-		_, _ = fmt.Fprintln(os.Stderr, "error: missing file to read")
+		_, _ = fmt.Fprintln(os.Stderr, "error: missing file To read")
 		os.Exit(1)
 	}
 
@@ -197,11 +141,11 @@ func main() {
 		log.Fatal(err)
 	}
 
-	from, to, fileName = latestFile.From, latestFile.To, latestFile.FileName
+	From, To, fileName = latestFile.From, latestFile.To, latestFile.FileName
 
 	file, err := os.Open(fileName)
 	check(err)
-	fileContent, err = readLines(file)
+	FileContent, err = readLines(file)
 	check(err)
 	defer file.Close()
 
@@ -218,14 +162,14 @@ func main() {
 
 	Advance = calculateAdvanceHeight()
 
-	// Adjust to based on new Advance
-	to = from + Advance
-	if to > len(fileContent) {
-		to = len(fileContent)
+	// Adjust To based on new Advance
+	To = From + Advance
+	if To > len(FileContent) {
+		To = len(FileContent)
 	}
 
-	startTime = time.Now()
-	currentPercentage = int(getPercentage(to, &fileContent))
+	StartTime = time.Now()
+	CurrentPercentage = int(getPercentage(To, &FileContent))
 
 	txtArea := tui.NewVBox()
 	txtAreaScroll := tui.NewScrollArea(txtArea)
@@ -240,10 +184,10 @@ func main() {
 	txtReader := tui.NewVBox(txtAreaBox, inputCommandBox)
 	txtReader.SetSizePolicy(tui.Expanding, tui.Expanding)
 
-	chunk := getChunk(&fileContent, from, to)
+	chunk := getChunk(&FileContent, From, To)
 	putText(txtArea, &chunk, txtAreaScroll)
 
-	root := tui.NewHBox(txtReader, sidebar)
+	root := tui.NewHBox(txtReader, Sidebar)
 
 	ui, err := tui.New(root)
 	if err != nil {
@@ -270,7 +214,7 @@ func main() {
 
 	inputCommand.SetText(getStatusInformation())
 
-	clearScreen()
+	ClearScreen()
 
 	if err := ui.Run(); err != nil {
 		log.Fatal(err)

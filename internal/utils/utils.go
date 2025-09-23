@@ -24,17 +24,17 @@ func GetNumberLineGoto(line string) string {
 	return rgx.ReplaceAllString(line, "")
 }
 
-func percent(currentNumberLine, totalLines int) float64 {
+func Percent(currentNumberLine, totalLines int) float64 {
 	return float64(currentNumberLine*100.0) / float64(totalLines)
 }
 
 func LinesToChangePercentagePoint(currentLine, totalLines int) int {
 	start := currentLine
 	linesToChangePercentage := -1
-	percentageWithCurrentLine := int(percent(currentLine, totalLines))
+	percentageWithCurrentLine := int(Percent(currentLine, totalLines))
 	for {
 		currentLine++
-		nextPercentage := int(percent(currentLine, totalLines))
+		nextPercentage := int(Percent(currentLine, totalLines))
 		if nextPercentage > percentageWithCurrentLine {
 			linesToChangePercentage = currentLine
 			break

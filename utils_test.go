@@ -8,6 +8,8 @@ import (
 	"sort"
 	"strings"
 	"testing"
+	"textreader/internal/file"
+	"textreader/internal/utils"
 )
 
 func Test_getNumberLineGoto(t *testing.T) {
@@ -22,7 +24,7 @@ func Test_getNumberLineGoto(t *testing.T) {
 	}
 
 	for _, tc := range tests {
-		if got := getNumberLineGoto(tc.line); got != tc.want {
+		if got := utils.GetNumberLineGoto(tc.line); got != tc.want {
 			t.Errorf("expected: %s, got: %s", tc.want, got)
 		}
 	}
@@ -45,7 +47,7 @@ func Test_percent(t *testing.T) {
 	}
 
 	for _, tc := range tests {
-		if got := percent(tc.currentIndex, tc.totalLines); got != tc.want {
+		if got := utils.Percent(tc.currentIndex, tc.totalLines); got != tc.want {
 			t.Errorf("expected: %f, got: %f", tc.want, got)
 		}
 	}
@@ -56,7 +58,7 @@ func Test_linesToChangePercentagePoint(t *testing.T) {
 	totalLines := 1000
 	expectedLinesToChangePercentagePoint := 10
 
-	nextPercentagePoint := linesToChangePercentagePoint(currentLine, totalLines)
+	nextPercentagePoint := utils.LinesToChangePercentagePoint(currentLine, totalLines)
 
 	if nextPercentagePoint != expectedLinesToChangePercentagePoint {
 		t.Errorf("expected: %d, got: %d", expectedLinesToChangePercentagePoint, nextPercentagePoint)
@@ -234,7 +236,7 @@ func Test_home(t *testing.T) {
 	for _, tt := range tests {
 		currentOsValue := os.Getenv(tt.homeEnvName)
 		os.Setenv(tt.homeEnvName, tt.want)
-		if got := getHomeDirectoryPath(tt.opSystem); got != tt.want {
+		if got := file.GetHomeDirectoryPath(tt.opSystem); got != tt.want {
 			t.Errorf("got=[%s], want=[%s]", got, tt.want)
 		}
 		os.Setenv(tt.homeEnvName, currentOsValue)
@@ -255,7 +257,7 @@ b`), want: []string{"a", "b"},
 	}
 
 	for _, tt := range tests {
-		if got, _ := readLines(tt.file); !listsAreEqual(got, tt.want) {
+		if got, _ := file.ReadLines(tt.file); !listsAreEqual(got, tt.want) {
 			t.Errorf("got=[%s], want=[%s]", got, tt.want)
 		}
 	}
@@ -285,7 +287,7 @@ func Test_check(t *testing.T) {
 				t.Errorf("The code did not panic")
 			}
 		}()
-		check(tt.err)
+		utils.Check(tt.err)
 	}
 }
 
@@ -348,7 +350,7 @@ func Test_paginate(t *testing.T) {
 	}
 
 	for _, tt := range tests {
-		got := paginate(tt.elements, tt.skip, tt.size)
+		got := utils.Paginate(tt.elements, tt.skip, tt.size)
 		if !listsAreEqual(got, tt.want) {
 			t.Errorf("got=[%s], want=[%s]", got, tt.want)
 		}
@@ -403,7 +405,7 @@ func Test_getPercentage(t *testing.T) {
 	}
 
 	for _, tc := range tests {
-		got := getPercentage(tc.position, &tc.fileContent)
+		got := utils.GetPercentage(tc.position, &tc.fileContent)
 		if got != tc.want {
 			t.Errorf("got=[%f], want=[%f]", got, tc.want)
 		}

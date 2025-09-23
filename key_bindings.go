@@ -11,6 +11,7 @@ import (
 	"sort"
 	"strconv"
 	"strings"
+	"textreader/internal/file"
 	"textreader/internal/model"
 	"textreader/internal/utils"
 
@@ -51,7 +52,7 @@ func addUpBinding(box *tui.Box, input *tui.Entry, txtAreaScroll *tui.ScrollArea)
 func addSaveStatusKeyBinding(ui tui.UI, fileName string, inputCommand *tui.Entry) {
 	baseFileName := filepath.Base(fileName)
 	ui.SetKeybinding(model.SaveStatusKeyBindingAlternative1, func() {
-		saveStatus(fileName, model.From, model.To)
+		file.SaveStatus(fileName, model.From, model.To)
 		inputCommand.SetText(getSavedStatusInformation(baseFileName))
 	})
 }
@@ -120,7 +121,7 @@ func addSaveQuoteKeyBindings(ui tui.UI, fileName string, txtArea *tui.Box, input
 	ui.SetKeybinding(model.SaveQuoteKeyBindingAlternative1, func() {
 		oldStdout, oldStdin, oldSterr := os.Stdout, os.Stdin, os.Stderr
 
-		quotesFile := getDirectoryNameForFile("quotes", fileName)
+		quotesFile := file.GetDirectoryNameForFile("quotes", fileName)
 
 		clipBoardText, err := clipboard.ReadAll()
 		if err != nil {
@@ -130,7 +131,7 @@ func addSaveQuoteKeyBindings(ui tui.UI, fileName string, txtArea *tui.Box, input
 
 		clipBoardText = removeTrailingSpaces(clipBoardText)
 		clipBoardText = removeWhiteSpaces(clipBoardText)
-		appendLineToFile(quotesFile, clipBoardText, "\n__________")
+		file.AppendLineToFile(quotesFile, clipBoardText, "\n__________")
 
 		cmd := openOSEditor(runtime.GOOS, quotesFile)
 		cmd.Stdin, cmd.Stdout, cmd.Stderr = os.Stdin, os.Stdout, os.Stderr
@@ -167,7 +168,7 @@ func addOnSelectedReference() {
 		prepareTableForReferences()
 
 		if !contains(model.BannedWords, itemToAddToNonRefs) {
-			appendLineToFile(model.NonRefsFileName, itemToAddToNonRefs, "")
+			file.AppendLineToFile(model.NonRefsFileName, itemToAddToNonRefs, "")
 		}
 	})
 }
@@ -206,7 +207,7 @@ func addNewNoteKeyBinding(ui tui.UI, txtArea *tui.Box, inputCommand *tui.Entry, 
 
 		oldStdout, oldStdin, oldSterr := os.Stdout, os.Stdin, os.Stderr
 
-		notesFile := getDirectoryNameForFile("notes", fileName)
+		notesFile := file.GetDirectoryNameForFile("notes", fileName)
 
 		cmd := openOSEditor(runtime.GOOS, notesFile)
 		cmd.Stdin, cmd.Stdout, cmd.Stderr = os.Stdin, os.Stdout, os.Stderr

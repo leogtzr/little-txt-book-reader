@@ -3,6 +3,7 @@ package main
 import (
 	"reflect"
 	"testing"
+	"textreader/internal/file"
 )
 
 func TestExtractWords(t *testing.T) {
@@ -91,7 +92,7 @@ func Test_sanitizeFileName(t *testing.T) {
 	}
 
 	for _, tt := range tests {
-		if got := sanitizeFileName(tt.fileName); got != tt.want {
+		if got := file.SanitizeFileName(tt.fileName); got != tt.want {
 			t.Errorf("got=[%s], want=[%s]", got, tt.want)
 		}
 	}

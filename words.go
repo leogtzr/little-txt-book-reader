@@ -22,11 +22,6 @@ func sanitizeWord(line string) string {
 	return line
 }
 
-func sanitizeFileName(fileName string) string {
-	fileName = strings.ReplaceAll(fileName, " ", "")
-	return fileName
-}
-
 func isTitle(word string) bool {
 	chars := []rune(word)
 	return unicode.IsUpper(chars[0])

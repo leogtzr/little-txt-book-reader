@@ -1,10 +1,11 @@
-package main
+package file
 
 import (
 	"bufio"
 	"fmt"
 	"io"
 	"io/ioutil"
+	// "little-txt-reader"
 	"log"
 	"os"
 	"path"
@@ -15,9 +16,9 @@ import (
 	"textreader/internal/model"
 )
 
-func saveStatus(fileName string, from, to int) {
+func SaveStatus(fileName string, from, to int) {
 	baseFileName := filepath.Base(fileName)
-	f, err := os.Create(filepath.Join(getHomeDirectoryPath(runtime.GOOS), "ltbr", "progress", baseFileName))
+	f, err := os.Create(filepath.Join(GetHomeDirectoryPath(runtime.GOOS), "ltbr", "progress", baseFileName))
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -25,9 +26,9 @@ func saveStatus(fileName string, from, to int) {
 	f.WriteString(fmt.Sprintf("%s|%d|%d", fileName, from, to))
 }
 
-func getFileNameFromLatest(filePath string) (model.LatestFile, error) {
+func GetFileNameFromLatest(filePath string) (model.LatestFile, error) {
 	baseFileName := filepath.Base(filePath)
-	latestFilePath := filepath.Join(getHomeDirectoryPath(runtime.GOOS), "ltbr", "progress", baseFileName)
+	latestFilePath := filepath.Join(GetHomeDirectoryPath(runtime.GOOS), "ltbr", "progress", baseFileName)
 	latestFile := model.LatestFile{FileName: filePath, From: 0, To: model.Advance}
 	if !exists(latestFilePath) {
 		return latestFile, nil
@@ -64,7 +65,7 @@ func dirExists(dirPath string) bool {
 	return true
 }
 
-func readLines(file io.Reader) ([]string, error) {
+func ReadLines(file io.Reader) ([]string, error) {
 	var lines []string
 	scanner := bufio.NewScanner(file)
 	for scanner.Scan() {
@@ -80,7 +81,7 @@ func exists(name string) bool {
 	return true
 }
 
-func appendLineToFile(filePath, line, sep string) {
+func AppendLineToFile(filePath, line, sep string) {
 	f, err := os.OpenFile(filePath, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
 	if err != nil {
 		panic(err)
@@ -93,8 +94,8 @@ func appendLineToFile(filePath, line, sep string) {
 	}
 }
 
-func createDirectories() error {
-	ltbrDir := filepath.Join(getHomeDirectoryPath(runtime.GOOS), "ltbr")
+func CreateDirectories() error {
+	ltbrDir := filepath.Join(GetHomeDirectoryPath(runtime.GOOS), "ltbr")
 	if err := createDirectory(ltbrDir); err != nil {
 		return err
 	}
@@ -103,26 +104,26 @@ func createDirectories() error {
 
 func createDir(dirs ...string) error {
 	for _, dir := range dirs {
-		if err := createDirectory(filepath.Join(getHomeDirectoryPath(runtime.GOOS), "ltbr", dir)); err != nil {
+		if err := createDirectory(filepath.Join(GetHomeDirectoryPath(runtime.GOOS), "ltbr", dir)); err != nil {
 			return err
 		}
 	}
 	return nil
 }
 
-func getHomeDirectoryPath(opSystem string) string {
+func GetHomeDirectoryPath(opSystem string) string {
 	if opSystem == "windows" {
 		return os.Getenv("HOMEPATH")
 	}
 	return os.Getenv("HOME")
 }
 
-func getDirectoryNameForFile(dirType, fileName string) string {
+func GetDirectoryNameForFile(dirType, fileName string) string {
 	absoluteFilePath, _ := filepath.Abs(fileName)
 	baseFileName := path.Base(absoluteFilePath)
 
-	baseFileName = sanitizeFileName(baseFileName)
-	notesDir := filepath.Join(getHomeDirectoryPath(runtime.GOOS), "ltbr", dirType, baseFileName)
+	baseFileName = SanitizeFileName(baseFileName)
+	notesDir := filepath.Join(GetHomeDirectoryPath(runtime.GOOS), "ltbr", dirType, baseFileName)
 
 	return notesDir
 }
@@ -134,4 +135,9 @@ func createDirectory(dirPath string) error {
 		}
 	}
 	return nil
+}
+
+func SanitizeFileName(fileName string) string {
+	fileName = strings.ReplaceAll(fileName, " ", "")
+	return fileName
 }

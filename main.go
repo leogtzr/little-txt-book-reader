@@ -7,6 +7,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	files "textreader/internal/file"
 	"textreader/internal/model"
 	"textreader/internal/utils"
 	"time"
@@ -42,7 +43,7 @@ func getStatusInformation() string {
 }
 
 func init() {
-	if err := createDirectories(); err != nil {
+	if err := files.CreateDirectories(); err != nil {
 		log.Fatal(err)
 	}
 
@@ -84,7 +85,7 @@ func main() {
 	var err error
 
 	absoluteFilePath, _ := filepath.Abs(fileName)
-	latestFile, err := getFileNameFromLatest(absoluteFilePath)
+	latestFile, err := files.GetFileNameFromLatest(absoluteFilePath)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -93,7 +94,7 @@ func main() {
 
 	file, err := os.Open(fileName)
 	utils.Check(err)
-	model.FileContent, err = readLines(file)
+	model.FileContent, err = files.ReadLines(file)
 	utils.Check(err)
 	defer file.Close()
 

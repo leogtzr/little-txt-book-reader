@@ -1,4 +1,4 @@
-module little-txt-reader
+module textreader
 
 go 1.24.0
 

@@ -80,18 +80,6 @@ func paginate(x []string, skip, size int) []string {
 	return x[skip:end]
 }
 
-func equal(a, b []string) bool {
-	if len(a) != len(b) {
-		return false
-	}
-	for i, v := range a {
-		if v != b[i] {
-			return false
-		}
-	}
-	return true
-}
-
 func newInputCommandEntry() *tui.Entry {
 	inputCommand := tui.NewEntry()
 	inputCommand.SetFocused(true)
@@ -115,9 +103,4 @@ func getPercentage(currentPosition int, fileContent *[]string) float64 {
 	percent := float64(currentPosition) * 100.00
 	percent = percent / float64(len(*fileContent))
 	return percent
-}
-
-func removeWhiteSpaces(input string) string {
-	re := regexp.MustCompile(`( |\t){2,}`)
-	return re.ReplaceAllString(input, ` `)
 }

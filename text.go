@@ -1,6 +1,7 @@
 package main
 
 import (
+	"regexp"
 	"strings"
 
 	"github.com/marcusolsson/tui-go"
@@ -107,4 +108,21 @@ func removeTrailingSpaces(s string) string {
 func remove(s []string, i int) []string {
 	s[len(s)-1], s[i] = s[i], s[len(s)-1]
 	return s[:len(s)-1]
+}
+
+func removeWhiteSpaces(input string) string {
+	re := regexp.MustCompile(`( |\t){2,}`)
+	return re.ReplaceAllString(input, ` `)
+}
+
+func listsAreEqual(a, b []string) bool {
+	if len(a) != len(b) {
+		return false
+	}
+	for i, v := range a {
+		if v != b[i] {
+			return false
+		}
+	}
+	return true
 }

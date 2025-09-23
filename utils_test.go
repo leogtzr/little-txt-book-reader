@@ -118,7 +118,7 @@ func TestGetChunk(t *testing.T) {
 	}
 
 	for _, tt := range tests {
-		if got := getChunk(&tt.content, tt.from, tt.to); !equal(got, tt.want) {
+		if got := getChunk(&tt.content, tt.from, tt.to); !listsAreEqual(got, tt.want) {
 			t.Errorf("got=[%s], want=[%s]", got, tt.want)
 		}
 	}
@@ -161,7 +161,7 @@ func Test_findAndRemove(t *testing.T) {
 
 	for _, tt := range tests {
 		findAndRemove(&strs, tt.toRemove)
-		if !equal(strs, tt.want) {
+		if !listsAreEqual(strs, tt.want) {
 			t.Errorf("got=[%s], want=[%s]", strs, tt.want)
 		}
 	}
@@ -190,7 +190,7 @@ func Test_remove(t *testing.T) {
 	}
 
 	for _, tt := range tests {
-		if got := remove(tt.s, tt.index); !equal(got, tt.want) {
+		if got := remove(tt.s, tt.index); !listsAreEqual(got, tt.want) {
 			t.Errorf("got=[%s], want=[%s]", got, tt.want)
 		}
 	}
@@ -252,7 +252,7 @@ func Test_equal(t *testing.T) {
 	}
 
 	for _, tt := range tests {
-		if got := equal(tt.a, tt.b); got != tt.shouldBeEqual {
+		if got := listsAreEqual(tt.a, tt.b); got != tt.shouldBeEqual {
 			t.Errorf("got=[%t], want=[%t]", got, tt.shouldBeEqual)
 		}
 	}
@@ -331,7 +331,7 @@ b`), want: []string{"a", "b"},
 	}
 
 	for _, tt := range tests {
-		if got, _ := readLines(tt.file); !equal(got, tt.want) {
+		if got, _ := readLines(tt.file); !listsAreEqual(got, tt.want) {
 			t.Errorf("got=[%s], want=[%s]", got, tt.want)
 		}
 	}
@@ -384,7 +384,7 @@ func Test_removeDuplicates(t *testing.T) {
 	for _, tt := range tests {
 		got := removeDuplicates(tt.elements)
 		sort.Strings(got)
-		if !equal(got, tt.want) {
+		if !listsAreEqual(got, tt.want) {
 			t.Errorf("got=[%s], want=[%s]", got, tt.want)
 		}
 	}
@@ -425,7 +425,7 @@ func Test_paginate(t *testing.T) {
 
 	for _, tt := range tests {
 		got := paginate(tt.elements, tt.skip, tt.size)
-		if !equal(got, tt.want) {
+		if !listsAreEqual(got, tt.want) {
 			t.Errorf("got=[%s], want=[%s]", got, tt.want)
 		}
 	}

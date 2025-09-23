@@ -94,7 +94,7 @@ func Test_unique(t *testing.T) {
 	}
 
 	for _, tt := range tests {
-		if got := unique(tt.s); !equal(got, tt.want) {
+		if got := unique(tt.s); !listsAreEqual(got, tt.want) {
 			t.Errorf("got=[%s], want=[%s]", got, tt.want)
 		}
 	}

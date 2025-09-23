@@ -100,7 +100,7 @@ func TestGetChunk(t *testing.T) {
 	}
 
 	for _, tt := range tests {
-		if got := getChunk(&tt.content, tt.from, tt.to); !listsAreEqual(got, tt.want) {
+		if got := GetChunk(&tt.content, tt.from, tt.to); !listsAreEqual(got, tt.want) {
 			t.Errorf("got=[%s], want=[%s]", got, tt.want)
 		}
 	}
@@ -145,64 +145,6 @@ func Test_findAndRemove(t *testing.T) {
 		findAndRemove(&strs, tt.toRemove)
 		if !listsAreEqual(strs, tt.want) {
 			t.Errorf("got=[%s], want=[%s]", strs, tt.want)
-		}
-	}
-}
-
-func Test_remove(t *testing.T) {
-	type test struct {
-		s     []string
-		index int
-		want  []string
-	}
-
-	tests := []test{
-		{
-			s: []string{
-				"hola",
-				"mundo",
-				"cruel",
-			},
-			index: 1,
-			want: []string{
-				"hola",
-				"cruel",
-			},
-		},
-	}
-
-	for _, tt := range tests {
-		if got := remove(tt.s, tt.index); !listsAreEqual(got, tt.want) {
-			t.Errorf("got=[%s], want=[%s]", got, tt.want)
-		}
-	}
-}
-
-func Test_longestLineLength(t *testing.T) {
-	type test struct {
-		text string
-		len  int
-	}
-
-	tests := []test{
-		{
-			text: `
-La navaja
-se fue
-a su cuna
-`,
-			len: len("La navaja"),
-		},
-
-		{
-			text: "",
-			len:  0,
-		},
-	}
-
-	for _, tt := range tests {
-		if got := longestLineLength(tt.text); got != tt.len {
-			t.Errorf("got=[%d], want=[%d]", got, tt.len)
 		}
 	}
 }

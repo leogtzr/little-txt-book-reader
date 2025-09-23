@@ -12,6 +12,7 @@ import (
 	"runtime"
 	"strconv"
 	"strings"
+	"textreader/internal/model"
 )
 
 func saveStatus(fileName string, from, to int) {
@@ -24,24 +25,24 @@ func saveStatus(fileName string, from, to int) {
 	f.WriteString(fmt.Sprintf("%s|%d|%d", fileName, from, to))
 }
 
-func getFileNameFromLatest(filePath string) (LatestFile, error) {
+func getFileNameFromLatest(filePath string) (model.LatestFile, error) {
 	baseFileName := filepath.Base(filePath)
 	latestFilePath := filepath.Join(getHomeDirectoryPath(runtime.GOOS), "ltbr", "progress", baseFileName)
-	latestFile := LatestFile{FileName: filePath, From: 0, To: Advance}
+	latestFile := model.LatestFile{FileName: filePath, From: 0, To: model.Advance}
 	if !exists(latestFilePath) {
 		return latestFile, nil
 	}
 
 	f, err := os.Open(latestFilePath)
 	if err != nil {
-		return LatestFile{}, err
+		return model.LatestFile{}, err
 	}
 	defer f.Close()
 
 	content, err := ioutil.ReadAll(f)
 	latestFileFields := strings.Split(string(content), "|")
-	if len(latestFileFields) != DBFileRequiredNumbermields {
-		return LatestFile{}, fmt.Errorf("wrong format in '%s'", latestFilePath)
+	if len(latestFileFields) != model.DBFileRequiredNumbermields {
+		return model.LatestFile{}, fmt.Errorf("wrong format in '%s'", latestFilePath)
 	}
 
 	latestFile.FileName = latestFileFields[0]

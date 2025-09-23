@@ -7,88 +7,37 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"textreader/internal/model"
+	"textreader/internal/utils"
 	"time"
 
 	"github.com/marcusolsson/tui-go"
-	"golang.org/x/term"
 )
-
-func updateRangesUp() {
-	if From <= 0 {
-		return
-	}
-
-	if From > 0 {
-		From--
-	}
-
-	To--
-}
-
-func updateRangesReferenceUp() {
-	if FromForReferences <= 0 {
-		return
-	}
-
-	if FromForReferences > 0 {
-		FromForReferences--
-	}
-
-	ToReferences--
-}
-
-func updateRangesDown() {
-	if From < len(FileContent) {
-		From++
-	}
-
-	if To >= len(FileContent) {
-		return
-	}
-
-	if To < len(FileContent) {
-		To++
-	}
-}
-
-func updateRangesReferenceDown() {
-	if FromForReferences < len(References) {
-		FromForReferences++
-	}
-
-	if ToReferences >= len(References) {
-		return
-	}
-
-	if ToReferences < len(References) {
-		ToReferences++
-	}
-}
 
 func getSavedStatusInformation(fileName string) string {
 	return fmt.Sprintf(`%s <saved "%s">`, getStatusInformation(), fileName)
 }
 
 func getStatusInformation() string {
-	if !ToggleShowStatus {
+	if !model.ToggleShowStatus {
 		return ""
 	}
 
-	percent := getPercentage(To, &FileContent)
-	if int(percent) > CurrentPercentage {
-		CurrentPercentage = int(percent)
+	percent := utils.GetPercentage(model.To, &model.FileContent)
+	if int(percent) > model.CurrentPercentage {
+		model.CurrentPercentage = int(percent)
 		now := time.Now()
-		MinutesToReachNextPercentagePoint[int(percent)] = now.Sub(StartTime)
-		StartTime = now
+		model.MinutesToReachNextPercentagePoint[int(percent)] = now.Sub(model.StartTime)
+		model.StartTime = now
 	}
 
-	if PercentagePointStats {
+	if model.PercentagePointStats {
 		return fmt.Sprintf(".   %d of %d lines (%.3f%%) [%d lines To next percentage point]                    ",
-			To,
-			len(FileContent), percent, linesToChangePercentagePoint(To, len(FileContent)))
+			model.To,
+			len(model.FileContent), percent, utils.LinesToChangePercentagePoint(model.To, len(model.FileContent)))
 	}
 	return fmt.Sprintf(".   %d of %d lines (%.3f%%)                                            ",
-		To, len(FileContent), percent)
+		model.To, len(model.FileContent), percent)
 
 }
 
@@ -97,16 +46,16 @@ func init() {
 		log.Fatal(err)
 	}
 
-	MinutesToReachNextPercentagePoint = make(map[int]time.Duration)
+	model.MinutesToReachNextPercentagePoint = make(map[int]time.Duration)
 
 	// load words From file
 	var err error
-	BannedWords, err = loadNonRefsFile(NonRefsFileName)
+	model.BannedWords, err = loadNonRefsFile(model.NonRefsFileName)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	Sidebar.Append(RefsTable)
+	model.Sidebar.Append(model.RefsTable)
 	// Sidebar.Append(refsStatus)
 }
 
@@ -125,9 +74,8 @@ end tell`, notesFile)
 }
 
 func main() {
-
 	flag.Parse()
-	fileName := *FileToOpen
+	fileName := *model.FileToOpen
 	if fileName == "" {
 		_, _ = fmt.Fprintln(os.Stderr, "error: missing file To read")
 		os.Exit(1)
@@ -141,12 +89,12 @@ func main() {
 		log.Fatal(err)
 	}
 
-	From, To, fileName = latestFile.From, latestFile.To, latestFile.FileName
+	model.From, model.To, fileName = latestFile.From, latestFile.To, latestFile.FileName
 
 	file, err := os.Open(fileName)
-	check(err)
-	FileContent, err = readLines(file)
-	check(err)
+	utils.Check(err)
+	model.FileContent, err = readLines(file)
+	utils.Check(err)
 	defer file.Close()
 
 	//fd := int(os.Stdout.Fd())
@@ -160,16 +108,16 @@ func main() {
 	//	Advance = 30 // Fallback if detection fails
 	//}
 
-	Advance = calculateAdvanceHeight()
+	model.Advance = utils.CalculateTerminalHeight()
 
 	// Adjust To based on new Advance
-	To = From + Advance
-	if To > len(FileContent) {
-		To = len(FileContent)
+	model.To = model.From + model.Advance
+	if model.To > len(model.FileContent) {
+		model.To = len(model.FileContent)
 	}
 
-	StartTime = time.Now()
-	CurrentPercentage = int(getPercentage(To, &FileContent))
+	model.StartTime = time.Now()
+	model.CurrentPercentage = int(utils.GetPercentage(model.To, &model.FileContent))
 
 	txtArea := tui.NewVBox()
 	txtAreaScroll := tui.NewScrollArea(txtArea)
@@ -178,16 +126,16 @@ func main() {
 	txtAreaBox := tui.NewVBox(txtAreaScroll)
 	txtAreaBox.SetBorder(true)
 
-	inputCommand := newInputCommandEntry()
-	inputCommandBox := newInputCommandBox(inputCommand)
+	inputCommand := utils.NewInputCommandEntry()
+	inputCommandBox := utils.NewInputCommandBox(inputCommand)
 
 	txtReader := tui.NewVBox(txtAreaBox, inputCommandBox)
 	txtReader.SetSizePolicy(tui.Expanding, tui.Expanding)
 
-	chunk := getChunk(&FileContent, From, To)
-	putText(txtArea, &chunk, txtAreaScroll)
+	chunk := GetChunk(&model.FileContent, model.From, model.To)
+	PutText(txtArea, &chunk, txtAreaScroll)
 
-	root := tui.NewHBox(txtReader, Sidebar)
+	root := tui.NewHBox(txtReader, model.Sidebar)
 
 	ui, err := tui.New(root)
 	if err != nil {
@@ -214,20 +162,9 @@ func main() {
 
 	inputCommand.SetText(getStatusInformation())
 
-	ClearScreen()
+	utils.ClearScreen()
 
 	if err := ui.Run(); err != nil {
 		log.Fatal(err)
 	}
-}
-
-func calculateAdvanceHeight() int {
-	advance := 45
-	fd := int(os.Stdout.Fd())
-	_, height, err := term.GetSize(fd)
-	if err == nil {
-		advance = height - 5 // Subtract for borders, input bar, status, etc. Adjust if needed.
-	}
-
-	return advance
 }

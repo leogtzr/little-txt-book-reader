@@ -1,4 +1,4 @@
-package main
+package model
 
 import (
 	"flag"
@@ -45,7 +45,7 @@ const (
 	UpKeyBindingAlternative2                         = "Up"
 	GotoKeyBindingAlternative1                       = "g"
 	NewNoteKeyBindingAlternative1                    = "n"
-	showStatusKeyBinding                             = "."
+	ShowStatusKeyBinding                             = "."
 	CloseGotoKeyBindingAlternative1                  = "r"
 	SaveStatusKeyBindingAlternative1                 = "s"
 	NextPercentagePointKeyBindingAlternative1        = "p"
@@ -58,7 +58,6 @@ const (
 	OpenRAEWebSiteKeyBinging                         = "o"
 	OpenGoodReadsWebSiteKeyBinding                   = "d"
 	ShowHelpKeyBinding                               = "h"
-	maxNumberOfElementsInGUIBox                      = 200
 )
 
 const (

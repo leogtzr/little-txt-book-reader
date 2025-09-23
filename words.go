@@ -2,6 +2,7 @@ package main
 
 import (
 	"strings"
+	"textreader/internal/model"
 	"unicode"
 )
 
@@ -41,5 +42,5 @@ func contains(words []string, word string) bool {
 }
 
 func shouldIgnoreWord(word string) bool {
-	return contains(BannedWords, word)
+	return contains(model.BannedWords, word)
 }

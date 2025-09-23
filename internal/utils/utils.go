@@ -1,11 +1,13 @@
-package main
+package utils
 
 import (
 	"os"
 	"os/exec"
 	"regexp"
+	"textreader/internal/model"
 
 	"github.com/marcusolsson/tui-go"
+	"golang.org/x/term"
 )
 
 func ClearScreen() {
@@ -14,7 +16,7 @@ func ClearScreen() {
 	_ = cmd.Run()
 }
 
-func getNumberLineGoto(line string) string {
+func GetNumberLineGoto(line string) string {
 	rgx, err := regexp.Compile("[^0-9]+")
 	if err != nil {
 		return ""
@@ -26,7 +28,7 @@ func percent(currentNumberLine, totalLines int) float64 {
 	return float64(currentNumberLine*100.0) / float64(totalLines)
 }
 
-func linesToChangePercentagePoint(currentLine, totalLines int) int {
+func LinesToChangePercentagePoint(currentLine, totalLines int) int {
 	start := currentLine
 	linesToChangePercentage := -1
 	percentageWithCurrentLine := int(percent(currentLine, totalLines))
@@ -42,24 +44,25 @@ func linesToChangePercentagePoint(currentLine, totalLines int) int {
 	return linesToChangePercentage - start
 }
 
-func check(err error) {
+func Check(err error) {
 	if err != nil {
 		panic(err)
 	}
 }
 
-func addGotoWidget(box *tui.Box) {
+// TODO: move this to the UI package
+func AddGotoWidget(box *tui.Box) {
 	gotoInput := tui.NewTextEdit()
 	gotoInput.SetText("Go To line: ")
 	gotoInput.SetFocused(true)
 	gotoInput.OnTextChanged(func(entry *tui.TextEdit) {
-		GotoLine = entry.Text()
+		model.GotoLine = entry.Text()
 	})
 	box.Append(gotoInput)
-	CurrentNavMode = GotoNavigationMode
+	model.CurrentNavMode = model.GotoNavigationMode
 }
 
-func paginate(x []string, skip, size int) []string {
+func Paginate(x []string, skip, size int) []string {
 	if skip > len(x) {
 		skip = len(x)
 	}
@@ -72,7 +75,8 @@ func paginate(x []string, skip, size int) []string {
 	return x[skip:end]
 }
 
-func newInputCommandEntry() *tui.Entry {
+// TODO: move this to the UI package
+func NewInputCommandEntry() *tui.Entry {
 	inputCommand := tui.NewEntry()
 	inputCommand.SetFocused(true)
 	inputCommand.SetSizePolicy(tui.Expanding, tui.Maximum)
@@ -84,15 +88,28 @@ func newInputCommandEntry() *tui.Entry {
 	return inputCommand
 }
 
-func newInputCommandBox(input *tui.Entry) *tui.Box {
+// TODO: move this to the UI package
+func NewInputCommandBox(input *tui.Entry) *tui.Box {
 	inputCommandBox := tui.NewHBox(input)
 	inputCommandBox.SetBorder(true)
 	inputCommandBox.SetSizePolicy(tui.Expanding, tui.Maximum)
 	return inputCommandBox
 }
 
-func getPercentage(currentPosition int, fileContent *[]string) float64 {
+func GetPercentage(currentPosition int, fileContent *[]string) float64 {
 	percent := float64(currentPosition) * 100.00
 	percent = percent / float64(len(*fileContent))
 	return percent
+}
+
+func CalculateTerminalHeight() int {
+	advance := 45
+	fd := int(os.Stdout.Fd())
+	_, height, err := term.GetSize(fd)
+	if err == nil {
+		// 5 is for borders, input bar, status, etc. Adjust if needed.
+		advance = height - 5
+	}
+
+	return advance
 }

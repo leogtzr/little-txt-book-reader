@@ -4,6 +4,8 @@ import (
 	"bufio"
 	"os"
 	"strings"
+	"textreader/internal/model"
+	"textreader/internal/utils"
 )
 
 func extractReferencesFromFileContent(fileContent *[]string) []string {
@@ -28,7 +30,7 @@ func extractReferencesFromFileContent(fileContent *[]string) []string {
 
 	referencesNoBannedWords := make([]string, 0)
 	for _, word := range uniqueReferences {
-		if !contains(BannedWords, word) {
+		if !contains(model.BannedWords, word) {
 			referencesNoBannedWords = append(referencesNoBannedWords, word)
 		}
 	}
@@ -37,18 +39,9 @@ func extractReferencesFromFileContent(fileContent *[]string) []string {
 }
 
 func loadReferences() {
-	if len(References) == 0 {
-		References = extractReferencesFromFileContent(&FileContent)
-		ToReferences = calculateAdvanceHeight()
-	}
-}
-
-func findAndRemove(s *[]string, e string) {
-	for i, v := range *s {
-		if v == e {
-			*s = append((*s)[:i], (*s)[i+1:]...)
-			break
-		}
+	if len(model.References) == 0 {
+		model.References = extractReferencesFromFileContent(&model.FileContent)
+		model.ToReferences = utils.CalculateTerminalHeight()
 	}
 }
 
@@ -65,4 +58,20 @@ func loadNonRefsFile(path string) ([]string, error) {
 		lines = append(lines, scanner.Text())
 	}
 	return lines, scanner.Err()
+}
+
+func removeDuplicates(elements []string) []string {
+	encountered := map[string]bool{}
+	result := []string{}
+
+	for v := range elements {
+		// Do not add duplicate.
+		if !encountered[elements[v]] {
+			// Record this element as an encountered element.
+			encountered[elements[v]] = true
+			// Append To result slice.
+			result = append(result, elements[v])
+		}
+	}
+	return result
 }

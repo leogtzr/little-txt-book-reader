@@ -1,7 +1,7 @@
 .DEFAULT_GOAL := install
 
 # INSTALL_SCRIPT=./install.sh
-BIN_FILE=little-txt-book-reader
+BIN_FILE=little-txtreader
 
 install:
 	go build -o "${BIN_FILE}"
@@ -10,6 +10,7 @@ clean:
 	go clean
 	rm -f "cp.out"
 	rm -f nohup.out
+	rm -f "little-txtreader"
 
 test:
 	go test

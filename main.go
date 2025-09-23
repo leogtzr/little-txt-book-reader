@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"log"
 	"os"
-	// "os/exec"
 	"path/filepath"
 	files "textreader/internal/file"
 	"textreader/internal/keybindings"

@@ -8,3 +8,4 @@ nohup.out
 py/*.txt
 py/__pycache__/
 .idea/
+little-txtreader

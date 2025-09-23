@@ -48,14 +48,6 @@ func check(err error) {
 	}
 }
 
-func countWithoutWhitespaces(words []string) int {
-	count := 0
-	for _, w := range words {
-		count += len(w)
-	}
-	return count
-}
-
 func addGotoWidget(box *tui.Box) {
 	gotoInput := tui.NewTextEdit()
 	gotoInput.SetText("Go To line: ")

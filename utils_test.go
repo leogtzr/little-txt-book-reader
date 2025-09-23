@@ -63,24 +63,6 @@ func Test_linesToChangePercentagePoint(t *testing.T) {
 	}
 }
 
-func Test_countWithoutWhitespaces(t *testing.T) {
-	type test struct {
-		strs []string
-		want int
-	}
-
-	tests := []test{
-		{strs: []string{}, want: 0},
-		{strs: []string{"Hola", "Mundo", "Cruel"}, want: 14},
-	}
-
-	for _, tc := range tests {
-		if got := countWithoutWhitespaces(tc.strs); got != tc.want {
-			t.Errorf("got=%d, expected=%d", got, tc.want)
-		}
-	}
-}
-
 func TestGetFileToSaveName(t *testing.T) {
 	name := "/getHomeDirectoryPath/leo/code/little-txt-book-reader/refs.go"
 	if baseFileName := filepath.Base(name); baseFileName != "refs.go" {

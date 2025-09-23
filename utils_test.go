@@ -5,10 +5,10 @@ import (
 	"io"
 	"os"
 	"path/filepath"
-	"sort"
 	"strings"
 	"testing"
 	"textreader/internal/file"
+	"textreader/internal/text"
 	"textreader/internal/utils"
 )
 
@@ -66,9 +66,9 @@ func Test_linesToChangePercentagePoint(t *testing.T) {
 }
 
 func TestGetFileToSaveName(t *testing.T) {
-	name := "/getHomeDirectoryPath/leo/code/little-txt-book-reader/refs.go"
-	if baseFileName := filepath.Base(name); baseFileName != "refs.go" {
-		t.Errorf("got=[%s], want=[%s]", baseFileName, "refs.go")
+	name := "/getHomeDirectoryPath/leo/code/little-txt-book-reader/lala.xts"
+	if baseFileName := filepath.Base(name); baseFileName != "lala.xts" {
+		t.Errorf("got=[%s], want=[%s]", baseFileName, "lala.xts")
 	}
 }
 
@@ -102,7 +102,7 @@ func TestGetChunk(t *testing.T) {
 	}
 
 	for _, tt := range tests {
-		if got := GetChunk(&tt.content, tt.from, tt.to); !listsAreEqual(got, tt.want) {
+		if got := text.GetChunk(&tt.content, tt.from, tt.to); !listsAreEqual(got, tt.want) {
 			t.Errorf("got=[%s], want=[%s]", got, tt.want)
 		}
 	}
@@ -144,7 +144,7 @@ func Test_findAndRemove(t *testing.T) {
 	}
 
 	for _, tt := range tests {
-		findAndRemove(&strs, tt.toRemove)
+		text.FindAndRemove(&strs, tt.toRemove)
 		if !listsAreEqual(strs, tt.want) {
 			t.Errorf("got=[%s], want=[%s]", strs, tt.want)
 		}
@@ -205,7 +205,7 @@ anotaciones sobre la compra de libros a anticuarios parisinos. Ahora lo veía to
 	}
 
 	for _, tt := range tests {
-		if got := removeTrailingSpaces(tt.s); got != tt.want {
+		if got := text.RemoveTrailingSpaces(tt.s); got != tt.want {
 			t.Errorf("got=[%s], want=[%s]", strings.ReplaceAll(got, "\n", "@"), strings.ReplaceAll(tt.want, "\n", "@"))
 		}
 	}
@@ -291,31 +291,6 @@ func Test_check(t *testing.T) {
 	}
 }
 
-func Test_removeDuplicates(t *testing.T) {
-	type test struct {
-		elements, want []string
-	}
-
-	tests := []test{
-		test{
-			elements: []string{
-				"a", "b", "b", "c", "c", "e", "f", "g", "f", "g",
-			},
-			want: []string{
-				"a", "b", "c", "e", "f", "g",
-			},
-		},
-	}
-
-	for _, tt := range tests {
-		got := removeDuplicates(tt.elements)
-		sort.Strings(got)
-		if !listsAreEqual(got, tt.want) {
-			t.Errorf("got=[%s], want=[%s]", got, tt.want)
-		}
-	}
-}
-
 func Test_paginate(t *testing.T) {
 	type test struct {
 		elements []string
@@ -376,7 +351,7 @@ func Test_removeWhiteSpaces(t *testing.T) {
 	}
 
 	for _, tc := range tests {
-		got := removeWhiteSpaces(tc.input)
+		got := text.RemoveWhiteSpaces(tc.input)
 		if got != tc.want {
 			t.Errorf("got=[%s], want=[%s]", got, tc.want)
 		}

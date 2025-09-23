@@ -5,42 +5,18 @@ import (
 	"fmt"
 	"log"
 	"os"
-	"os/exec"
+	// "os/exec"
 	"path/filepath"
 	files "textreader/internal/file"
+	"textreader/internal/keybindings"
 	"textreader/internal/model"
+	"textreader/internal/references"
+	"textreader/internal/text"
 	"textreader/internal/utils"
 	"time"
 
 	"github.com/marcusolsson/tui-go"
 )
-
-func getSavedStatusInformation(fileName string) string {
-	return fmt.Sprintf(`%s <saved "%s">`, getStatusInformation(), fileName)
-}
-
-func getStatusInformation() string {
-	if !model.ToggleShowStatus {
-		return ""
-	}
-
-	percent := utils.GetPercentage(model.To, &model.FileContent)
-	if int(percent) > model.CurrentPercentage {
-		model.CurrentPercentage = int(percent)
-		now := time.Now()
-		model.MinutesToReachNextPercentagePoint[int(percent)] = now.Sub(model.StartTime)
-		model.StartTime = now
-	}
-
-	if model.PercentagePointStats {
-		return fmt.Sprintf(".   %d of %d lines (%.3f%%) [%d lines To next percentage point]                    ",
-			model.To,
-			len(model.FileContent), percent, utils.LinesToChangePercentagePoint(model.To, len(model.FileContent)))
-	}
-	return fmt.Sprintf(".   %d of %d lines (%.3f%%)                                            ",
-		model.To, len(model.FileContent), percent)
-
-}
 
 func init() {
 	if err := files.CreateDirectories(); err != nil {
@@ -51,27 +27,13 @@ func init() {
 
 	// load words From file
 	var err error
-	model.BannedWords, err = loadNonRefsFile(model.NonRefsFileName)
+	model.BannedWords, err = references.LoadNonRefsFile(model.NonRefsFileName)
 	if err != nil {
 		log.Fatal(err)
 	}
 
 	model.Sidebar.Append(model.RefsTable)
 	// Sidebar.Append(refsStatus)
-}
-
-func openOSEditor(os, notesFile string) *exec.Cmd {
-	if os == "windows" {
-		return exec.Command("notepad", notesFile)
-	}
-	if os == "darwin" {
-		script := fmt.Sprintf(`tell application "Terminal"
-	activate
-	do script "vim +$ %s; exit"
-end tell`, notesFile)
-		return exec.Command("osascript", "-e", script)
-	}
-	return exec.Command("/usr/bin/xterm", "-fa", "Monospace", "-fs", "14", "-e", "/usr/bin/vim", "+$", notesFile)
 }
 
 func main() {
@@ -133,8 +95,8 @@ func main() {
 	txtReader := tui.NewVBox(txtAreaBox, inputCommandBox)
 	txtReader.SetSizePolicy(tui.Expanding, tui.Expanding)
 
-	chunk := GetChunk(&model.FileContent, model.From, model.To)
-	PutText(txtArea, &chunk, txtAreaScroll)
+	chunk := text.GetChunk(&model.FileContent, model.From, model.To)
+	text.PutText(txtArea, &chunk, txtAreaScroll)
 
 	root := tui.NewHBox(txtReader, model.Sidebar)
 
@@ -143,25 +105,25 @@ func main() {
 		log.Fatal(err)
 	}
 
-	addUpDownKeyBindings(txtArea, ui, inputCommand, txtAreaScroll)
-	addGotoKeyBinding(ui, txtReader)
-	addShowStatusKeyBinding(ui, inputCommand)
-	addNewNoteKeyBinding(ui, txtArea, inputCommand, fileName, txtAreaScroll)
-	addCloseGotoBinding(ui, inputCommand, txtReader, txtArea, txtAreaScroll)
-	addSaveStatusKeyBinding(ui, fileName, inputCommand)
-	addShowReferencesKeyBinding(ui, txtArea, txtAreaScroll)
-	addAnalyzeAndFilterReferencesKeyBinding(ui)
-	addPercentageKeyBindings(ui, inputCommand)
-	addCloseApplicationKeyBinding(ui, txtArea, txtReader, txtAreaScroll)
-	addReferencesNavigationKeyBindings(ui)
-	addSaveQuoteKeyBindings(ui, fileName, txtArea, inputCommand, txtAreaScroll)
-	addOnSelectedReference()
-	addShowMinutesTakenToReachPercentagePointKeyBinding(ui, txtReader)
-	addShowHelpKeyBinding(ui, txtReader)
-	addOpenRAEWebSite(ui, inputCommand)
-	addOpenGoodReadsWebSite(ui, inputCommand)
+	keybindings.AddUpDownKeyBindings(txtArea, ui, inputCommand, txtAreaScroll)
+	keybindings.AddGotoKeyBinding(ui, txtReader)
+	keybindings.AddShowStatusKeyBinding(ui, inputCommand)
+	keybindings.AddNewNoteKeyBinding(ui, txtArea, inputCommand, fileName, txtAreaScroll)
+	keybindings.AddCloseGotoBinding(ui, inputCommand, txtReader, txtArea, txtAreaScroll)
+	keybindings.AddSaveStatusKeyBinding(ui, fileName, inputCommand)
+	keybindings.AddShowReferencesKeyBinding(ui, txtArea, txtAreaScroll)
+	keybindings.AddAnalyzeAndFilterReferencesKeyBinding(ui)
+	keybindings.AddPercentageKeyBindings(ui, inputCommand)
+	keybindings.AddCloseApplicationKeyBinding(ui, txtArea, txtReader, txtAreaScroll)
+	keybindings.AddReferencesNavigationKeyBindings(ui)
+	keybindings.AddSaveQuoteKeyBindings(ui, fileName, txtArea, inputCommand, txtAreaScroll)
+	keybindings.AddOnSelectedReference()
+	keybindings.AddShowMinutesTakenToReachPercentagePointKeyBinding(ui, txtReader)
+	keybindings.AddShowHelpKeyBinding(ui, txtReader)
+	keybindings.AddOpenRAEWebSite(ui, inputCommand)
+	keybindings.AddOpenGoodReadsWebSite(ui, inputCommand)
 
-	inputCommand.SetText(getStatusInformation())
+	inputCommand.SetText(utils.GetStatusInformation())
 
 	utils.ClearScreen()
 

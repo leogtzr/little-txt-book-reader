@@ -1,10 +1,12 @@
 package utils
 
 import (
+	"fmt"
 	"os"
 	"os/exec"
 	"regexp"
 	"textreader/internal/model"
+	"time"
 
 	"github.com/marcusolsson/tui-go"
 	"golang.org/x/term"
@@ -112,4 +114,46 @@ func CalculateTerminalHeight() int {
 	}
 
 	return advance
+}
+
+// TODO: check if we can move these two to a different package
+func GetStatusInformation() string {
+	if !model.ToggleShowStatus {
+		return ""
+	}
+
+	percent := GetPercentage(model.To, &model.FileContent)
+	if int(percent) > model.CurrentPercentage {
+		model.CurrentPercentage = int(percent)
+		now := time.Now()
+		model.MinutesToReachNextPercentagePoint[int(percent)] = now.Sub(model.StartTime)
+		model.StartTime = now
+	}
+
+	if model.PercentagePointStats {
+		return fmt.Sprintf(".   %d of %d lines (%.3f%%) [%d lines To next percentage point]                    ",
+			model.To,
+			len(model.FileContent), percent, LinesToChangePercentagePoint(model.To, len(model.FileContent)))
+	}
+	return fmt.Sprintf(".   %d of %d lines (%.3f%%)                                            ",
+		model.To, len(model.FileContent), percent)
+
+}
+
+func GetSavedStatusInformation(fileName string) string {
+	return fmt.Sprintf(`%s <saved "%s">`, GetStatusInformation(), fileName)
+}
+
+func OpenOSEditor(os, notesFile string) *exec.Cmd {
+	if os == "windows" {
+		return exec.Command("notepad", notesFile)
+	}
+	if os == "darwin" {
+		script := fmt.Sprintf(`tell application "Terminal"
+	activate
+	do script "vim +$ %s; exit"
+end tell`, notesFile)
+		return exec.Command("osascript", "-e", script)
+	}
+	return exec.Command("/usr/bin/xterm", "-fa", "Monospace", "-fs", "14", "-e", "/usr/bin/vim", "+$", notesFile)
 }

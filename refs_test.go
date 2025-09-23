@@ -2,6 +2,7 @@ package main
 
 import (
 	"testing"
+	"textreader/internal/references"
 )
 
 func TestIdentifyReferences(t *testing.T) {
@@ -59,7 +60,7 @@ func TestIdentifyReferences(t *testing.T) {
 	}
 
 	for _, tc := range tests {
-		got := extractReferences(tc.line)
+		got := references.ExtractReferences(tc.line)
 		if len(got) != len(tc.want) {
 			t.Errorf("got=[%d], want=[%d] References", len(got), len(tc.want))
 		}
@@ -68,34 +69,6 @@ func TestIdentifyReferences(t *testing.T) {
 			if got[i] != testRef {
 				t.Errorf("got=[%s], expected=[%s]", got[i], testRef)
 			}
-		}
-	}
-}
-
-func Test_unique(t *testing.T) {
-	type test struct {
-		s, want []string
-	}
-
-	tests := []test{
-		{
-			s: []string{
-				"a",
-				"b",
-				"b",
-				"c",
-			},
-			want: []string{
-				"a",
-				"b",
-				"c",
-			},
-		},
-	}
-
-	for _, tt := range tests {
-		if got := unique(tt.s); !listsAreEqual(got, tt.want) {
-			t.Errorf("got=[%s], want=[%s]", got, tt.want)
 		}
 	}
 }

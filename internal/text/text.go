@@ -1,8 +1,10 @@
-package main
+package text
 
 import (
+	"regexp"
 	"strings"
 	"textreader/internal/model"
+	"textreader/internal/navigation"
 
 	"github.com/marcusolsson/tui-go"
 )
@@ -31,12 +33,12 @@ func MoveTextDown(txtArea *tui.Box, txtAreaScroll *tui.ScrollArea) {
 	chunk := []string{}
 	switch model.CurrentNavMode {
 	case model.ShowReferencesNavigationMode:
-		updateRangesReferenceDown()
+		navigation.UpdateRangesReferenceDown()
 		chunk = GetChunk(&model.References, model.FromForReferences, model.ToReferences)
 	case model.AnalyzeAndFilterReferencesNavigationMode, model.GotoNavigationMode:
 		return
 	default:
-		updateRangesDown()
+		navigation.UpdateRangesDown()
 		chunk = GetChunk(&model.FileContent, model.From, model.To)
 	}
 
@@ -47,23 +49,44 @@ func MoveTextUp(txtArea *tui.Box, txtAreaScroll *tui.ScrollArea) {
 	chunk := []string{}
 	switch model.CurrentNavMode {
 	case model.ShowReferencesNavigationMode:
-		updateRangesReferenceUp()
+		navigation.UpdateRangesReferenceUp()
 		chunk = GetChunk(&model.References, model.FromForReferences, model.ToReferences)
 	case model.AnalyzeAndFilterReferencesNavigationMode, model.GotoNavigationMode:
 		return
 	default:
-		updateRangesUp()
+		navigation.UpdateRangesUp()
 		chunk = GetChunk(&model.FileContent, model.From, model.To)
 	}
 
 	PutText(txtArea, &chunk, txtAreaScroll)
 }
 
-func findAndRemove(s *[]string, e string) {
+func FindAndRemove(s *[]string, e string) {
 	for i, v := range *s {
 		if v == e {
 			*s = append((*s)[:i], (*s)[i+1:]...)
 			break
 		}
 	}
+}
+
+func RemoveTrailingSpaces(s string) string {
+	lines := strings.Split(s, "\n")
+	var sb strings.Builder
+
+	for _, line := range lines {
+		line = strings.TrimSpace(line)
+		if len(line) == 0 {
+			continue
+		}
+		sb.WriteString(strings.TrimSpace(line))
+		sb.WriteString("\n")
+	}
+	return strings.TrimSpace(sb.String())
+}
+
+// Sometimes when we copy in the terminal we get multiple spaces and tabs ...
+func RemoveWhiteSpaces(input string) string {
+	re := regexp.MustCompile(`( |\t){2,}`)
+	return re.ReplaceAllString(input, ` `)
 }

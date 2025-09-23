@@ -1,8 +1,8 @@
-package main
+package navigation
 
 import "textreader/internal/model"
 
-func updateRangesUp() {
+func UpdateRangesUp() {
 	if model.From <= 0 {
 		return
 	}
@@ -14,7 +14,7 @@ func updateRangesUp() {
 	model.To--
 }
 
-func updateRangesReferenceUp() {
+func UpdateRangesReferenceUp() {
 	if model.FromForReferences <= 0 {
 		return
 	}
@@ -26,7 +26,7 @@ func updateRangesReferenceUp() {
 	model.ToReferences--
 }
 
-func updateRangesDown() {
+func UpdateRangesDown() {
 	if model.From < len(model.FileContent) {
 		model.From++
 	}
@@ -40,7 +40,7 @@ func updateRangesDown() {
 	}
 }
 
-func updateRangesReferenceDown() {
+func UpdateRangesReferenceDown() {
 	if model.FromForReferences < len(model.References) {
 		model.FromForReferences++
 	}

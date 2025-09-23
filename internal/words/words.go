@@ -1,17 +1,16 @@
-package main
+package words
 
 import (
 	"strings"
-	"textreader/internal/model"
 	"unicode"
 )
 
-func extractWords(line string) []string {
+func ExtractWords(line string) []string {
 	words := strings.Split(line, " ")
 	return words
 }
 
-func sanitizeWord(line string) string {
+func SanitizeWord(line string) string {
 	line = strings.ReplaceAll(line, ".", "")
 	line = strings.ReplaceAll(line, ",", "")
 	line = strings.ReplaceAll(line, "\"", "")
@@ -22,20 +21,16 @@ func sanitizeWord(line string) string {
 	return line
 }
 
-func isTitle(word string) bool {
+func IsTitle(word string) bool {
 	chars := []rune(word)
 	return unicode.IsUpper(chars[0])
 }
 
-func contains(words []string, word string) bool {
+func Contains(words []string, word string) bool {
 	for _, w := range words {
 		if w == word {
 			return true
 		}
 	}
 	return false
-}
-
-func shouldIgnoreWord(word string) bool {
-	return contains(model.BannedWords, word)
 }

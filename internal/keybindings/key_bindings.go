@@ -1,4 +1,4 @@
-package main
+package keybindings
 
 import (
 	"fmt"
@@ -6,68 +6,70 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
-	"regexp"
 	"runtime"
 	"sort"
 	"strconv"
 	"strings"
 	"textreader/internal/file"
 	"textreader/internal/model"
+	"textreader/internal/references"
+	"textreader/internal/text"
 	"textreader/internal/utils"
+	"textreader/internal/words"
 
 	"github.com/atotto/clipboard"
 
 	"github.com/marcusolsson/tui-go"
 )
 
-func addDownBinding(box *tui.Box, input *tui.Entry, txtAreaScroll *tui.ScrollArea) func() {
+func AddDownBinding(box *tui.Box, input *tui.Entry, txtAreaScroll *tui.ScrollArea) func() {
 	return func() {
-		MoveTextDown(box, txtAreaScroll)
-		input.SetText(getStatusInformation())
+		text.MoveTextDown(box, txtAreaScroll)
+		input.SetText(utils.GetStatusInformation())
 	}
 }
 
-func addUpDownKeyBindings(txtArea *tui.Box, ui tui.UI, inputCommand *tui.Entry, txtAreaScroll *tui.ScrollArea) {
-	ui.SetKeybinding(model.DownKeyBindingAlternative1, addDownBinding(txtArea, inputCommand, txtAreaScroll))
-	ui.SetKeybinding(model.DownKeyBindingAlternative2, addDownBinding(txtArea, inputCommand, txtAreaScroll))
+func AddUpDownKeyBindings(txtArea *tui.Box, ui tui.UI, inputCommand *tui.Entry, txtAreaScroll *tui.ScrollArea) {
+	ui.SetKeybinding(model.DownKeyBindingAlternative1, AddDownBinding(txtArea, inputCommand, txtAreaScroll))
+	ui.SetKeybinding(model.DownKeyBindingAlternative2, AddDownBinding(txtArea, inputCommand, txtAreaScroll))
 
-	ui.SetKeybinding(model.UpKeyBindingAlternative1, addUpBinding(txtArea, inputCommand, txtAreaScroll))
-	ui.SetKeybinding(model.UpKeyBindingAlternative2, addUpBinding(txtArea, inputCommand, txtAreaScroll))
+	ui.SetKeybinding(model.UpKeyBindingAlternative1, AddUpBinding(txtArea, inputCommand, txtAreaScroll))
+	ui.SetKeybinding(model.UpKeyBindingAlternative2, AddUpBinding(txtArea, inputCommand, txtAreaScroll))
 }
 
-func addShowStatusKeyBinding(ui tui.UI, inputCommand *tui.Entry) {
+func AddShowStatusKeyBinding(ui tui.UI, inputCommand *tui.Entry) {
 	ui.SetKeybinding(model.ShowStatusKeyBinding, func() {
 		model.ToggleShowStatus = !model.ToggleShowStatus
-		inputCommand.SetText(getStatusInformation())
+		inputCommand.SetText(utils.GetStatusInformation())
 	})
 }
 
-func addUpBinding(box *tui.Box, input *tui.Entry, txtAreaScroll *tui.ScrollArea) func() {
+func AddUpBinding(box *tui.Box, input *tui.Entry, txtAreaScroll *tui.ScrollArea) func() {
 	return func() {
-		MoveTextUp(box, txtAreaScroll)
-		input.SetText(getStatusInformation())
+		text.MoveTextUp(box, txtAreaScroll)
+		input.SetText(utils.GetStatusInformation())
 	}
 }
 
-func addSaveStatusKeyBinding(ui tui.UI, fileName string, inputCommand *tui.Entry) {
+func AddSaveStatusKeyBinding(ui tui.UI, fileName string, inputCommand *tui.Entry) {
 	baseFileName := filepath.Base(fileName)
 	ui.SetKeybinding(model.SaveStatusKeyBindingAlternative1, func() {
 		file.SaveStatus(fileName, model.From, model.To)
-		inputCommand.SetText(getSavedStatusInformation(baseFileName))
+		inputCommand.SetText(utils.GetSavedStatusInformation(baseFileName))
 	})
 }
 
-func addCloseApplicationKeyBinding(ui tui.UI, txtArea, txtReader *tui.Box, txtAreaScroll *tui.ScrollArea) {
+func AddCloseApplicationKeyBinding(ui tui.UI, txtArea, txtReader *tui.Box, txtAreaScroll *tui.ScrollArea) {
 	ui.SetKeybinding(model.CloseApplicationKeyBindingAlternative1, func() {
 
 		switch model.CurrentNavMode {
 		case model.ShowReferencesNavigationMode:
-			chunk := GetChunk(&model.FileContent, model.From, model.To)
-			PutText(txtArea, &chunk, txtAreaScroll)
+			chunk := text.GetChunk(&model.FileContent, model.From, model.To)
+			text.PutText(txtArea, &chunk, txtAreaScroll)
 			model.CurrentNavMode = model.ReadingNavigationMode
 		case model.AnalyzeAndFilterReferencesNavigationMode:
-			chunk := GetChunk(&model.FileContent, model.From, model.To)
-			PutText(txtArea, &chunk, txtAreaScroll)
+			chunk := text.GetChunk(&model.FileContent, model.From, model.To)
+			text.PutText(txtArea, &chunk, txtAreaScroll)
 			model.CurrentNavMode = model.ReadingNavigationMode
 			model.RefsTable.SetFocused(false)
 		case model.GotoNavigationMode, model.ShowTimePercentagePointsMode, model.ShowHelpMode:
@@ -80,24 +82,24 @@ func addCloseApplicationKeyBinding(ui tui.UI, txtArea, txtReader *tui.Box, txtAr
 	})
 }
 
-func addPercentageKeyBindings(ui tui.UI, inputCommand *tui.Entry) {
+func AddPercentageKeyBindings(ui tui.UI, inputCommand *tui.Entry) {
 	// Enable percentage tags
 	ui.SetKeybinding(model.NextPercentagePointKeyBindingAlternative1, func() {
 		model.PercentagePointStats = !model.PercentagePointStats
-		inputCommand.SetText(getStatusInformation())
+		inputCommand.SetText(utils.GetStatusInformation())
 	})
 }
 
-func addShowReferencesKeyBinding(ui tui.UI, txtArea *tui.Box, txtAreaScroll *tui.ScrollArea) {
+func AddShowReferencesKeyBinding(ui tui.UI, txtArea *tui.Box, txtAreaScroll *tui.ScrollArea) {
 	ui.SetKeybinding(model.ShowReferencesKeyBindingAlternative1, func() {
 		model.CurrentNavMode = model.ShowReferencesNavigationMode
-		loadReferences()
-		chunk := GetChunk(&model.References, model.FromForReferences, model.ToReferences)
-		PutText(txtArea, &chunk, txtAreaScroll)
+		references.LoadReferences()
+		chunk := text.GetChunk(&model.References, model.FromForReferences, model.ToReferences)
+		text.PutText(txtArea, &chunk, txtAreaScroll)
 	})
 }
 
-func addReferencesNavigationKeyBindings(ui tui.UI) {
+func AddReferencesNavigationKeyBindings(ui tui.UI) {
 	// Next References ...
 	ui.SetKeybinding("Right", func() {
 		if model.PageIndex >= len(model.References) {
@@ -117,7 +119,7 @@ func addReferencesNavigationKeyBindings(ui tui.UI) {
 	})
 }
 
-func addSaveQuoteKeyBindings(ui tui.UI, fileName string, txtArea *tui.Box, inputCommand *tui.Entry, txtAreaScroll *tui.ScrollArea) {
+func AddSaveQuoteKeyBindings(ui tui.UI, fileName string, txtArea *tui.Box, inputCommand *tui.Entry, txtAreaScroll *tui.ScrollArea) {
 	ui.SetKeybinding(model.SaveQuoteKeyBindingAlternative1, func() {
 		oldStdout, oldStdin, oldSterr := os.Stdout, os.Stdin, os.Stderr
 
@@ -129,11 +131,11 @@ func addSaveQuoteKeyBindings(ui tui.UI, fileName string, txtArea *tui.Box, input
 			return
 		}
 
-		clipBoardText = removeTrailingSpaces(clipBoardText)
-		clipBoardText = removeWhiteSpaces(clipBoardText)
+		clipBoardText = text.RemoveTrailingSpaces(clipBoardText)
+		clipBoardText = text.RemoveWhiteSpaces(clipBoardText)
 		file.AppendLineToFile(quotesFile, clipBoardText, "\n__________")
 
-		cmd := openOSEditor(runtime.GOOS, quotesFile)
+		cmd := utils.OpenOSEditor(runtime.GOOS, quotesFile)
 		cmd.Stdin, cmd.Stdout, cmd.Stderr = os.Stdin, os.Stdout, os.Stderr
 		cmdErr := cmd.Run()
 		if cmdErr != nil {
@@ -143,9 +145,9 @@ func addSaveQuoteKeyBindings(ui tui.UI, fileName string, txtArea *tui.Box, input
 		os.Stdout, os.Stdin, os.Stderr = oldStdout, oldStdin, oldSterr
 
 		// txtReader.SetBorder(true)
-		chunk := GetChunk(&model.FileContent, model.From, model.To)
-		PutText(txtArea, &chunk, txtAreaScroll)
-		inputCommand.SetText(getStatusInformation())
+		chunk := text.GetChunk(&model.FileContent, model.From, model.To)
+		text.PutText(txtArea, &chunk, txtAreaScroll)
+		inputCommand.SetText(utils.GetStatusInformation())
 	})
 }
 
@@ -158,31 +160,31 @@ func prepareTableForReferences() {
 	model.RefsTable.SetSelected(0)
 }
 
-func addOnSelectedReference() {
+func AddOnSelectedReference() {
 	model.RefsTable.OnItemActivated(func(tui *tui.Table) {
 
 		itemIndexToRemove := tui.Selected()
 		itemToAddToNonRefs := model.References[model.PageIndex+itemIndexToRemove]
 		// References = remove(References, itemIndexToRemove)
-		findAndRemove(&model.References, itemToAddToNonRefs)
+		text.FindAndRemove(&model.References, itemToAddToNonRefs)
 		prepareTableForReferences()
 
-		if !contains(model.BannedWords, itemToAddToNonRefs) {
+		if !words.Contains(model.BannedWords, itemToAddToNonRefs) {
 			file.AppendLineToFile(model.NonRefsFileName, itemToAddToNonRefs, "")
 		}
 	})
 }
 
-func addGotoKeyBinding(ui tui.UI, txtReader *tui.Box) {
+func AddGotoKeyBinding(ui tui.UI, txtReader *tui.Box) {
 	ui.SetKeybinding(model.GotoKeyBindingAlternative1, func() {
 		utils.AddGotoWidget(txtReader)
 	})
 }
 
-func addCloseGotoBinding(ui tui.UI, inputCommand *tui.Entry, txtReader, txtArea *tui.Box, txtAreaScroll *tui.ScrollArea) {
+func AddCloseGotoBinding(ui tui.UI, inputCommand *tui.Entry, txtReader, txtArea *tui.Box, txtAreaScroll *tui.ScrollArea) {
 	ui.SetKeybinding(model.CloseGotoKeyBindingAlternative1, func() {
 		// Go To the specified line
-		inputCommand.SetText(getStatusInformation())
+		inputCommand.SetText(utils.GetStatusInformation())
 
 		gotoLineNumber := utils.GetNumberLineGoto(model.GotoLine)
 		gotoLineNumberDigits, err := strconv.ParseInt(gotoLineNumber, 10, 64)
@@ -192,24 +194,24 @@ func addCloseGotoBinding(ui tui.UI, inputCommand *tui.Entry, txtReader, txtArea 
 		if int(gotoLineNumberDigits) < (len(model.FileContent) - model.Advance) {
 			model.From = int(gotoLineNumberDigits)
 			model.To = model.From + model.Advance
-			chunk := GetChunk(&model.FileContent, model.From, model.To)
-			PutText(txtArea, &chunk, txtAreaScroll)
-			inputCommand.SetText(getStatusInformation())
+			chunk := text.GetChunk(&model.FileContent, model.From, model.To)
+			text.PutText(txtArea, &chunk, txtAreaScroll)
+			inputCommand.SetText(utils.GetStatusInformation())
 		}
 		txtReader.Remove(model.GotoWidgetIndex)
-		inputCommand.SetText(getStatusInformation())
+		inputCommand.SetText(utils.GetStatusInformation())
 		model.CurrentNavMode = model.ReadingNavigationMode
 	})
 }
 
-func addNewNoteKeyBinding(ui tui.UI, txtArea *tui.Box, inputCommand *tui.Entry, fileName string, txtAreaScroll *tui.ScrollArea) {
+func AddNewNoteKeyBinding(ui tui.UI, txtArea *tui.Box, inputCommand *tui.Entry, fileName string, txtAreaScroll *tui.ScrollArea) {
 	ui.SetKeybinding(model.NewNoteKeyBindingAlternative1, func() {
 
 		oldStdout, oldStdin, oldSterr := os.Stdout, os.Stdin, os.Stderr
 
 		notesFile := file.GetDirectoryNameForFile("notes", fileName)
 
-		cmd := openOSEditor(runtime.GOOS, notesFile)
+		cmd := utils.OpenOSEditor(runtime.GOOS, notesFile)
 		cmd.Stdin, cmd.Stdout, cmd.Stderr = os.Stdin, os.Stdout, os.Stderr
 		cmdErr := cmd.Run()
 		if cmdErr != nil {
@@ -218,19 +220,19 @@ func addNewNoteKeyBinding(ui tui.UI, txtArea *tui.Box, inputCommand *tui.Entry, 
 
 		os.Stdout, os.Stdin, os.Stderr = oldStdout, oldStdin, oldSterr
 		// txtReader.SetBorder(true)
-		chunk := GetChunk(&model.FileContent, model.From, model.To)
-		PutText(txtArea, &chunk, txtAreaScroll)
-		inputCommand.SetText(getStatusInformation())
+		chunk := text.GetChunk(&model.FileContent, model.From, model.To)
+		text.PutText(txtArea, &chunk, txtAreaScroll)
+		inputCommand.SetText(utils.GetStatusInformation())
 	})
 }
 
-func addAnalyzeAndFilterReferencesKeyBinding(ui tui.UI) {
+func AddAnalyzeAndFilterReferencesKeyBinding(ui tui.UI) {
 	ui.SetKeybinding(model.AnalyzeAndFilterReferencesKeyBinding, func() {
 		model.CurrentNavMode = model.AnalyzeAndFilterReferencesNavigationMode
 		model.Sidebar.SetTitle("References ... ")
 		model.Sidebar.SetBorder(true)
 		model.RefsTable.SetColumnStretch(0, 0)
-		loadReferences()
+		references.LoadReferences()
 
 		model.RefsTable.RemoveRows()
 		prepareTableForReferences()
@@ -251,7 +253,7 @@ func browserOpenURLCommand(osName, url string) *exec.Cmd {
 	}
 }
 
-func addOpenRAEWebSite(ui tui.UI, inputCommand *tui.Entry) {
+func AddOpenRAEWebSite(ui tui.UI, inputCommand *tui.Entry) {
 	ui.SetKeybinding(model.OpenRAEWebSiteKeyBinging, func() {
 		clipBoardText, err := clipboard.ReadAll()
 		if err != nil {
@@ -282,7 +284,7 @@ func browserOpenGoodReadsURLCommand(osName, url string) *exec.Cmd {
 	}
 }
 
-func addOpenGoodReadsWebSite(ui tui.UI, inputCommand *tui.Entry) {
+func AddOpenGoodReadsWebSite(ui tui.UI, inputCommand *tui.Entry) {
 	ui.SetKeybinding(model.OpenGoodReadsWebSiteKeyBinding, func() {
 		clipBoardText, err := clipboard.ReadAll()
 		if err != nil {
@@ -300,7 +302,7 @@ func addOpenGoodReadsWebSite(ui tui.UI, inputCommand *tui.Entry) {
 	})
 }
 
-func addShowMinutesTakenToReachPercentagePointKeyBinding(ui tui.UI, txtReader *tui.Box) {
+func AddShowMinutesTakenToReachPercentagePointKeyBinding(ui tui.UI, txtReader *tui.Box) {
 	ui.SetKeybinding(model.ShowMinutesTakenToReachPercentagePointKeyBinding, func() {
 
 		// Check if we are already in that mode ...
@@ -335,7 +337,7 @@ func addShowMinutesTakenToReachPercentagePointKeyBinding(ui tui.UI, txtReader *t
 	})
 }
 
-func addShowHelpKeyBinding(ui tui.UI, txtReader *tui.Box) {
+func AddShowHelpKeyBinding(ui tui.UI, txtReader *tui.Box) {
 	ui.SetKeybinding(model.ShowHelpKeyBinding, func() {
 
 		// Check if we are already in that mode ...
@@ -385,25 +387,4 @@ func addShowHelpKeyBinding(ui tui.UI, txtReader *tui.Box) {
 
 func addKeyBindingDescription(desc string, keyBindings *[]string) {
 	*keyBindings = append(*keyBindings, desc)
-}
-
-// Sometimes when we copy in the terminal we get multiple spaces and tabs ...
-func removeWhiteSpaces(input string) string {
-	re := regexp.MustCompile(`( |\t){2,}`)
-	return re.ReplaceAllString(input, ` `)
-}
-
-func removeTrailingSpaces(s string) string {
-	lines := strings.Split(s, "\n")
-	var sb strings.Builder
-
-	for _, line := range lines {
-		line = strings.TrimSpace(line)
-		if len(line) == 0 {
-			continue
-		}
-		sb.WriteString(strings.TrimSpace(line))
-		sb.WriteString("\n")
-	}
-	return strings.TrimSpace(sb.String())
 }

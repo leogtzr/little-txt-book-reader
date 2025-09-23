@@ -21,7 +21,7 @@ import (
 func clearScreen() {
 	cmd := exec.Command("clear")
 	cmd.Stdout = os.Stdout
-	cmd.Run()
+	_ = cmd.Run()
 }
 
 func loadNonRefsFile(path string) ([]string, error) {
@@ -177,31 +177,23 @@ func exists(name string) bool {
 	return true
 }
 
-func addUpBinding(box *tui.Box, input *tui.Entry) func() {
+func addUpBinding(box *tui.Box, input *tui.Entry, txtAreaScroll *tui.ScrollArea) func() {
 	return func() {
-		upText(box)
+		upText(box, txtAreaScroll)
 		input.SetText(getStatusInformation())
 	}
 }
 
-func addDownBinding(box *tui.Box, input *tui.Entry) func() {
+func addDownBinding(box *tui.Box, input *tui.Entry, txtAreaScroll *tui.ScrollArea) func() {
 	return func() {
-		downText(box)
+		downText(box, txtAreaScroll)
 		input.SetText(getStatusInformation())
 	}
 }
 
-func putText(box *tui.Box, content *[]string) {
-	clearBox(box, len(*content))
-
-	/*
-		Had to introduce this code to reduce the number of elements added to the
-		GUI, otherwise the memory would be increasing all the time ...
-	*/
-	if box.Length() > 0 {
-		for i := 0; i < box.Length(); i++ {
-			box.Remove(i)
-		}
+func putText(box *tui.Box, content *[]string, txtAreaScroll *tui.ScrollArea) {
+	for box.Length() > 0 {
+		box.Remove(0)
 	}
 
 	for _, txt := range *content {
@@ -211,6 +203,8 @@ func putText(box *tui.Box, content *[]string) {
 			tui.NewLabel(txt),
 		))
 	}
+
+	txtAreaScroll.ScrollToTop()
 }
 
 func removeDuplicates(elements []string) []string {
@@ -262,6 +256,7 @@ func extractReferencesFromFileContent(fileContent *[]string) []string {
 func loadReferences() {
 	if len(references) == 0 {
 		references = extractReferencesFromFileContent(&fileContent)
+		toReferences = calculateAdvanceHeight()
 	}
 }
 

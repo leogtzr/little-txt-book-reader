@@ -32,7 +32,7 @@ const (
 	showHelpMode                             navMode = 6
 
 	// Advance ...
-	Advance int = 30
+	// Advance int = 30
 
 	// GotoWidgetIndex ...
 	GotoWidgetIndex = 2

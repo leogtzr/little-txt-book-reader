@@ -10,13 +10,14 @@ import (
 	"time"
 
 	"github.com/marcusolsson/tui-go"
+	"golang.org/x/term"
 )
 
 var (
 	from                              = 0
 	to                                = Advance
 	fromForReferences                 = 0
-	toReferences                      = Advance
+	toReferences                      = 10
 	gotoLine                          = ""
 	fileToOpen                        = flag.String("file", "", "File to open")
 	percentagePointStats              = false
@@ -85,7 +86,7 @@ func updateRangesReferenceDown() {
 	}
 }
 
-func downText(txtArea *tui.Box) {
+func downText(txtArea *tui.Box, txtAreaScroll *tui.ScrollArea) {
 	chunk := []string{}
 	switch currentNavMode {
 	case showReferencesNavigationMode:
@@ -98,10 +99,10 @@ func downText(txtArea *tui.Box) {
 		chunk = getChunk(&fileContent, from, to)
 	}
 
-	putText(txtArea, &chunk)
+	putText(txtArea, &chunk, txtAreaScroll)
 }
 
-func upText(txtArea *tui.Box) {
+func upText(txtArea *tui.Box, txtAreaScroll *tui.ScrollArea) {
 	chunk := []string{}
 	switch currentNavMode {
 	case showReferencesNavigationMode:
@@ -114,7 +115,7 @@ func upText(txtArea *tui.Box) {
 		chunk = getChunk(&fileContent, from, to)
 	}
 
-	putText(txtArea, &chunk)
+	putText(txtArea, &chunk, txtAreaScroll)
 }
 
 func getSavedStatusInformation(fileName string) string {
@@ -177,6 +178,8 @@ end tell`, notesFile)
 	return exec.Command("/usr/bin/xterm", "-fa", "Monospace", "-fs", "14", "-e", "/usr/bin/vim", "+$", notesFile)
 }
 
+var Advance int
+
 func main() {
 
 	flag.Parse()
@@ -202,12 +205,31 @@ func main() {
 	check(err)
 	defer file.Close()
 
+	//fd := int(os.Stdout.Fd())
+	//_, height, err := term.GetSize(fd)
+	//if err == nil {
+	//	Advance = height - 5 // Subtract for borders, input bar, status, etc. Adjust if needed.
+	//	if Advance < 10 {
+	//		Advance = 30 // Fallback minimum
+	//	}
+	//} else {
+	//	Advance = 30 // Fallback if detection fails
+	//}
+
+	Advance = calculateAdvanceHeight()
+
+	// Adjust to based on new Advance
+	to = from + Advance
+	if to > len(fileContent) {
+		to = len(fileContent)
+	}
+
 	startTime = time.Now()
 	currentPercentage = int(getPercentage(to, &fileContent))
 
 	txtArea := tui.NewVBox()
 	txtAreaScroll := tui.NewScrollArea(txtArea)
-	txtAreaScroll.SetAutoscrollToBottom(true)
+	txtAreaScroll.SetAutoscrollToBottom(false)
 
 	txtAreaBox := tui.NewVBox(txtAreaScroll)
 	txtAreaBox.SetBorder(true)
@@ -219,7 +241,7 @@ func main() {
 	txtReader.SetSizePolicy(tui.Expanding, tui.Expanding)
 
 	chunk := getChunk(&fileContent, from, to)
-	putText(txtArea, &chunk)
+	putText(txtArea, &chunk, txtAreaScroll)
 
 	root := tui.NewHBox(txtReader, sidebar)
 
@@ -228,18 +250,18 @@ func main() {
 		log.Fatal(err)
 	}
 
-	addUpDownKeyBindings(txtArea, ui, inputCommand)
+	addUpDownKeyBindings(txtArea, ui, inputCommand, txtAreaScroll)
 	addGotoKeyBinding(ui, txtReader)
 	addShowStatusKeyBinding(ui, inputCommand)
-	addNewNoteKeyBinding(ui, txtArea, inputCommand, fileName)
-	addCloseGotoBinding(ui, inputCommand, txtReader, txtArea)
+	addNewNoteKeyBinding(ui, txtArea, inputCommand, fileName, txtAreaScroll)
+	addCloseGotoBinding(ui, inputCommand, txtReader, txtArea, txtAreaScroll)
 	addSaveStatusKeyBinding(ui, fileName, inputCommand)
-	addShowReferencesKeyBinding(ui, txtArea)
+	addShowReferencesKeyBinding(ui, txtArea, txtAreaScroll)
 	addAnalyzeAndFilterReferencesKeyBinding(ui)
 	addPercentageKeyBindings(ui, inputCommand)
-	addCloseApplicationKeyBinding(ui, txtArea, txtReader)
+	addCloseApplicationKeyBinding(ui, txtArea, txtReader, txtAreaScroll)
 	addReferencesNavigationKeyBindings(ui)
-	addSaveQuoteKeyBindings(ui, fileName, txtArea, inputCommand)
+	addSaveQuoteKeyBindings(ui, fileName, txtArea, inputCommand, txtAreaScroll)
 	addOnSelectedReference()
 	addShowMinutesTakenToReachPercentagePointKeyBinding(ui, txtReader)
 	addShowHelpKeyBinding(ui, txtReader)
@@ -253,4 +275,15 @@ func main() {
 	if err := ui.Run(); err != nil {
 		log.Fatal(err)
 	}
+}
+
+func calculateAdvanceHeight() int {
+	advance := 45
+	fd := int(os.Stdout.Fd())
+	_, height, err := term.GetSize(fd)
+	if err == nil {
+		advance = height - 5 // Subtract for borders, input bar, status, etc. Adjust if needed.
+	}
+
+	return advance
 }

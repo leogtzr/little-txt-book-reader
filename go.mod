@@ -1,6 +1,8 @@
 module little-txt-reader
 
-go 1.19
+go 1.24.0
+
+toolchain go1.24.4
 
 require (
 	github.com/atotto/clipboard v0.1.4
@@ -14,6 +16,7 @@ require (
 	github.com/mattn/go-runewidth v0.0.14 // indirect
 	github.com/mitchellh/go-wordwrap v1.0.1 // indirect
 	github.com/rivo/uniseg v0.4.4 // indirect
-	golang.org/x/sys v0.10.0 // indirect
+	golang.org/x/sys v0.36.0 // indirect
+	golang.org/x/term v0.35.0 // indirect
 	golang.org/x/text v0.11.0 // indirect
 )

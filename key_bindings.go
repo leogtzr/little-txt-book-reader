@@ -16,12 +16,12 @@ import (
 	"github.com/marcusolsson/tui-go"
 )
 
-func addUpDownKeyBindings(txtArea *tui.Box, ui tui.UI, inputCommand *tui.Entry) {
-	ui.SetKeybinding(downKeyBindingAlternative1, addDownBinding(txtArea, inputCommand))
-	ui.SetKeybinding(downKeyBindingAlternative2, addDownBinding(txtArea, inputCommand))
+func addUpDownKeyBindings(txtArea *tui.Box, ui tui.UI, inputCommand *tui.Entry, txtAreaScroll *tui.ScrollArea) {
+	ui.SetKeybinding(downKeyBindingAlternative1, addDownBinding(txtArea, inputCommand, txtAreaScroll))
+	ui.SetKeybinding(downKeyBindingAlternative2, addDownBinding(txtArea, inputCommand, txtAreaScroll))
 
-	ui.SetKeybinding(upKeyBindingAlternative1, addUpBinding(txtArea, inputCommand))
-	ui.SetKeybinding(upKeyBindingAlternative2, addUpBinding(txtArea, inputCommand))
+	ui.SetKeybinding(upKeyBindingAlternative1, addUpBinding(txtArea, inputCommand, txtAreaScroll))
+	ui.SetKeybinding(upKeyBindingAlternative2, addUpBinding(txtArea, inputCommand, txtAreaScroll))
 }
 
 func addShowStatusKeyBinding(ui tui.UI, inputCommand *tui.Entry) {
@@ -39,17 +39,17 @@ func addSaveStatusKeyBinding(ui tui.UI, fileName string, inputCommand *tui.Entry
 	})
 }
 
-func addCloseApplicationKeyBinding(ui tui.UI, txtArea, txtReader *tui.Box) {
+func addCloseApplicationKeyBinding(ui tui.UI, txtArea, txtReader *tui.Box, txtAreaScroll *tui.ScrollArea) {
 	ui.SetKeybinding(closeApplicationKeyBindingAlternative1, func() {
 
 		switch currentNavMode {
 		case showReferencesNavigationMode:
 			chunk := getChunk(&fileContent, from, to)
-			putText(txtArea, &chunk)
+			putText(txtArea, &chunk, txtAreaScroll)
 			currentNavMode = readingNavigationMode
 		case analyzeAndFilterReferencesNavigationMode:
 			chunk := getChunk(&fileContent, from, to)
-			putText(txtArea, &chunk)
+			putText(txtArea, &chunk, txtAreaScroll)
 			currentNavMode = readingNavigationMode
 			refsTable.SetFocused(false)
 		case gotoNavigationMode, showTimePercentagePointsMode, showHelpMode:
@@ -70,12 +70,12 @@ func addPercentageKeyBindings(ui tui.UI, inputCommand *tui.Entry) {
 	})
 }
 
-func addShowReferencesKeyBinding(ui tui.UI, txtArea *tui.Box) {
+func addShowReferencesKeyBinding(ui tui.UI, txtArea *tui.Box, txtAreaScroll *tui.ScrollArea) {
 	ui.SetKeybinding(showReferencesKeyBindingAlternative1, func() {
 		currentNavMode = showReferencesNavigationMode
 		loadReferences()
 		chunk := getChunk(&references, fromForReferences, toReferences)
-		putText(txtArea, &chunk)
+		putText(txtArea, &chunk, txtAreaScroll)
 	})
 }
 
@@ -99,7 +99,7 @@ func addReferencesNavigationKeyBindings(ui tui.UI) {
 	})
 }
 
-func addSaveQuoteKeyBindings(ui tui.UI, fileName string, txtArea *tui.Box, inputCommand *tui.Entry) {
+func addSaveQuoteKeyBindings(ui tui.UI, fileName string, txtArea *tui.Box, inputCommand *tui.Entry, txtAreaScroll *tui.ScrollArea) {
 	ui.SetKeybinding(saveQuoteKeyBindingAlternative1, func() {
 		oldStdout, oldStdin, oldSterr := os.Stdout, os.Stdin, os.Stderr
 
@@ -126,7 +126,7 @@ func addSaveQuoteKeyBindings(ui tui.UI, fileName string, txtArea *tui.Box, input
 
 		// txtReader.SetBorder(true)
 		chunk := getChunk(&fileContent, from, to)
-		putText(txtArea, &chunk)
+		putText(txtArea, &chunk, txtAreaScroll)
 		inputCommand.SetText(getStatusInformation())
 	})
 }
@@ -161,7 +161,7 @@ func addGotoKeyBinding(ui tui.UI, txtReader *tui.Box) {
 	})
 }
 
-func addCloseGotoBinding(ui tui.UI, inputCommand *tui.Entry, txtReader, txtArea *tui.Box) {
+func addCloseGotoBinding(ui tui.UI, inputCommand *tui.Entry, txtReader, txtArea *tui.Box, txtAreaScroll *tui.ScrollArea) {
 	ui.SetKeybinding(closeGotoKeyBindingAlternative1, func() {
 		// Go to the specified line
 		inputCommand.SetText(getStatusInformation())
@@ -175,7 +175,7 @@ func addCloseGotoBinding(ui tui.UI, inputCommand *tui.Entry, txtReader, txtArea 
 			from = int(gotoLineNumberDigits)
 			to = from + Advance
 			chunk := getChunk(&fileContent, from, to)
-			putText(txtArea, &chunk)
+			putText(txtArea, &chunk, txtAreaScroll)
 			inputCommand.SetText(getStatusInformation())
 		}
 		txtReader.Remove(GotoWidgetIndex)
@@ -184,7 +184,7 @@ func addCloseGotoBinding(ui tui.UI, inputCommand *tui.Entry, txtReader, txtArea 
 	})
 }
 
-func addNewNoteKeyBinding(ui tui.UI, txtArea *tui.Box, inputCommand *tui.Entry, fileName string) {
+func addNewNoteKeyBinding(ui tui.UI, txtArea *tui.Box, inputCommand *tui.Entry, fileName string, txtAreaScroll *tui.ScrollArea) {
 	ui.SetKeybinding(newNoteKeyBindingAlternative1, func() {
 
 		oldStdout, oldStdin, oldSterr := os.Stdout, os.Stdin, os.Stderr
@@ -201,7 +201,7 @@ func addNewNoteKeyBinding(ui tui.UI, txtArea *tui.Box, inputCommand *tui.Entry, 
 		os.Stdout, os.Stdin, os.Stderr = oldStdout, oldStdin, oldSterr
 		// txtReader.SetBorder(true)
 		chunk := getChunk(&fileContent, from, to)
-		putText(txtArea, &chunk)
+		putText(txtArea, &chunk, txtAreaScroll)
 		inputCommand.SetText(getStatusInformation())
 	})
 }

@@ -151,23 +151,6 @@ func AddShowReferencesKeyBinding(ui tui.UI, txtArea *tui.Box, txtAreaScroll *tui
 
 func AddReferencesNavigationKeyBindings(ui tui.UI) {
 	// Next References ...
-	//ui.SetKeybinding("Right", func() {
-	//	if model.PageIndex >= len(model.References) {
-	//		return
-	//	}
-	//	model.PageIndex += model.PageSize
-	//	prepareTableForReferences()
-	//})
-	//
-	//// Previous References ...
-	//ui.SetKeybinding("Left", func() {
-	//	if model.PageIndex < model.PageSize {
-	//		return
-	//	}
-	//	model.PageIndex -= model.PageSize
-	//	prepareTableForReferences()
-	//})
-	// Next References ...
 	ui.SetKeybinding("Right", func() {
 		if model.CurrentNavMode != model.AnalyzeAndFilterReferencesNavigationMode {
 			return
@@ -217,7 +200,6 @@ func AddSaveQuoteKeyBindings(ui tui.UI, fileName string, txtArea *tui.Box, input
 
 		os.Stdout, os.Stdin, os.Stderr = oldStdout, oldStdin, oldSterr
 
-		// txtReader.SetBorder(true)
 		chunk := text.GetChunk(&model.FileContent, model.From, model.To)
 		text.PutText(txtArea, &chunk, txtAreaScroll)
 		inputCommand.SetText(utils.GetStatusInformation())
@@ -429,8 +411,8 @@ func AddShowHelpKeyBinding(ui tui.UI, txtReader *tui.Box) {
 		}
 		sort.Ints(percentages)
 
-		addKeyBindingDescription(fmt.Sprintf("%10s -> Go Down", model.DownKeyBindingAlternative1), &strs)
-		addKeyBindingDescription(fmt.Sprintf("%10s -> Go Up", model.UpKeyBindingAlternative1), &strs)
+		addKeyBindingDescription(fmt.Sprintf("%10s -> Go Down / Go Up",
+			model.DownKeyBindingAlternative1+"/"+model.UpKeyBindingAlternative1), &strs)
 		addKeyBindingDescription(fmt.Sprintf("%10s -> Go To", model.GotoKeyBindingAlternative1), &strs)
 		addKeyBindingDescription(fmt.Sprintf("%10s -> New Note", model.NewNoteKeyBindingAlternative1), &strs)
 		addKeyBindingDescription(fmt.Sprintf("%10s -> Show Status", model.ShowStatusKeyBinding), &strs)
@@ -444,8 +426,8 @@ func AddShowHelpKeyBinding(ui tui.UI, txtReader *tui.Box) {
 		addKeyBindingDescription(fmt.Sprintf("%10s -> Add a Quote, gets the text From the clipboard.", model.SaveQuoteKeyBindingAlternative1), &strs)
 		addKeyBindingDescription(fmt.Sprintf("%10s -> Shows Time Stats for each percentage point.", model.ShowMinutesTakenToReachPercentagePointKeyBinding), &strs)
 		addKeyBindingDescription(fmt.Sprintf("%10s -> Shows this Dialog", model.ShowHelpKeyBinding), &strs)
-		addKeyBindingDescription(fmt.Sprintf("%10s -> Opens RAE Web site with search From the clipboard.", model.OpenRAEWebSiteKeyBinging), &strs)
-		addKeyBindingDescription(fmt.Sprintf("%10s -> Opens GoodReads Web site with search From the clipboard.", model.OpenGoodReadsWebSiteKeyBinding), &strs)
+		addKeyBindingDescription(fmt.Sprintf("%10s -> Opens RAE Web site search with the clipboard content", model.OpenRAEWebSiteKeyBinging), &strs)
+		addKeyBindingDescription(fmt.Sprintf("%10s -> Opens GoodReads Web site with the clipboard content", model.OpenGoodReadsWebSiteKeyBinding), &strs)
 		addKeyBindingDescription(fmt.Sprintf("%10s -> Highlight Down", model.DownKeyBindingAlternative2), &strs)
 		addKeyBindingDescription(fmt.Sprintf("%10s -> Highlight Up", model.UpKeyBindingAlternative2), &strs)
 		addKeyBindingDescription(fmt.Sprintf("%10s -> Word Left / Word Right", "Left/Right"), &strs)

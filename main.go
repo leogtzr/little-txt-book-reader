@@ -11,6 +11,7 @@ import (
 	"textreader/internal/model"
 	"textreader/internal/references"
 	"textreader/internal/text"
+	"textreader/internal/ui"
 	"textreader/internal/utils"
 	"time"
 
@@ -77,8 +78,8 @@ func main() {
 	txtAreaBox := tui.NewVBox(txtAreaScroll)
 	txtAreaBox.SetBorder(true)
 
-	inputCommand := utils.NewInputCommandEntry()
-	inputCommandBox := utils.NewInputCommandBox(inputCommand)
+	inputCommand := ui.NewInputCommandEntry()
+	inputCommandBox := ui.NewInputCommandBox(inputCommand)
 
 	txtReader := tui.NewVBox(txtAreaBox, inputCommandBox)
 	txtReader.SetSizePolicy(tui.Expanding, tui.Expanding)

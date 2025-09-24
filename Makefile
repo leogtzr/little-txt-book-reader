@@ -13,7 +13,7 @@ clean:
 	rm -f "little-txtreader"
 
 test:
-	go test
+	go test -v ./internal/...
 
 check:
 	go test

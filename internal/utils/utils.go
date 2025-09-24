@@ -77,27 +77,6 @@ func Paginate(x []string, skip, size int) []string {
 	return x[skip:end]
 }
 
-// TODO: move this to the UI package
-func NewInputCommandEntry() *tui.Entry {
-	inputCommand := tui.NewEntry()
-	inputCommand.SetFocused(true)
-	inputCommand.SetSizePolicy(tui.Expanding, tui.Maximum)
-	inputCommand.SetEchoMode(tui.EchoModeNormal)
-
-	inputCommandBox := tui.NewHBox(inputCommand)
-	inputCommandBox.SetBorder(true)
-	inputCommandBox.SetSizePolicy(tui.Expanding, tui.Maximum)
-	return inputCommand
-}
-
-// TODO: move this to the UI package
-func NewInputCommandBox(input *tui.Entry) *tui.Box {
-	inputCommandBox := tui.NewHBox(input)
-	inputCommandBox.SetBorder(true)
-	inputCommandBox.SetSizePolicy(tui.Expanding, tui.Maximum)
-	return inputCommandBox
-}
-
 func GetPercentage(currentPosition int, fileContent *[]string) float64 {
 	percent := float64(currentPosition) * 100.00
 	percent = percent / float64(len(*fileContent))

@@ -59,17 +59,6 @@ func main() {
 	utils.Check(err)
 	defer file.Close()
 
-	//fd := int(os.Stdout.Fd())
-	//_, height, err := term.GetSize(fd)
-	//if err == nil {
-	//	Advance = height - 5 // Subtract for borders, input bar, status, etc. Adjust if needed.
-	//	if Advance < 10 {
-	//		Advance = 30 // Fallback minimum
-	//	}
-	//} else {
-	//	Advance = 30 // Fallback if detection fails
-	//}
-
 	model.Advance = utils.CalculateTerminalHeight()
 
 	// Adjust To based on new Advance
@@ -118,7 +107,7 @@ func main() {
 	keybindings.AddUpDownKeyBindings(txtArea, ui, inputCommand, txtAreaScroll)
 	keybindings.AddHighlightUpDownKeyBindings(txtArea, ui, inputCommand, txtAreaScroll) // Add Down/Up for highlight
 	keybindings.AddWordLeftRightKeyBindings(txtArea, ui, inputCommand, txtAreaScroll)
-	keybindings.AddCopyWordKeyBinding(txtArea, ui, inputCommand, txtAreaScroll)
+	keybindings.AddCopyWordKeyBinding(ui, inputCommand)
 	keybindings.AddGotoKeyBinding(ui, txtReader)
 	keybindings.AddShowStatusKeyBinding(ui, inputCommand)
 	keybindings.AddNewNoteKeyBinding(ui, txtArea, inputCommand, fileName, txtAreaScroll)

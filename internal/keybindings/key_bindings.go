@@ -22,7 +22,6 @@ import (
 	"github.com/marcusolsson/tui-go"
 )
 
-// Add word navigation bindings
 func AddWordLeftRightKeyBindings(txtArea *tui.Box, ui tui.UI, inputCommand *tui.Entry, txtAreaScroll *tui.ScrollArea) {
 	ui.SetKeybinding("Left", AddWordLeftBinding(txtArea, inputCommand, txtAreaScroll))
 	ui.SetKeybinding("Right", AddWordRightBinding(txtArea, inputCommand, txtAreaScroll))
@@ -227,8 +226,8 @@ func AddSaveQuoteKeyBindings(ui tui.UI, fileName string, txtArea *tui.Box, input
 
 func prepareTableForReferences() {
 	model.RefsTable.RemoveRows()
-	references := utils.Paginate(model.References, model.PageIndex, model.PageSize)
-	for _, ref := range references {
+	paginatedReferences := utils.Paginate(model.References, model.PageIndex, model.PageSize)
+	for _, ref := range paginatedReferences {
 		model.RefsTable.AppendRow(tui.NewLabel(ref))
 	}
 	model.RefsTable.SetSelected(0)
@@ -449,8 +448,7 @@ func AddShowHelpKeyBinding(ui tui.UI, txtReader *tui.Box) {
 		addKeyBindingDescription(fmt.Sprintf("%10s -> Opens GoodReads Web site with search From the clipboard.", model.OpenGoodReadsWebSiteKeyBinding), &strs)
 		addKeyBindingDescription(fmt.Sprintf("%10s -> Highlight Down", model.DownKeyBindingAlternative2), &strs)
 		addKeyBindingDescription(fmt.Sprintf("%10s -> Highlight Up", model.UpKeyBindingAlternative2), &strs)
-		addKeyBindingDescription(fmt.Sprintf("%10s -> Word Left", "Left"), &strs)
-		addKeyBindingDescription(fmt.Sprintf("%10s -> Word Right", "Right"), &strs)
+		addKeyBindingDescription(fmt.Sprintf("%10s -> Word Left / Word Right", "Left/Right"), &strs)
 		addKeyBindingDescription(fmt.Sprintf("%10s -> Copy Word to Clipboard", "c"), &strs)
 
 		l.AddItems(strs...)
@@ -468,7 +466,7 @@ func addKeyBindingDescription(desc string, keyBindings *[]string) {
 	*keyBindings = append(*keyBindings, desc)
 }
 
-func AddCopyWordKeyBinding(txtArea *tui.Box, ui tui.UI, inputCommand *tui.Entry, txtAreaScroll *tui.ScrollArea) {
+func AddCopyWordKeyBinding(ui tui.UI, inputCommand *tui.Entry) {
 	ui.SetKeybinding("c", func() {
 		if model.CurrentNavMode != model.ReadingNavigationMode {
 			return

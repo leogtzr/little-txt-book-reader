@@ -68,7 +68,7 @@ func GetChunk(content *[]string, from, to int) []string {
 }
 
 func MoveTextDown(txtArea *tui.Box, txtAreaScroll *tui.ScrollArea) {
-	chunk := []string{}
+	var chunk []string
 	switch model.CurrentNavMode {
 	case model.ShowReferencesNavigationMode:
 		navigation.UpdateRangesReferenceDown()
@@ -86,7 +86,7 @@ func MoveTextDown(txtArea *tui.Box, txtAreaScroll *tui.ScrollArea) {
 }
 
 func MoveTextUp(txtArea *tui.Box, txtAreaScroll *tui.ScrollArea) {
-	chunk := []string{}
+	var chunk []string
 	switch model.CurrentNavMode {
 	case model.ShowReferencesNavigationMode:
 		navigation.UpdateRangesReferenceUp()
@@ -127,9 +127,9 @@ func RemoveTrailingSpaces(s string) string {
 	return strings.TrimSpace(sb.String())
 }
 
-// Sometimes when we copy in the terminal we get multiple spaces and tabs ...
+// Note: Sometimes when we copy in the terminal we get multiple spaces and tabs ...
 func RemoveWhiteSpaces(input string) string {
-	re := regexp.MustCompile(`( |\t){2,}`)
+	re := regexp.MustCompile(`([ \t]){2,}`)
 	return re.ReplaceAllString(input, ` `)
 }
 

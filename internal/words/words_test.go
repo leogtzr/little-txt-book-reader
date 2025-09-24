@@ -1,10 +1,9 @@
-package main
+package words
 
 import (
 	"reflect"
 	"testing"
 	"textreader/internal/file"
-	"textreader/internal/words"
 )
 
 func TestExtractWords(t *testing.T) {
@@ -18,7 +17,7 @@ func TestExtractWords(t *testing.T) {
 	}
 
 	for _, tc := range tests {
-		if got := words.ExtractWords(tc.line); !reflect.DeepEqual(got, tc.want) {
+		if got := ExtractWords(tc.line); !reflect.DeepEqual(got, tc.want) {
 			t.Errorf("got=[%s], want=[%s]", got, tc.want)
 		}
 	}
@@ -37,7 +36,7 @@ func Test_SanitizeWord(t *testing.T) {
 	}
 
 	for _, tc := range tests {
-		if got := words.SanitizeWord(tc.line); got != tc.want {
+		if got := SanitizeWord(tc.line); got != tc.want {
 			t.Errorf("got=[%s], want=[%s]", got, tc.want)
 		}
 	}
@@ -56,7 +55,7 @@ func TestIsTitle(t *testing.T) {
 	}
 
 	for _, tc := range tests {
-		if got := words.IsTitle(tc.word); got != tc.want {
+		if got := IsTitle(tc.word); got != tc.want {
 			t.Errorf("got=[%t], want=[%t]", got, tc.want)
 		}
 	}

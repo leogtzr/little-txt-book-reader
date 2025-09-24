@@ -1,8 +1,7 @@
-package main
+package references
 
 import (
 	"testing"
-	"textreader/internal/references"
 )
 
 func TestIdentifyReferences(t *testing.T) {
@@ -60,7 +59,7 @@ func TestIdentifyReferences(t *testing.T) {
 	}
 
 	for _, tc := range tests {
-		got := references.ExtractReferences(tc.line)
+		got := ExtractReferences(tc.line)
 		if len(got) != len(tc.want) {
 			t.Errorf("got=[%d], want=[%d] References", len(got), len(tc.want))
 		}

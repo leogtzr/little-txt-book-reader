@@ -8,6 +8,7 @@ import (
 	"strings"
 	"testing"
 	"textreader/internal/file"
+	"textreader/internal/references"
 	"textreader/internal/text"
 	"textreader/internal/utils"
 )
@@ -102,7 +103,7 @@ func TestGetChunk(t *testing.T) {
 	}
 
 	for _, tt := range tests {
-		if got := text.GetChunk(&tt.content, tt.from, tt.to); !listsAreEqual(got, tt.want) {
+		if got := text.GetChunk(&tt.content, tt.from, tt.to); !references.listsAreEqual(got, tt.want) {
 			t.Errorf("got=[%s], want=[%s]", got, tt.want)
 		}
 	}
@@ -386,4 +387,16 @@ func Test_getPercentage(t *testing.T) {
 		}
 	}
 
+}
+
+func listsAreEqual(a, b []string) bool {
+	if len(a) != len(b) {
+		return false
+	}
+	for i, v := range a {
+		if v != b[i] {
+			return false
+		}
+	}
+	return true
 }

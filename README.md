@@ -1,4 +1,4 @@
-# little-txt-book-reader
+# little-txtreader
 
 A little text file reader written in Go, this is how it looks:
 

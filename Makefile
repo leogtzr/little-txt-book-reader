@@ -23,4 +23,4 @@ cover:
 	go tool cover -html=cp.out
 
 run:
-	./little-txt-book-reader
+	./little-txtreader

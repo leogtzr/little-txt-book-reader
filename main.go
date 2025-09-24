@@ -104,7 +104,21 @@ func main() {
 		log.Fatal(err)
 	}
 
+	theme := tui.NewTheme()
+	theme.SetStyle("label.highlight", tui.Style{
+		Fg: tui.ColorBlack,
+		Bg: tui.ColorGreen,
+	})
+	theme.SetStyle("label.wordhighlight", tui.Style{
+		Fg: tui.ColorBlack,
+		Bg: tui.ColorCyan, // Or any color
+	})
+	ui.SetTheme(theme)
+
 	keybindings.AddUpDownKeyBindings(txtArea, ui, inputCommand, txtAreaScroll)
+	keybindings.AddHighlightUpDownKeyBindings(txtArea, ui, inputCommand, txtAreaScroll) // Add Down/Up for highlight
+	keybindings.AddWordLeftRightKeyBindings(txtArea, ui, inputCommand, txtAreaScroll)
+	keybindings.AddCopyWordKeyBinding(txtArea, ui, inputCommand, txtAreaScroll)
 	keybindings.AddGotoKeyBinding(ui, txtReader)
 	keybindings.AddShowStatusKeyBinding(ui, inputCommand)
 	keybindings.AddNewNoteKeyBinding(ui, txtArea, inputCommand, fileName, txtAreaScroll)

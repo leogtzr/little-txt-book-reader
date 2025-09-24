@@ -36,6 +36,8 @@ var (
 	StartTime                         time.Time
 	CurrentPercentage                 int
 	Advance                           int
+	CurrentHighlight                  = 0
+	CurrentWord                       = 0
 )
 
 const (

@@ -22,6 +22,32 @@ import (
 	"github.com/marcusolsson/tui-go"
 )
 
+// Add word navigation bindings
+func AddWordLeftRightKeyBindings(txtArea *tui.Box, ui tui.UI, inputCommand *tui.Entry, txtAreaScroll *tui.ScrollArea) {
+	ui.SetKeybinding("Left", AddWordLeftBinding(txtArea, inputCommand, txtAreaScroll))
+	ui.SetKeybinding("Right", AddWordRightBinding(txtArea, inputCommand, txtAreaScroll))
+}
+
+func AddWordLeftBinding(box *tui.Box, input *tui.Entry, txtAreaScroll *tui.ScrollArea) func() {
+	return func() {
+		if model.CurrentNavMode != model.ReadingNavigationMode {
+			return
+		}
+		text.MoveWordLeft(box, txtAreaScroll)
+		input.SetText(utils.GetStatusInformation())
+	}
+}
+
+func AddWordRightBinding(box *tui.Box, input *tui.Entry, txtAreaScroll *tui.ScrollArea) func() {
+	return func() {
+		if model.CurrentNavMode != model.ReadingNavigationMode {
+			return
+		}
+		text.MoveWordRight(box, txtAreaScroll)
+		input.SetText(utils.GetStatusInformation())
+	}
+}
+
 func AddDownBinding(box *tui.Box, input *tui.Entry, txtAreaScroll *tui.ScrollArea) func() {
 	return func() {
 		text.MoveTextDown(box, txtAreaScroll)
@@ -31,10 +57,35 @@ func AddDownBinding(box *tui.Box, input *tui.Entry, txtAreaScroll *tui.ScrollAre
 
 func AddUpDownKeyBindings(txtArea *tui.Box, ui tui.UI, inputCommand *tui.Entry, txtAreaScroll *tui.ScrollArea) {
 	ui.SetKeybinding(model.DownKeyBindingAlternative1, AddDownBinding(txtArea, inputCommand, txtAreaScroll))
-	ui.SetKeybinding(model.DownKeyBindingAlternative2, AddDownBinding(txtArea, inputCommand, txtAreaScroll))
+	//ui.SetKeybinding(model.DownKeyBindingAlternative2, AddDownBinding(txtArea, inputCommand, txtAreaScroll))
 
 	ui.SetKeybinding(model.UpKeyBindingAlternative1, AddUpBinding(txtArea, inputCommand, txtAreaScroll))
-	ui.SetKeybinding(model.UpKeyBindingAlternative2, AddUpBinding(txtArea, inputCommand, txtAreaScroll))
+	//ui.SetKeybinding(model.UpKeyBindingAlternative2, AddUpBinding(txtArea, inputCommand, txtAreaScroll))
+}
+
+func AddHighlightUpDownKeyBindings(txtArea *tui.Box, ui tui.UI, inputCommand *tui.Entry, txtAreaScroll *tui.ScrollArea) {
+	ui.SetKeybinding(model.DownKeyBindingAlternative2, AddHighlightDownBinding(txtArea, inputCommand, txtAreaScroll)) // Down arrow
+	ui.SetKeybinding(model.UpKeyBindingAlternative2, AddHighlightUpBinding(txtArea, inputCommand, txtAreaScroll))     // Up arrow
+}
+
+func AddHighlightDownBinding(box *tui.Box, input *tui.Entry, txtAreaScroll *tui.ScrollArea) func() {
+	return func() {
+		if model.CurrentNavMode != model.ReadingNavigationMode {
+			return
+		}
+		text.MoveHighlightDown(box, txtAreaScroll)
+		input.SetText(utils.GetStatusInformation())
+	}
+}
+
+func AddHighlightUpBinding(box *tui.Box, input *tui.Entry, txtAreaScroll *tui.ScrollArea) func() {
+	return func() {
+		if model.CurrentNavMode != model.ReadingNavigationMode {
+			return
+		}
+		text.MoveHighlightUp(box, txtAreaScroll)
+		input.SetText(utils.GetStatusInformation())
+	}
 }
 
 func AddShowStatusKeyBinding(ui tui.UI, inputCommand *tui.Entry) {
@@ -101,7 +152,27 @@ func AddShowReferencesKeyBinding(ui tui.UI, txtArea *tui.Box, txtAreaScroll *tui
 
 func AddReferencesNavigationKeyBindings(ui tui.UI) {
 	// Next References ...
+	//ui.SetKeybinding("Right", func() {
+	//	if model.PageIndex >= len(model.References) {
+	//		return
+	//	}
+	//	model.PageIndex += model.PageSize
+	//	prepareTableForReferences()
+	//})
+	//
+	//// Previous References ...
+	//ui.SetKeybinding("Left", func() {
+	//	if model.PageIndex < model.PageSize {
+	//		return
+	//	}
+	//	model.PageIndex -= model.PageSize
+	//	prepareTableForReferences()
+	//})
+	// Next References ...
 	ui.SetKeybinding("Right", func() {
+		if model.CurrentNavMode != model.AnalyzeAndFilterReferencesNavigationMode {
+			return
+		}
 		if model.PageIndex >= len(model.References) {
 			return
 		}
@@ -111,6 +182,9 @@ func AddReferencesNavigationKeyBindings(ui tui.UI) {
 
 	// Previous References ...
 	ui.SetKeybinding("Left", func() {
+		if model.CurrentNavMode != model.AnalyzeAndFilterReferencesNavigationMode {
+			return
+		}
 		if model.PageIndex < model.PageSize {
 			return
 		}
@@ -373,6 +447,11 @@ func AddShowHelpKeyBinding(ui tui.UI, txtReader *tui.Box) {
 		addKeyBindingDescription(fmt.Sprintf("%10s -> Shows this Dialog", model.ShowHelpKeyBinding), &strs)
 		addKeyBindingDescription(fmt.Sprintf("%10s -> Opens RAE Web site with search From the clipboard.", model.OpenRAEWebSiteKeyBinging), &strs)
 		addKeyBindingDescription(fmt.Sprintf("%10s -> Opens GoodReads Web site with search From the clipboard.", model.OpenGoodReadsWebSiteKeyBinding), &strs)
+		addKeyBindingDescription(fmt.Sprintf("%10s -> Highlight Down", model.DownKeyBindingAlternative2), &strs)
+		addKeyBindingDescription(fmt.Sprintf("%10s -> Highlight Up", model.UpKeyBindingAlternative2), &strs)
+		addKeyBindingDescription(fmt.Sprintf("%10s -> Word Left", "Left"), &strs)
+		addKeyBindingDescription(fmt.Sprintf("%10s -> Word Right", "Right"), &strs)
+		addKeyBindingDescription(fmt.Sprintf("%10s -> Copy Word to Clipboard", "c"), &strs)
 
 		l.AddItems(strs...)
 		s := tui.NewScrollArea(l)
@@ -387,4 +466,30 @@ func AddShowHelpKeyBinding(ui tui.UI, txtReader *tui.Box) {
 
 func addKeyBindingDescription(desc string, keyBindings *[]string) {
 	*keyBindings = append(*keyBindings, desc)
+}
+
+func AddCopyWordKeyBinding(txtArea *tui.Box, ui tui.UI, inputCommand *tui.Entry, txtAreaScroll *tui.ScrollArea) {
+	ui.SetKeybinding("c", func() {
+		if model.CurrentNavMode != model.ReadingNavigationMode {
+			return
+		}
+		currentLineIndex := model.From + model.CurrentHighlight
+		if currentLineIndex >= len(model.FileContent) {
+			inputCommand.SetText("No word to copy")
+			return
+		}
+		line := model.FileContent[currentLineIndex]
+		wordsList := words.ExtractWords(line)
+		if len(wordsList) == 0 || model.CurrentWord >= len(wordsList) {
+			inputCommand.SetText("No word to copy")
+			return
+		}
+		word := wordsList[model.CurrentWord]
+		err := clipboard.WriteAll(word)
+		if err != nil {
+			inputCommand.SetText(fmt.Sprintf("Error copying word: %v", err))
+			return
+		}
+		inputCommand.SetText(fmt.Sprintf("Copied '%s' to clipboard", word))
+	})
 }

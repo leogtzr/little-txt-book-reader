@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"io"
 	"io/ioutil"
-	// "little-txt-reader"
 	"log"
 	"os"
 	"path"
@@ -112,10 +111,11 @@ func createDir(dirs ...string) error {
 }
 
 func GetHomeDirectoryPath(opSystem string) string {
-	if opSystem == "windows" {
-		return os.Getenv("HOMEPATH")
+	home, err := os.UserHomeDir()
+	if err != nil {
+		return os.Getenv("HOME")
 	}
-	return os.Getenv("HOME")
+	return home
 }
 
 func GetDirectoryNameForFile(dirType, fileName string) string {

@@ -1,24 +1,26 @@
 package words
 
 import (
+	"regexp"
 	"strings"
 	"unicode"
 )
 
 func ExtractWords(line string) []string {
-	words := strings.Split(line, " ")
-	return words
+	return strings.Fields(line)
 }
 
 func SanitizeWord(line string) string {
-	line = strings.ReplaceAll(line, ".", "")
-	line = strings.ReplaceAll(line, ",", "")
-	line = strings.ReplaceAll(line, "\"", "")
-	line = strings.ReplaceAll(line, ")", "")
-	line = strings.ReplaceAll(line, "(", "")
-	line = strings.ReplaceAll(line, ":", "")
-	line = strings.ReplaceAll(line, ";", "")
-	return line
+	//line = strings.ReplaceAll(line, ".", "")
+	//line = strings.ReplaceAll(line, ",", "")
+	//line = strings.ReplaceAll(line, "\"", "")
+	//line = strings.ReplaceAll(line, ")", "")
+	//line = strings.ReplaceAll(line, "(", "")
+	//line = strings.ReplaceAll(line, ":", "")
+	//line = strings.ReplaceAll(line, ";", "")
+	//return line
+	re := regexp.MustCompile(`[.,"()?:;\\]`)
+	return re.ReplaceAllString(line, "")
 }
 
 func IsTitle(word string) bool {

@@ -15,27 +15,6 @@ func PutText(box *tui.Box, content *[]string, txtAreaScroll *tui.ScrollArea) {
 		box.Remove(0)
 	}
 
-	//for _, txt := range *content {
-	//	txt = strings.Replace(txt, " ", " ", -1)
-	//	txt = strings.Replace(txt, "\t", "    ", -1)
-	//	box.Append(tui.NewVBox(
-	//		tui.NewLabel(txt),
-	//	))
-	//}
-	//for i, txt := range *content {
-	//	txt = strings.Replace(txt, " ", " ", -1)
-	//	txt = strings.Replace(txt, "\t", "    ", -1)
-	//
-	//	vbox := tui.NewVBox()
-	//	label := tui.NewLabel(txt)
-	//	vbox.Append(label)
-	//
-	//	if i == model.CurrentHighlight {
-	//		label.SetStyleName("highlight")
-	//	}
-	//
-	//	box.Append(vbox)
-	//}
 	for i, txt := range *content {
 		txt = strings.Replace(txt, " ", " ", -1)
 		txt = strings.Replace(txt, "\t", "    ", -1)

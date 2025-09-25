@@ -5,7 +5,7 @@ import (
 	"os"
 	"strings"
 	"textreader/internal/model"
-	"textreader/internal/utils"
+	"textreader/internal/terminal"
 	"textreader/internal/words"
 )
 
@@ -42,7 +42,7 @@ func ExtractReferencesFromFileContent(fileContent *[]string) []string {
 func LoadReferences() {
 	if len(model.References) == 0 {
 		model.References = ExtractReferencesFromFileContent(&model.FileContent)
-		model.ToReferences = utils.CalculateTerminalHeight()
+		model.ToReferences = terminal.CalculateTerminalHeight()
 	}
 }
 

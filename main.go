@@ -9,7 +9,9 @@ import (
 	files "textreader/internal/file"
 	"textreader/internal/keybindings"
 	"textreader/internal/model"
+	"textreader/internal/progress"
 	"textreader/internal/references"
+	"textreader/internal/terminal"
 	"textreader/internal/text"
 	"textreader/internal/ui"
 	"textreader/internal/utils"
@@ -60,7 +62,7 @@ func main() {
 	utils.Check(err)
 	defer file.Close()
 
-	model.Advance = utils.CalculateTerminalHeight()
+	model.Advance = terminal.CalculateTerminalHeight()
 
 	// Adjust To based on new Advance
 	model.To = model.From + model.Advance
@@ -69,7 +71,7 @@ func main() {
 	}
 
 	model.StartTime = time.Now()
-	model.CurrentPercentage = int(utils.GetPercentage(model.To, &model.FileContent))
+	model.CurrentPercentage = int(progress.GetPercentage(model.To, &model.FileContent))
 
 	txtArea := tui.NewVBox()
 	txtAreaScroll := tui.NewScrollArea(txtArea)
@@ -128,7 +130,7 @@ func main() {
 
 	inputCommand.SetText(utils.GetStatusInformation())
 
-	utils.ClearScreen()
+	terminal.ClearScreen()
 
 	if err := ui.Run(); err != nil {
 		log.Fatal(err)

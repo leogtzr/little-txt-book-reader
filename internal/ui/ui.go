@@ -1,6 +1,10 @@
 package ui
 
-import "github.com/marcusolsson/tui-go"
+import (
+	"textreader/internal/model"
+
+	"github.com/marcusolsson/tui-go"
+)
 
 func NewInputCommandEntry() *tui.Entry {
 	inputCommand := tui.NewEntry()
@@ -8,9 +12,6 @@ func NewInputCommandEntry() *tui.Entry {
 	inputCommand.SetSizePolicy(tui.Expanding, tui.Maximum)
 	inputCommand.SetEchoMode(tui.EchoModeNormal)
 
-	inputCommandBox := tui.NewHBox(inputCommand)
-	inputCommandBox.SetBorder(true)
-	inputCommandBox.SetSizePolicy(tui.Expanding, tui.Maximum)
 	return inputCommand
 }
 
@@ -19,4 +20,15 @@ func NewInputCommandBox(input *tui.Entry) *tui.Box {
 	inputCommandBox.SetBorder(true)
 	inputCommandBox.SetSizePolicy(tui.Expanding, tui.Maximum)
 	return inputCommandBox
+}
+
+func AddGotoWidget(box *tui.Box) {
+	gotoInput := tui.NewTextEdit()
+	gotoInput.SetText("Go To line: ")
+	gotoInput.SetFocused(true)
+	gotoInput.OnTextChanged(func(entry *tui.TextEdit) {
+		model.GotoLine = entry.Text()
+	})
+	box.Append(gotoInput)
+	model.CurrentNavMode = model.GotoNavigationMode
 }

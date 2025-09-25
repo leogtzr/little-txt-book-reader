@@ -12,8 +12,11 @@ import (
 	"strings"
 	"textreader/internal/file"
 	"textreader/internal/model"
+	"textreader/internal/progress"
 	"textreader/internal/references"
+	"textreader/internal/terminal"
 	"textreader/internal/text"
+	"textreader/internal/ui"
 	"textreader/internal/utils"
 	"textreader/internal/words"
 
@@ -126,7 +129,7 @@ func AddCloseApplicationKeyBinding(ui tui.UI, txtArea, txtReader *tui.Box, txtAr
 			txtReader.Remove(model.GotoWidgetIndex)
 			model.CurrentNavMode = model.ReadingNavigationMode
 		default:
-			utils.ClearScreen()
+			terminal.ClearScreen()
 			ui.Quit()
 		}
 	})
@@ -230,9 +233,9 @@ func AddOnSelectedReference() {
 	})
 }
 
-func AddGotoKeyBinding(ui tui.UI, txtReader *tui.Box) {
-	ui.SetKeybinding(model.GotoKeyBindingAlternative1, func() {
-		utils.AddGotoWidget(txtReader)
+func AddGotoKeyBinding(tuiUI tui.UI, txtReader *tui.Box) {
+	tuiUI.SetKeybinding(model.GotoKeyBindingAlternative1, func() {
+		ui.AddGotoWidget(txtReader)
 	})
 }
 
@@ -241,7 +244,7 @@ func AddCloseGotoBinding(ui tui.UI, inputCommand *tui.Entry, txtReader, txtArea 
 		// Go To the specified line
 		inputCommand.SetText(utils.GetStatusInformation())
 
-		gotoLineNumber := utils.GetNumberLineGoto(model.GotoLine)
+		gotoLineNumber := progress.GetNumberLineGoto(model.GotoLine)
 		gotoLineNumberDigits, err := strconv.ParseInt(gotoLineNumber, 10, 64)
 		if err != nil {
 			return
@@ -423,7 +426,7 @@ func AddShowHelpKeyBinding(ui tui.UI, txtReader *tui.Box) {
 		addKeyBindingDescription(fmt.Sprintf("%10s -> Closes the References Dialog", model.CloseReferencesWindowKeyBindingAlternative1), &strs)
 		addKeyBindingDescription(fmt.Sprintf("%10s -> Closes the program", model.CloseApplicationKeyBindingAlternative1), &strs)
 		addKeyBindingDescription(fmt.Sprintf("%10s -> Analyze and filter References", model.AnalyzeAndFilterReferencesKeyBinding), &strs)
-		addKeyBindingDescription(fmt.Sprintf("%10s -> Add a Quote, gets the text From the clipboard.", model.SaveQuoteKeyBindingAlternative1), &strs)
+		addKeyBindingDescription(fmt.Sprintf("%10s -> Add a Quote, gets the text from the clipboard.", model.SaveQuoteKeyBindingAlternative1), &strs)
 		addKeyBindingDescription(fmt.Sprintf("%10s -> Shows Time Stats for each percentage point.", model.ShowMinutesTakenToReachPercentagePointKeyBinding), &strs)
 		addKeyBindingDescription(fmt.Sprintf("%10s -> Shows this Dialog", model.ShowHelpKeyBinding), &strs)
 		addKeyBindingDescription(fmt.Sprintf("%10s -> Opens RAE Web site search with the clipboard content", model.OpenRAEWebSiteKeyBinging), &strs)

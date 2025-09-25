@@ -91,7 +91,7 @@ func main() {
 
 	root := tui.NewHBox(txtReader, model.Sidebar)
 
-	ui, err := tui.New(root)
+	tuiUI, err := tui.New(root)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -105,34 +105,34 @@ func main() {
 		Fg: tui.ColorBlack,
 		Bg: tui.ColorCyan, // Or any color
 	})
-	ui.SetTheme(theme)
+	tuiUI.SetTheme(theme)
 
-	keybindings.AddUpDownKeyBindings(txtArea, ui, inputCommand, txtAreaScroll)
-	keybindings.AddHighlightUpDownKeyBindings(txtArea, ui, inputCommand, txtAreaScroll) // Add Down/Up for highlight
-	keybindings.AddWordLeftRightKeyBindings(txtArea, ui, inputCommand, txtAreaScroll)
-	keybindings.AddCopyWordKeyBinding(ui, inputCommand)
-	keybindings.AddGotoKeyBinding(ui, txtReader)
-	keybindings.AddShowStatusKeyBinding(ui, inputCommand)
-	keybindings.AddNewNoteKeyBinding(ui, txtArea, inputCommand, fileName, txtAreaScroll)
-	keybindings.AddCloseGotoBinding(ui, inputCommand, txtReader, txtArea, txtAreaScroll)
-	keybindings.AddSaveStatusKeyBinding(ui, fileName, inputCommand)
-	keybindings.AddShowReferencesKeyBinding(ui, txtArea, txtAreaScroll)
-	keybindings.AddAnalyzeAndFilterReferencesKeyBinding(ui)
-	keybindings.AddPercentageKeyBindings(ui, inputCommand)
-	keybindings.AddCloseApplicationKeyBinding(ui, txtArea, txtReader, txtAreaScroll)
-	keybindings.AddReferencesNavigationKeyBindings(ui)
-	keybindings.AddSaveQuoteKeyBindings(ui, fileName, txtArea, inputCommand, txtAreaScroll)
+	keybindings.AddUpDownKeyBindings(txtArea, tuiUI, inputCommand, txtAreaScroll)
+	keybindings.AddHighlightUpDownKeyBindings(txtArea, tuiUI, inputCommand, txtAreaScroll) // Add Down/Up for highlight
+	keybindings.AddWordLeftRightKeyBindings(txtArea, tuiUI, inputCommand, txtAreaScroll)
+	keybindings.AddCopyWordKeyBinding(tuiUI, inputCommand)
+	keybindings.AddGotoKeyBinding(tuiUI, txtReader)
+	keybindings.AddShowStatusKeyBinding(tuiUI, inputCommand)
+	keybindings.AddNewNoteKeyBinding(tuiUI, txtArea, inputCommand, fileName, txtAreaScroll)
+	keybindings.AddCloseGotoBinding(tuiUI, inputCommand, txtReader, txtArea, txtAreaScroll)
+	keybindings.AddSaveStatusKeyBinding(tuiUI, fileName, inputCommand)
+	keybindings.AddShowReferencesKeyBinding(tuiUI, txtArea, txtAreaScroll)
+	keybindings.AddAnalyzeAndFilterReferencesKeyBinding(tuiUI)
+	keybindings.AddPercentageKeyBindings(tuiUI, inputCommand)
+	keybindings.AddCloseApplicationKeyBinding(tuiUI, txtArea, txtReader, txtAreaScroll)
+	keybindings.AddReferencesNavigationKeyBindings(tuiUI)
+	keybindings.AddSaveQuoteKeyBindings(tuiUI, fileName, txtArea, inputCommand, txtAreaScroll)
 	keybindings.AddOnSelectedReference()
-	keybindings.AddShowMinutesTakenToReachPercentagePointKeyBinding(ui, txtReader)
-	keybindings.AddShowHelpKeyBinding(ui, txtReader)
-	keybindings.AddOpenRAEWebSite(ui, inputCommand)
-	keybindings.AddOpenGoodReadsWebSite(ui, inputCommand)
+	keybindings.AddShowMinutesTakenToReachPercentagePointKeyBinding(tuiUI, txtReader)
+	keybindings.AddShowHelpKeyBinding(tuiUI, txtReader)
+	keybindings.AddOpenRAEWebSite(tuiUI, inputCommand)
+	keybindings.AddOpenGoodReadsWebSite(tuiUI, inputCommand)
 
 	inputCommand.SetText(utils.GetStatusInformation())
 
 	terminal.ClearScreen()
 
-	if err := ui.Run(); err != nil {
+	if err := tuiUI.Run(); err != nil {
 		log.Fatal(err)
 	}
 }

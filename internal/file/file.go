@@ -98,7 +98,7 @@ func CreateDirectories() error {
 	if err := createDirectory(ltbrDir); err != nil {
 		return err
 	}
-	return createDir("notes", "quotes", "progress")
+	return createDir("notes", "quotes", "progress", "vocabulary")
 }
 
 func createDir(dirs ...string) error {

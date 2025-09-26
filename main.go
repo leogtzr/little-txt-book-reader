@@ -3,10 +3,9 @@ package main
 import (
 	"flag"
 	"fmt"
-	"log"
 	"os"
 	"path/filepath"
-	files "textreader/internal/file"
+	"textreader/internal/file"
 	"textreader/internal/keybindings"
 	"textreader/internal/model"
 	"textreader/internal/progress"
@@ -20,58 +19,67 @@ import (
 	"github.com/marcusolsson/tui-go"
 )
 
-func init() {
-	if err := files.CreateDirectories(); err != nil {
-		log.Fatal(err)
-	}
-
-	model.MinutesToReachNextPercentagePoint = make(map[int]time.Duration)
-
-	// load words From file
-	var err error
-	model.BannedWords, err = references.LoadNonRefsFile(model.NonRefsFileName)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	model.Sidebar.Append(model.RefsTable)
-	// Sidebar.Append(refsStatus)
-}
-
 func main() {
+	fileFlag := flag.String("file", "", "File to open")
 	flag.Parse()
-	fileName := *model.FileToOpen
-	if fileName == "" {
-		_, _ = fmt.Fprintln(os.Stderr, "error: missing file To read")
+	state := model.NewAppState()
+	state.FileToOpen = *fileFlag
+
+	if err := run(state); err != nil {
+		fmt.Fprintf(os.Stderr, "error: %v\n", err)
 		os.Exit(1)
 	}
+}
+
+func run(state *model.AppState) error {
+	fileName := state.FileToOpen
+	if fileName == "" {
+		return fmt.Errorf("missing file to read")
+	}
+
+	if err := file.CreateDirectories(); err != nil {
+		return fmt.Errorf("failed to create directories: %w", err)
+	}
 
 	var err error
-
-	absoluteFilePath, _ := filepath.Abs(fileName)
-	latestFile, err := files.GetFileNameFromLatest(absoluteFilePath)
+	state.BannedWords, err = references.LoadNonRefsFile(model.NonRefsFileName)
 	if err != nil {
-		log.Fatal(err)
+		return fmt.Errorf("failed to load banned words: %w", err)
 	}
 
-	model.From, model.To, fileName = latestFile.From, latestFile.To, latestFile.FileName
+	state.Sidebar.Append(state.RefsTable)
 
-	file, err := os.Open(fileName)
-	utils.Check(err)
-	model.FileContent, err = files.ReadLines(file)
-	utils.Check(err)
-	defer file.Close()
-
-	model.Advance = terminal.CalculateTerminalHeight()
-
-	// Adjust To based on new Advance
-	model.To = model.From + model.Advance
-	if model.To > len(model.FileContent) {
-		model.To = len(model.FileContent)
+	absoluteFilePath, err := filepath.Abs(fileName)
+	if err != nil {
+		return fmt.Errorf("failed to resolve file path: %w", err)
 	}
 
-	model.StartTime = time.Now()
-	model.CurrentPercentage = int(progress.GetPercentage(model.To, &model.FileContent))
+	latestFile, err := file.GetFileNameFromLatest(absoluteFilePath, state)
+	if err != nil {
+		return fmt.Errorf("failed to load latest file: %w", err)
+	}
+
+	state.From, state.To, fileName = latestFile.From, latestFile.To, latestFile.FileName
+
+	txtFile, err := os.Open(fileName)
+	if err != nil {
+		return fmt.Errorf("failed to open file: %w", err)
+	}
+	defer txtFile.Close()
+
+	state.FileContent, err = file.ReadLines(txtFile)
+	if err != nil {
+		return fmt.Errorf("failed to read file: %w", err)
+	}
+
+	state.Advance = terminal.CalculateTerminalHeight()
+	state.To = state.From + state.Advance
+	if state.To > len(state.FileContent) {
+		state.To = len(state.FileContent)
+	}
+
+	state.StartTime = time.Now()
+	state.CurrentPercentage = int(progress.GetPercentage(state.To, &state.FileContent))
 
 	txtArea := tui.NewVBox()
 	txtAreaScroll := tui.NewScrollArea(txtArea)
@@ -86,14 +94,14 @@ func main() {
 	txtReader := tui.NewVBox(txtAreaBox, inputCommandBox)
 	txtReader.SetSizePolicy(tui.Expanding, tui.Expanding)
 
-	chunk := text.GetChunk(&model.FileContent, model.From, model.To)
-	text.PutText(txtArea, &chunk, txtAreaScroll)
+	chunk := text.GetChunk(&state.FileContent, state.From, state.To)
+	text.PutText(txtArea, &chunk, txtAreaScroll, state)
 
-	root := tui.NewHBox(txtReader, model.Sidebar)
+	root := tui.NewHBox(txtReader, state.Sidebar)
 
 	tuiUI, err := tui.New(root)
 	if err != nil {
-		log.Fatal(err)
+		return fmt.Errorf("failed to initialize UI: %w", err)
 	}
 
 	theme := tui.NewTheme()
@@ -103,36 +111,37 @@ func main() {
 	})
 	theme.SetStyle("label.wordhighlight", tui.Style{
 		Fg: tui.ColorBlack,
-		Bg: tui.ColorCyan, // Or any color
+		Bg: tui.ColorCyan,
 	})
 	tuiUI.SetTheme(theme)
 
-	keybindings.AddUpDownKeyBindings(txtArea, tuiUI, inputCommand, txtAreaScroll)
-	keybindings.AddHighlightUpDownKeyBindings(txtArea, tuiUI, inputCommand, txtAreaScroll) // Add Down/Up for highlight
-	keybindings.AddWordLeftRightKeyBindings(txtArea, tuiUI, inputCommand, txtAreaScroll)
-	keybindings.AddCopyWordKeyBinding(tuiUI, inputCommand)
-	keybindings.AddGotoKeyBinding(tuiUI, txtReader)
-	keybindings.AddShowStatusKeyBinding(tuiUI, inputCommand)
-	keybindings.AddNewNoteKeyBinding(tuiUI, txtArea, inputCommand, fileName, txtAreaScroll)
-	keybindings.AddCloseGotoBinding(tuiUI, inputCommand, txtReader, txtArea, txtAreaScroll)
-	keybindings.AddSaveStatusKeyBinding(tuiUI, fileName, inputCommand)
-	keybindings.AddShowReferencesKeyBinding(tuiUI, txtArea, txtAreaScroll)
-	keybindings.AddAnalyzeAndFilterReferencesKeyBinding(tuiUI)
-	keybindings.AddPercentageKeyBindings(tuiUI, inputCommand)
-	keybindings.AddCloseApplicationKeyBinding(tuiUI, txtArea, txtReader, txtAreaScroll)
-	keybindings.AddReferencesNavigationKeyBindings(tuiUI)
-	keybindings.AddSaveQuoteKeyBindings(tuiUI, fileName, txtArea, inputCommand, txtAreaScroll)
-	keybindings.AddOnSelectedReference()
-	keybindings.AddShowMinutesTakenToReachPercentagePointKeyBinding(tuiUI, txtReader)
-	keybindings.AddShowHelpKeyBinding(tuiUI, txtReader)
+	keybindings.AddUpDownKeyBindings(txtArea, tuiUI, inputCommand, txtAreaScroll, state)
+	keybindings.AddHighlightUpDownKeyBindings(txtArea, tuiUI, inputCommand, txtAreaScroll, state)
+	keybindings.AddWordLeftRightKeyBindings(txtArea, tuiUI, inputCommand, txtAreaScroll, state)
+	keybindings.AddCopyWordKeyBinding(tuiUI, inputCommand, state)
+	keybindings.AddGotoKeyBinding(tuiUI, txtReader, state)
+	keybindings.AddShowStatusKeyBinding(tuiUI, inputCommand, state)
+	keybindings.AddNewNoteKeyBinding(tuiUI, txtArea, inputCommand, fileName, txtAreaScroll, state)
+	keybindings.AddCloseGotoBinding(tuiUI, inputCommand, txtReader, txtArea, txtAreaScroll, state)
+	keybindings.AddSaveStatusKeyBinding(tuiUI, fileName, inputCommand, state)
+	keybindings.AddShowReferencesKeyBinding(tuiUI, txtArea, txtAreaScroll, state)
+	keybindings.AddAnalyzeAndFilterReferencesKeyBinding(tuiUI, state)
+	keybindings.AddPercentageKeyBindings(tuiUI, inputCommand, state)
+	keybindings.AddCloseApplicationKeyBinding(tuiUI, txtArea, txtReader, txtAreaScroll, state)
+	keybindings.AddReferencesNavigationKeyBindings(tuiUI, state)
+	keybindings.AddSaveQuoteKeyBindings(tuiUI, fileName, txtArea, inputCommand, txtAreaScroll, state)
+	keybindings.AddOnSelectedReference(state)
+	keybindings.AddShowMinutesTakenToReachPercentagePointKeyBinding(tuiUI, txtReader, state)
+	keybindings.AddShowHelpKeyBinding(tuiUI, txtReader, state)
 	keybindings.AddOpenRAEWebSite(tuiUI, inputCommand)
 	keybindings.AddOpenGoodReadsWebSite(tuiUI, inputCommand)
 
-	inputCommand.SetText(utils.GetStatusInformation())
+	inputCommand.SetText(utils.GetStatusInformation(state))
 
 	terminal.ClearScreen()
 
 	if err := tuiUI.Run(); err != nil {
-		log.Fatal(err)
+		return fmt.Errorf("failed to run UI: %w", err)
 	}
+	return nil
 }

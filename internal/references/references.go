@@ -9,7 +9,8 @@ import (
 	"textreader/internal/words"
 )
 
-func ExtractReferencesFromFileContent(fileContent *[]string) []string {
+// TODO: fix this, we can pass state only.
+func ExtractReferencesFromFileContent(fileContent *[]string, state *model.AppState) []string {
 	refs := make([]string, 0)
 	i := 0
 	for _, lineInFile := range *fileContent {
@@ -31,7 +32,7 @@ func ExtractReferencesFromFileContent(fileContent *[]string) []string {
 
 	referencesNoBannedWords := make([]string, 0)
 	for _, word := range uniqueReferences {
-		if !words.Contains(model.BannedWords, word) {
+		if !words.Contains(state.BannedWords, word) {
 			referencesNoBannedWords = append(referencesNoBannedWords, word)
 		}
 	}
@@ -39,10 +40,10 @@ func ExtractReferencesFromFileContent(fileContent *[]string) []string {
 	return referencesNoBannedWords
 }
 
-func LoadReferences() {
-	if len(model.References) == 0 {
-		model.References = ExtractReferencesFromFileContent(&model.FileContent)
-		model.ToReferences = terminal.CalculateTerminalHeight()
+func LoadReferences(state *model.AppState) {
+	if len(state.References) == 0 {
+		state.References = ExtractReferencesFromFileContent(&state.FileContent, state)
+		state.ToReferences = terminal.CalculateTerminalHeight()
 	}
 }
 

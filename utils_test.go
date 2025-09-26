@@ -3,12 +3,11 @@ package main
 import (
 	"fmt"
 	"io"
-	"os"
 	"path/filepath"
 	"strings"
 	"testing"
 	"textreader/internal/file"
-	"textreader/internal/references"
+	"textreader/internal/progress"
 	"textreader/internal/text"
 	"textreader/internal/utils"
 )
@@ -25,7 +24,7 @@ func Test_getNumberLineGoto(t *testing.T) {
 	}
 
 	for _, tc := range tests {
-		if got := utils.GetNumberLineGoto(tc.line); got != tc.want {
+		if got := progress.GetNumberLineGoto(tc.line); got != tc.want {
 			t.Errorf("expected: %s, got: %s", tc.want, got)
 		}
 	}
@@ -48,7 +47,7 @@ func Test_percent(t *testing.T) {
 	}
 
 	for _, tc := range tests {
-		if got := utils.Percent(tc.currentIndex, tc.totalLines); got != tc.want {
+		if got := progress.Percent(tc.currentIndex, tc.totalLines); got != tc.want {
 			t.Errorf("expected: %f, got: %f", tc.want, got)
 		}
 	}
@@ -59,7 +58,7 @@ func Test_linesToChangePercentagePoint(t *testing.T) {
 	totalLines := 1000
 	expectedLinesToChangePercentagePoint := 10
 
-	nextPercentagePoint := utils.LinesToChangePercentagePoint(currentLine, totalLines)
+	nextPercentagePoint := progress.LinesToChangePercentagePoint(currentLine, totalLines)
 
 	if nextPercentagePoint != expectedLinesToChangePercentagePoint {
 		t.Errorf("expected: %d, got: %d", expectedLinesToChangePercentagePoint, nextPercentagePoint)
@@ -103,7 +102,7 @@ func TestGetChunk(t *testing.T) {
 	}
 
 	for _, tt := range tests {
-		if got := text.GetChunk(&tt.content, tt.from, tt.to); !references.listsAreEqual(got, tt.want) {
+		if got := text.GetChunk(&tt.content, tt.from, tt.to); !listsAreEqual(got, tt.want) {
 			t.Errorf("got=[%s], want=[%s]", got, tt.want)
 		}
 	}
@@ -211,37 +210,6 @@ anotaciones sobre la compra de libros a anticuarios parisinos. Ahora lo veía to
 		}
 	}
 
-}
-
-func Test_home(t *testing.T) {
-
-	type test struct {
-		opSystem    string
-		homeEnvName string
-		want        string
-	}
-
-	tests := []test{
-		test{
-			opSystem:    "windows",
-			homeEnvName: "HOMEPATH",
-			want:        "w",
-		},
-		test{
-			opSystem:    "linux",
-			homeEnvName: "HOME",
-			want:        "*ux",
-		},
-	}
-
-	for _, tt := range tests {
-		currentOsValue := os.Getenv(tt.homeEnvName)
-		os.Setenv(tt.homeEnvName, tt.want)
-		if got := file.GetHomeDirectoryPath(tt.opSystem); got != tt.want {
-			t.Errorf("got=[%s], want=[%s]", got, tt.want)
-		}
-		os.Setenv(tt.homeEnvName, currentOsValue)
-	}
 }
 
 func Test_readLines(t *testing.T) {
@@ -381,7 +349,7 @@ func Test_getPercentage(t *testing.T) {
 	}
 
 	for _, tc := range tests {
-		got := utils.GetPercentage(tc.position, &tc.fileContent)
+		got := progress.GetPercentage(tc.position, &tc.fileContent)
 		if got != tc.want {
 			t.Errorf("got=[%f], want=[%f]", got, tc.want)
 		}

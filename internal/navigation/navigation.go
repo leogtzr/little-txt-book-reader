@@ -2,54 +2,54 @@ package navigation
 
 import "textreader/internal/model"
 
-func UpdateRangesUp() {
-	if model.From <= 0 {
+func UpdateRangesUp(state *model.AppState) {
+	if state.From <= 0 {
 		return
 	}
 
-	if model.From > 0 {
-		model.From--
+	if state.From > 0 {
+		state.From--
 	}
 
-	model.To--
+	state.To--
 }
 
-func UpdateRangesReferenceUp() {
-	if model.FromForReferences <= 0 {
+func UpdateRangesReferenceUp(state *model.AppState) {
+	if state.FromForReferences <= 0 {
 		return
 	}
 
-	if model.FromForReferences > 0 {
-		model.FromForReferences--
+	if state.FromForReferences > 0 {
+		state.FromForReferences--
 	}
 
-	model.ToReferences--
+	state.ToReferences--
 }
 
-func UpdateRangesDown() {
-	if model.From < len(model.FileContent) {
-		model.From++
+func UpdateRangesDown(state *model.AppState) {
+	if state.From < len(state.FileContent) {
+		state.From++
 	}
 
-	if model.To >= len(model.FileContent) {
+	if state.To >= len(state.FileContent) {
 		return
 	}
 
-	if model.To < len(model.FileContent) {
-		model.To++
+	if state.To < len(state.FileContent) {
+		state.To++
 	}
 }
 
-func UpdateRangesReferenceDown() {
-	if model.FromForReferences < len(model.References) {
-		model.FromForReferences++
+func UpdateRangesReferenceDown(state *model.AppState) {
+	if state.FromForReferences < len(state.References) {
+		state.FromForReferences++
 	}
 
-	if model.ToReferences >= len(model.References) {
+	if state.ToReferences >= len(state.References) {
 		return
 	}
 
-	if model.ToReferences < len(model.References) {
-		model.ToReferences++
+	if state.ToReferences < len(state.References) {
+		state.ToReferences++
 	}
 }

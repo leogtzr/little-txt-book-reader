@@ -10,7 +10,7 @@ import (
 	"github.com/marcusolsson/tui-go"
 )
 
-func PutText(box *tui.Box, content *[]string, txtAreaScroll *tui.ScrollArea) {
+func PutText(box *tui.Box, content *[]string, txtAreaScroll *tui.ScrollArea, state *model.AppState) {
 	for box.Length() > 0 {
 		box.Remove(0)
 	}
@@ -19,7 +19,7 @@ func PutText(box *tui.Box, content *[]string, txtAreaScroll *tui.ScrollArea) {
 		txt = strings.Replace(txt, " ", " ", -1)
 		txt = strings.Replace(txt, "\t", "    ", -1)
 
-		if i != model.CurrentHighlight {
+		if i != state.CurrentHighlight {
 			label := tui.NewLabel(txt)
 			box.Append(label)
 		} else {
@@ -27,7 +27,7 @@ func PutText(box *tui.Box, content *[]string, txtAreaScroll *tui.ScrollArea) {
 			lineBox := tui.NewHBox()
 			for j, word := range wordsList {
 				wordLabel := tui.NewLabel(word)
-				if j == model.CurrentWord {
+				if j == state.CurrentWord {
 					wordLabel.SetStyleName("wordhighlight")
 				}
 				lineBox.Append(wordLabel)
@@ -46,40 +46,40 @@ func GetChunk(content *[]string, from, to int) []string {
 	return (*content)[from:to]
 }
 
-func MoveTextDown(txtArea *tui.Box, txtAreaScroll *tui.ScrollArea) {
+func MoveTextDown(txtArea *tui.Box, txtAreaScroll *tui.ScrollArea, state *model.AppState) {
 	var chunk []string
-	switch model.CurrentNavMode {
+	switch state.CurrentNavMode {
 	case model.ShowReferencesNavigationMode:
-		navigation.UpdateRangesReferenceDown()
-		chunk = GetChunk(&model.References, model.FromForReferences, model.ToReferences)
+		navigation.UpdateRangesReferenceDown(state)
+		chunk = GetChunk(&state.References, state.FromForReferences, state.ToReferences)
 	case model.AnalyzeAndFilterReferencesNavigationMode, model.GotoNavigationMode:
 		return
 	default:
-		navigation.UpdateRangesDown()
-		chunk = GetChunk(&model.FileContent, model.From, model.To)
-		model.CurrentHighlight = 0 // Reset highlight on scroll
-		model.CurrentWord = 0
+		navigation.UpdateRangesDown(state)
+		chunk = GetChunk(&state.FileContent, state.From, state.To)
+		state.CurrentHighlight = 0 // Reset highlight on scroll
+		state.CurrentWord = 0
 	}
 
-	PutText(txtArea, &chunk, txtAreaScroll)
+	PutText(txtArea, &chunk, txtAreaScroll, state)
 }
 
-func MoveTextUp(txtArea *tui.Box, txtAreaScroll *tui.ScrollArea) {
+func MoveTextUp(txtArea *tui.Box, txtAreaScroll *tui.ScrollArea, state *model.AppState) {
 	var chunk []string
-	switch model.CurrentNavMode {
+	switch state.CurrentNavMode {
 	case model.ShowReferencesNavigationMode:
-		navigation.UpdateRangesReferenceUp()
-		chunk = GetChunk(&model.References, model.FromForReferences, model.ToReferences)
+		navigation.UpdateRangesReferenceUp(state)
+		chunk = GetChunk(&state.References, state.FromForReferences, state.ToReferences)
 	case model.AnalyzeAndFilterReferencesNavigationMode, model.GotoNavigationMode:
 		return
 	default:
-		navigation.UpdateRangesUp()
-		chunk = GetChunk(&model.FileContent, model.From, model.To)
-		model.CurrentHighlight = 0 // Reset highlight on scroll
-		model.CurrentWord = 0
+		navigation.UpdateRangesUp(state)
+		chunk = GetChunk(&state.FileContent, state.From, state.To)
+		state.CurrentHighlight = 0 // Reset highlight on scroll
+		state.CurrentWord = 0
 	}
 
-	PutText(txtArea, &chunk, txtAreaScroll)
+	PutText(txtArea, &chunk, txtAreaScroll, state)
 }
 
 func FindAndRemove(s *[]string, e string) {
@@ -112,59 +112,59 @@ func RemoveWhiteSpaces(input string) string {
 	return re.ReplaceAllString(input, ` `)
 }
 
-func MoveHighlightDown(box *tui.Box, txtAreaScroll *tui.ScrollArea) {
-	model.CurrentHighlight++
-	visibleLines := model.To - model.From
-	if model.CurrentHighlight >= visibleLines {
-		model.CurrentHighlight = visibleLines - 1
+func MoveHighlightDown(box *tui.Box, txtAreaScroll *tui.ScrollArea, state *model.AppState) {
+	state.CurrentHighlight++
+	visibleLines := state.To - state.From
+	if state.CurrentHighlight >= visibleLines {
+		state.CurrentHighlight = visibleLines - 1
 	}
-	model.CurrentWord = 0
-	chunk := GetChunk(&model.FileContent, model.From, model.To)
-	PutText(box, &chunk, txtAreaScroll)
+	state.CurrentWord = 0
+	chunk := GetChunk(&state.FileContent, state.From, state.To)
+	PutText(box, &chunk, txtAreaScroll, state)
 }
 
-func MoveHighlightUp(box *tui.Box, txtAreaScroll *tui.ScrollArea) {
-	model.CurrentHighlight--
-	if model.CurrentHighlight < 0 {
-		model.CurrentHighlight = 0
+func MoveHighlightUp(box *tui.Box, txtAreaScroll *tui.ScrollArea, state *model.AppState) {
+	state.CurrentHighlight--
+	if state.CurrentHighlight < 0 {
+		state.CurrentHighlight = 0
 	}
-	model.CurrentWord = 0
-	chunk := GetChunk(&model.FileContent, model.From, model.To)
-	PutText(box, &chunk, txtAreaScroll)
+	state.CurrentWord = 0
+	chunk := GetChunk(&state.FileContent, state.From, state.To)
+	PutText(box, &chunk, txtAreaScroll, state)
 }
 
-func MoveWordLeft(box *tui.Box, txtAreaScroll *tui.ScrollArea) {
-	currentLineIndex := model.From + model.CurrentHighlight
-	if currentLineIndex >= len(model.FileContent) {
+func MoveWordLeft(box *tui.Box, txtAreaScroll *tui.ScrollArea, state *model.AppState) {
+	currentLineIndex := state.From + state.CurrentHighlight
+	if currentLineIndex >= len(state.FileContent) {
 		return
 	}
-	line := model.FileContent[currentLineIndex]
+	line := state.FileContent[currentLineIndex]
 	wordsList := words.ExtractWords(line)
 	if len(wordsList) == 0 {
 		return
 	}
-	model.CurrentWord--
-	if model.CurrentWord < 0 {
-		model.CurrentWord = len(wordsList) - 1
+	state.CurrentWord--
+	if state.CurrentWord < 0 {
+		state.CurrentWord = len(wordsList) - 1
 	}
-	chunk := GetChunk(&model.FileContent, model.From, model.To)
-	PutText(box, &chunk, txtAreaScroll)
+	chunk := GetChunk(&state.FileContent, state.From, state.To)
+	PutText(box, &chunk, txtAreaScroll, state)
 }
 
-func MoveWordRight(box *tui.Box, txtAreaScroll *tui.ScrollArea) {
-	currentLineIndex := model.From + model.CurrentHighlight
-	if currentLineIndex >= len(model.FileContent) {
+func MoveWordRight(box *tui.Box, txtAreaScroll *tui.ScrollArea, state *model.AppState) {
+	currentLineIndex := state.From + state.CurrentHighlight
+	if currentLineIndex >= len(state.FileContent) {
 		return
 	}
-	line := model.FileContent[currentLineIndex]
+	line := state.FileContent[currentLineIndex]
 	wordsList := words.ExtractWords(line)
 	if len(wordsList) == 0 {
 		return
 	}
-	model.CurrentWord++
-	if model.CurrentWord >= len(wordsList) {
-		model.CurrentWord = 0
+	state.CurrentWord++
+	if state.CurrentWord >= len(wordsList) {
+		state.CurrentWord = 0
 	}
-	chunk := GetChunk(&model.FileContent, model.From, model.To)
-	PutText(box, &chunk, txtAreaScroll)
+	chunk := GetChunk(&state.FileContent, state.From, state.To)
+	PutText(box, &chunk, txtAreaScroll, state)
 }

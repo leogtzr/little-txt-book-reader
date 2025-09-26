@@ -28,31 +28,31 @@ func Paginate(x []string, skip, size int) []string {
 }
 
 // TODO: check if we can move these two to a different package
-func GetStatusInformation() string {
-	if !model.ToggleShowStatus {
+func GetStatusInformation(state *model.AppState) string {
+	if !state.ToggleShowStatus {
 		return ""
 	}
 
-	percent := progress.GetPercentage(model.To, &model.FileContent)
-	if int(percent) > model.CurrentPercentage {
-		model.CurrentPercentage = int(percent)
+	percent := progress.GetPercentage(state.To, &state.FileContent)
+	if int(percent) > state.CurrentPercentage {
+		state.CurrentPercentage = int(percent)
 		now := time.Now()
-		model.MinutesToReachNextPercentagePoint[int(percent)] = now.Sub(model.StartTime)
-		model.StartTime = now
+		state.MinutesToReachNextPercentagePoint[int(percent)] = now.Sub(state.StartTime)
+		state.StartTime = now
 	}
 
-	if model.PercentagePointStats {
+	if state.PercentagePointStats {
 		return fmt.Sprintf(".   %d of %d lines (%.3f%%) [%d lines To next percentage point]                    ",
-			model.To,
-			len(model.FileContent), percent, progress.LinesToChangePercentagePoint(model.To, len(model.FileContent)))
+			state.To,
+			len(state.FileContent), percent, progress.LinesToChangePercentagePoint(state.To, len(state.FileContent)))
 	}
 	return fmt.Sprintf(".   %d of %d lines (%.3f%%)                                            ",
-		model.To, len(model.FileContent), percent)
+		state.To, len(state.FileContent), percent)
 
 }
 
-func GetSavedStatusInformation(fileName string) string {
-	return fmt.Sprintf(`%s <saved "%s">`, GetStatusInformation(), fileName)
+func GetSavedStatusInformation(fileName string, state *model.AppState) string {
+	return fmt.Sprintf(`%s <saved "%s">`, GetStatusInformation(state), fileName)
 }
 
 func OpenOSEditor(os, notesFile string) *exec.Cmd {

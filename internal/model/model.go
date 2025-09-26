@@ -1,44 +1,63 @@
 package model
 
 import (
-	"flag"
 	"time"
 
 	"github.com/marcusolsson/tui-go"
 )
 
-type navMode int
+// NavMode represents the navigation mode of the application.
+type NavMode int
 
-// LatestFile ...
+// AppState holds the application state.
+type AppState struct {
+	From, To, FromForReferences, ToReferences int
+	GotoLine                                  string
+	//FileToOpen                                *string
+	FileToOpen                             string // Changed from *string to string
+	PercentagePointStats, ToggleShowStatus bool
+	References, FileContent, BannedWords   []string
+	CurrentNavMode                         NavMode
+	Sidebar                                *tui.Box
+	RefsTable                              *tui.Table
+	PageIndex, CurrentPercentage, Advance  int
+	MinutesToReachNextPercentagePoint      map[int]time.Duration
+	StartTime                              time.Time
+	CurrentHighlight, CurrentWord          int
+}
+
+// NewAppState initializes a new AppState instance.
+func NewAppState() *AppState {
+	return &AppState{
+		From:                              0,
+		To:                                0, // Will be set based on Advance
+		FromForReferences:                 0,
+		ToReferences:                      10,
+		GotoLine:                          "",
+		FileToOpen:                        "", // Initialize as empty string
+		PercentagePointStats:              false,
+		ToggleShowStatus:                  true,
+		References:                        []string{},
+		FileContent:                       []string{},
+		BannedWords:                       []string{},
+		CurrentNavMode:                    ReadingNavigationMode,
+		Sidebar:                           tui.NewVBox(),
+		RefsTable:                         tui.NewTable(0, 0),
+		PageIndex:                         0,
+		MinutesToReachNextPercentagePoint: make(map[int]time.Duration),
+		CurrentPercentage:                 0,
+		Advance:                           0,
+		CurrentHighlight:                  0,
+		CurrentWord:                       0,
+	}
+}
+
+// LatestFile represents the latest file state.
 type LatestFile struct {
 	FileName string
 	From     int
 	To       int
 }
-
-var (
-	From                              = 0
-	To                                = Advance
-	FromForReferences                 = 0
-	ToReferences                      = 10
-	GotoLine                          = ""
-	FileToOpen                        = flag.String("file", "", "File To open")
-	PercentagePointStats              = false
-	ToggleShowStatus                  = true
-	References                        = []string{}
-	FileContent                       = []string{}
-	CurrentNavMode                    = ReadingNavigationMode
-	BannedWords                       = []string{}
-	Sidebar                           = tui.NewVBox()
-	RefsTable                         = tui.NewTable(0, 0)
-	PageIndex                         = 0
-	MinutesToReachNextPercentagePoint map[int]time.Duration
-	StartTime                         time.Time
-	CurrentPercentage                 int
-	Advance                           int
-	CurrentHighlight                  = 0
-	CurrentWord                       = 0
-)
 
 const (
 	DownKeyBindingAlternative1                       = "j"
@@ -63,12 +82,12 @@ const (
 )
 
 const (
-	ReadingNavigationMode                    navMode = 1
-	ShowReferencesNavigationMode             navMode = 2
-	AnalyzeAndFilterReferencesNavigationMode navMode = 3
-	GotoNavigationMode                       navMode = 4
-	ShowTimePercentagePointsMode             navMode = 5
-	ShowHelpMode                             navMode = 6
+	ReadingNavigationMode                    NavMode = 1
+	ShowReferencesNavigationMode             NavMode = 2
+	AnalyzeAndFilterReferencesNavigationMode NavMode = 3
+	GotoNavigationMode                       NavMode = 4
+	ShowTimePercentagePointsMode             NavMode = 5
+	ShowHelpMode                             NavMode = 6
 
 	GotoWidgetIndex = 2
 
@@ -76,5 +95,5 @@ const (
 
 	PageSize = 10
 
-	DBFileRequiredNumbermields = 3
+	DBFileRequiredNumberFields = 3
 )

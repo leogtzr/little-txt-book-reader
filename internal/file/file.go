@@ -22,13 +22,13 @@ func SaveStatus(fileName string, from, to int) {
 		log.Fatal(err)
 	}
 	defer f.Close()
-	f.WriteString(fmt.Sprintf("%s|%d|%d", fileName, from, to))
+	_, _ = f.WriteString(fmt.Sprintf("%s|%d|%d", fileName, from, to))
 }
 
-func GetFileNameFromLatest(filePath string) (model.LatestFile, error) {
+func GetFileNameFromLatest(filePath string, state *model.AppState) (model.LatestFile, error) {
 	baseFileName := filepath.Base(filePath)
 	latestFilePath := filepath.Join(GetHomeDirectoryPath(runtime.GOOS), "ltbr", "progress", baseFileName)
-	latestFile := model.LatestFile{FileName: filePath, From: 0, To: model.Advance}
+	latestFile := model.LatestFile{FileName: filePath, From: 0, To: state.Advance}
 	if !exists(latestFilePath) {
 		return latestFile, nil
 	}
@@ -41,7 +41,7 @@ func GetFileNameFromLatest(filePath string) (model.LatestFile, error) {
 
 	content, err := ioutil.ReadAll(f)
 	latestFileFields := strings.Split(string(content), "|")
-	if len(latestFileFields) != model.DBFileRequiredNumbermields {
+	if len(latestFileFields) != model.DBFileRequiredNumberFields {
 		return model.LatestFile{}, fmt.Errorf("wrong format in '%s'", latestFilePath)
 	}
 

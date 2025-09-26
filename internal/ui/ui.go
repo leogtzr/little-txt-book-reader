@@ -22,13 +22,13 @@ func NewInputCommandBox(input *tui.Entry) *tui.Box {
 	return inputCommandBox
 }
 
-func AddGotoWidget(box *tui.Box) {
+func AddGotoWidget(box *tui.Box, state *model.AppState) {
 	gotoInput := tui.NewTextEdit()
 	gotoInput.SetText("Go To line: ")
 	gotoInput.SetFocused(true)
 	gotoInput.OnTextChanged(func(entry *tui.TextEdit) {
-		model.GotoLine = entry.Text()
+		state.GotoLine = entry.Text()
 	})
 	box.Append(gotoInput)
-	model.CurrentNavMode = model.GotoNavigationMode
+	state.CurrentNavMode = model.GotoNavigationMode
 }

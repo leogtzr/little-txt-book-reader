@@ -170,7 +170,7 @@ func AddShowVocabularyKeyBinding(ui tui.UI, txtReader, txtArea *tui.Box, inputCo
 			return
 		}
 		state.CurrentNavMode = model.VocabularyNavigationMode
-		state.Sidebar.SetTitle("Vocabulary ... ")
+		state.Sidebar.SetTitle("Vocabulary")
 		state.Sidebar.SetBorder(true)
 		state.VocabTable.RemoveRows()
 		state.PageIndex = 0
@@ -546,7 +546,7 @@ func prepareTableForVocabulary(state *model.AppState) {
 		state.VocabTable.AppendRow(tui.NewLabel("No vocabulary words saved"))
 	} else {
 		for _, word := range paginatedVocabulary {
-			state.VocabTable.AppendRow(tui.NewLabel(word))
+			state.VocabTable.AppendRow(tui.NewLabel(fmt.Sprintf("  %s  ", word)))
 		}
 	}
 	state.VocabTable.SetSelected(0)

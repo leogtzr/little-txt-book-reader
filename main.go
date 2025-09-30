@@ -114,8 +114,9 @@ func run(state *model.AppState) error {
 		Bg: tui.ColorGreen,
 	})
 	theme.SetStyle("label.wordhighlight", tui.Style{
-		Fg: tui.ColorBlack,
-		Bg: tui.ColorCyan,
+		Fg:   tui.ColorBlack,
+		Bg:   tui.ColorCyan,
+		Bold: tui.DecorationOn,
 	})
 	tuiUI.SetTheme(theme)
 

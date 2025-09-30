@@ -104,7 +104,11 @@ func AddUpBinding(box *tui.Box, input *tui.Entry, txtAreaScroll *tui.ScrollArea,
 func AddSaveStatusKeyBinding(ui tui.UI, fileName string, inputCommand *tui.Entry, state *model.AppState) {
 	baseFileName := filepath.Base(fileName)
 	ui.SetKeybinding(model.SaveStatusKeyBindingAlternative1, func() {
-		file.SaveStatus(fileName, state.From, state.To)
+		err := file.SaveStatus(fileName, state.From, state.To, state)
+		if err != nil {
+			inputCommand.SetText(fmt.Sprintf("Error saving status: %v", err))
+			return
+		}
 		inputCommand.SetText(utils.GetSavedStatusInformation(baseFileName, state))
 	})
 }
@@ -122,6 +126,17 @@ func AddCloseApplicationKeyBinding(ui tui.UI, txtArea, txtReader *tui.Box, txtAr
 			text.PutText(txtArea, &chunk, txtAreaScroll, state)
 			state.CurrentNavMode = model.ReadingNavigationMode
 			state.RefsTable.SetFocused(false)
+			state.RefsTable.RemoveRows()
+			state.Sidebar.SetTitle("")
+			state.Sidebar.SetBorder(false)
+		case model.VocabularyNavigationMode:
+			chunk := text.GetChunk(&state.FileContent, state.From, state.To)
+			text.PutText(txtArea, &chunk, txtAreaScroll, state)
+			state.CurrentNavMode = model.ReadingNavigationMode
+			state.VocabTable.SetFocused(false)
+			state.VocabTable.RemoveRows()
+			state.Sidebar.SetTitle("")
+			state.Sidebar.SetBorder(false)
 		case model.GotoNavigationMode, model.ShowTimePercentagePointsMode, model.ShowHelpMode:
 			txtReader.Remove(model.GotoWidgetIndex)
 			state.CurrentNavMode = model.ReadingNavigationMode
@@ -146,6 +161,21 @@ func AddShowReferencesKeyBinding(ui tui.UI, txtArea *tui.Box, txtAreaScroll *tui
 		references.LoadReferences(state)
 		chunk := text.GetChunk(&state.References, state.FromForReferences, state.ToReferences)
 		text.PutText(txtArea, &chunk, txtAreaScroll, state)
+	})
+}
+
+func AddShowVocabularyKeyBinding(ui tui.UI, txtReader, txtArea *tui.Box, inputCommand *tui.Entry, txtAreaScroll *tui.ScrollArea, state *model.AppState) {
+	ui.SetKeybinding(model.ShowVocabularyKeyBinding, func() {
+		if state.CurrentNavMode == model.VocabularyNavigationMode {
+			return
+		}
+		state.CurrentNavMode = model.VocabularyNavigationMode
+		state.Sidebar.SetTitle("Vocabulary ... ")
+		state.Sidebar.SetBorder(true)
+		state.VocabTable.RemoveRows()
+		state.PageIndex = 0
+		prepareTableForVocabulary(state)
+		state.VocabTable.SetFocused(true)
 	})
 }
 
@@ -209,18 +239,20 @@ func AddSaveQuoteKeyBindings(ui tui.UI, fileName string, txtArea *tui.Box, input
 func prepareTableForReferences(state *model.AppState) {
 	state.RefsTable.RemoveRows()
 	paginatedReferences := utils.Paginate(state.References, state.PageIndex, model.PageSize)
-	for _, ref := range paginatedReferences {
-		state.RefsTable.AppendRow(tui.NewLabel(ref))
+	if len(paginatedReferences) == 0 {
+		state.RefsTable.AppendRow(tui.NewLabel("No references found"))
+	} else {
+		for _, ref := range paginatedReferences {
+			state.RefsTable.AppendRow(tui.NewLabel(ref))
+		}
 	}
 	state.RefsTable.SetSelected(0)
 }
 
 func AddOnSelectedReference(state *model.AppState) {
-	state.RefsTable.OnItemActivated(func(tui *tui.Table) {
-
-		itemIndexToRemove := tui.Selected()
+	state.RefsTable.OnItemActivated(func(t *tui.Table) {
+		itemIndexToRemove := t.Selected()
 		itemToAddToNonRefs := state.References[state.PageIndex+itemIndexToRemove]
-		// References = remove(References, itemIndexToRemove)
 		text.FindAndRemove(&state.References, itemToAddToNonRefs)
 		prepareTableForReferences(state)
 
@@ -472,5 +504,124 @@ func AddCopyWordKeyBinding(ui tui.UI, inputCommand *tui.Entry, state *model.AppS
 			return
 		}
 		inputCommand.SetText(fmt.Sprintf("Copied '%s' to clipboard", word))
+	})
+}
+
+func AddSaveVocabularyKeyBinding(ui tui.UI, fileName string, inputCommand *tui.Entry, state *model.AppState) {
+	ui.SetKeybinding(model.SaveVocabularyKeyBinding, func() {
+		if state.CurrentNavMode != model.ReadingNavigationMode {
+			return
+		}
+		currentLineIndex := state.From + state.CurrentHighlight
+		if currentLineIndex >= len(state.FileContent) {
+			inputCommand.SetText("No word to save")
+			return
+		}
+		line := state.FileContent[currentLineIndex]
+		wordsList := words.ExtractWords(line)
+		if len(wordsList) == 0 || state.CurrentWord >= len(wordsList) {
+			inputCommand.SetText("No word to save")
+			return
+		}
+		word := wordsList[state.CurrentWord]
+		word = words.SanitizeWord(word)
+		if words.Contains(state.Vocabulary, word) {
+			inputCommand.SetText(fmt.Sprintf("Word '%s' already in vocabulary", word))
+			return
+		}
+		state.Vocabulary = append(state.Vocabulary, word)
+		err := file.SaveStatus(fileName, state.From, state.To, state)
+		if err != nil {
+			inputCommand.SetText(fmt.Sprintf("Error saving vocabulary: %v", err))
+			return
+		}
+		inputCommand.SetText(fmt.Sprintf("Saved '%s' to vocabulary", word))
+	})
+}
+
+func prepareTableForVocabulary(state *model.AppState) {
+	state.VocabTable.RemoveRows()
+	paginatedVocabulary := utils.Paginate(state.Vocabulary, state.PageIndex, model.PageSize)
+	if len(paginatedVocabulary) == 0 {
+		state.VocabTable.AppendRow(tui.NewLabel("No vocabulary words saved"))
+	} else {
+		for _, word := range paginatedVocabulary {
+			state.VocabTable.AppendRow(tui.NewLabel(word))
+		}
+	}
+	state.VocabTable.SetSelected(0)
+}
+
+func AddVocabularyNavigationKeyBindings(ui tui.UI, state *model.AppState) {
+	ui.SetKeybinding("Right", func() {
+		if state.CurrentNavMode != model.VocabularyNavigationMode {
+			return
+		}
+		if state.PageIndex >= len(state.Vocabulary)-model.PageSize {
+			return
+		}
+		state.PageIndex += model.PageSize
+		prepareTableForVocabulary(state)
+	})
+	ui.SetKeybinding("Left", func() {
+		if state.CurrentNavMode != model.VocabularyNavigationMode {
+			return
+		}
+		if state.PageIndex < model.PageSize {
+			return
+		}
+		state.PageIndex -= model.PageSize
+		prepareTableForVocabulary(state)
+	})
+	ui.SetKeybinding(model.UpKeyBindingAlternative2, func() {
+		if state.CurrentNavMode != model.VocabularyNavigationMode {
+			return
+		}
+		selected := state.VocabTable.Selected()
+		if selected > 0 {
+			state.VocabTable.SetSelected(selected - 1)
+		}
+	})
+	ui.SetKeybinding(model.DownKeyBindingAlternative2, func() {
+		if state.CurrentNavMode != model.VocabularyNavigationMode {
+			return
+		}
+		selected := state.VocabTable.Selected()
+		paginatedVocabulary := utils.Paginate(state.Vocabulary, state.PageIndex, model.PageSize)
+		if selected < len(paginatedVocabulary)-1 {
+			state.VocabTable.SetSelected(selected + 1)
+		}
+	})
+	ui.SetKeybinding("k", func() {
+		if state.CurrentNavMode != model.VocabularyNavigationMode {
+			return
+		}
+		selected := state.VocabTable.Selected()
+		if selected > 0 {
+			state.VocabTable.SetSelected(selected - 1)
+		}
+	})
+	ui.SetKeybinding("j", func() {
+		if state.CurrentNavMode != model.VocabularyNavigationMode {
+			return
+		}
+		selected := state.VocabTable.Selected()
+		paginatedVocabulary := utils.Paginate(state.Vocabulary, state.PageIndex, model.PageSize)
+		if selected < len(paginatedVocabulary)-1 {
+			state.VocabTable.SetSelected(selected + 1)
+		}
+	})
+}
+
+func AddOnSelectedVocabulary(state *model.AppState) {
+	state.VocabTable.OnItemActivated(func(t *tui.Table) {
+		itemIndexToRemove := t.Selected()
+		itemToAddToNonRefs := state.Vocabulary[state.PageIndex+itemIndexToRemove]
+		text.FindAndRemove(&state.Vocabulary, itemToAddToNonRefs)
+		prepareTableForVocabulary(state)
+		file.SaveStatus(state.FileToOpen, state.From, state.To, state)
+		if !words.Contains(state.BannedWords, itemToAddToNonRefs) {
+			file.AppendLineToFile(model.NonRefsFileName, itemToAddToNonRefs, "")
+		}
 	})
 }

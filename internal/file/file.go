@@ -2,56 +2,104 @@ package file
 
 import (
 	"bufio"
+	"crypto/md5"
+	"encoding/hex"
+	"encoding/json"
 	"fmt"
 	"io"
-	"io/ioutil"
-	"log"
 	"os"
 	"path"
 	"path/filepath"
 	"runtime"
-	"strconv"
 	"strings"
 	"textreader/internal/model"
 )
 
-func SaveStatus(fileName string, from, to int) {
-	baseFileName := filepath.Base(fileName)
-	f, err := os.Create(filepath.Join(GetHomeDirectoryPath(runtime.GOOS), "ltbr", "progress", baseFileName))
+type ProgressEntry struct {
+	FileName   string   `json:"file_name"`
+	From       int      `json:"from"`
+	To         int      `json:"to"`
+	Vocabulary []string `json:"vocabulary"`
+}
+
+func getProgressFilePath() string {
+	return filepath.Join(GetHomeDirectoryPath(runtime.GOOS), "ltbr", "progress.json")
+}
+
+func SaveStatus(fileName string, from, to int, state *model.AppState) error {
+	absPath, err := filepath.Abs(fileName)
 	if err != nil {
-		log.Fatal(err)
+		return fmt.Errorf("failed to get absolute path: %w", err)
 	}
-	defer f.Close()
-	_, _ = f.WriteString(fmt.Sprintf("%s|%d|%d", fileName, from, to))
+	key := hashPath(absPath)
+	progressFile := getProgressFilePath()
+
+	data := make(map[string]ProgressEntry)
+	if _, err := os.Stat(progressFile); err == nil {
+		content, err := os.ReadFile(progressFile)
+		if err != nil {
+			return fmt.Errorf("failed to read progress file: %w", err)
+		}
+		if err := json.Unmarshal(content, &data); err != nil {
+			return fmt.Errorf("failed to unmarshal progress: %w", err)
+		}
+	}
+
+	data[key] = ProgressEntry{
+		FileName:   absPath,
+		From:       from,
+		To:         to,
+		Vocabulary: state.Vocabulary,
+	}
+
+	content, err := json.MarshalIndent(data, "", "  ")
+	if err != nil {
+		return fmt.Errorf("failed to marshal progress: %w", err)
+	}
+	if err := os.WriteFile(progressFile, content, 0644); err != nil {
+		return fmt.Errorf("failed to write progress file: %w", err)
+	}
+	return nil
 }
 
 func GetFileNameFromLatest(filePath string, state *model.AppState) (model.LatestFile, error) {
-	baseFileName := filepath.Base(filePath)
-	latestFilePath := filepath.Join(GetHomeDirectoryPath(runtime.GOOS), "ltbr", "progress", baseFileName)
-	latestFile := model.LatestFile{FileName: filePath, From: 0, To: state.Advance}
-	if !exists(latestFilePath) {
-		return latestFile, nil
-	}
-
-	f, err := os.Open(latestFilePath)
+	absPath, err := filepath.Abs(filePath)
 	if err != nil {
-		return model.LatestFile{}, err
+		return model.LatestFile{}, fmt.Errorf("failed to get absolute path: %w", err)
 	}
-	defer f.Close()
+	key := hashPath(absPath)
+	progressFile := getProgressFilePath()
 
-	content, err := ioutil.ReadAll(f)
-	latestFileFields := strings.Split(string(content), "|")
-	if len(latestFileFields) != model.DBFileRequiredNumberFields {
-		return model.LatestFile{}, fmt.Errorf("wrong format in '%s'", latestFilePath)
+	if _, err := os.Stat(progressFile); os.IsNotExist(err) {
+		return model.LatestFile{FileName: absPath, From: 0, To: state.Advance}, nil
 	}
 
-	latestFile.FileName = latestFileFields[0]
-	fromInt, _ := strconv.ParseInt(latestFileFields[1], 10, 32)
-	toInt, _ := strconv.ParseInt(latestFileFields[2], 10, 32)
-	latestFile.From = int(fromInt)
-	latestFile.To = int(toInt)
+	content, err := os.ReadFile(progressFile)
+	if err != nil {
+		return model.LatestFile{}, fmt.Errorf("failed to read progress file: %w", err)
+	}
 
-	return latestFile, nil
+	data := make(map[string]ProgressEntry)
+	if err := json.Unmarshal(content, &data); err != nil {
+		return model.LatestFile{}, fmt.Errorf("failed to unmarshal progress: %w", err)
+	}
+
+	entry, ok := data[key]
+	if !ok {
+		return model.LatestFile{FileName: absPath, From: 0, To: state.Advance}, nil
+	}
+
+	state.Vocabulary = entry.Vocabulary // Load vocabulary into state
+	return model.LatestFile{
+		FileName: entry.FileName,
+		From:     entry.From,
+		To:       entry.To,
+	}, nil
+}
+
+func hashPath(path string) string {
+	h := md5.Sum([]byte(path))
+	return hex.EncodeToString(h[:])
 }
 
 func dirExists(dirPath string) bool {

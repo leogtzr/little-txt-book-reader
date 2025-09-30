@@ -26,7 +26,7 @@ func main() {
 	state.FileToOpen = *fileFlag
 
 	if err := run(state); err != nil {
-		fmt.Fprintf(os.Stderr, "error: %v\n", err)
+		_, _ = fmt.Fprintf(os.Stderr, "error: %v\n", err)
 		os.Exit(1)
 	}
 }
@@ -48,6 +48,7 @@ func run(state *model.AppState) error {
 	}
 
 	state.Sidebar.Append(state.RefsTable)
+	state.Sidebar.Append(state.VocabTable)
 
 	absoluteFilePath, err := filepath.Abs(fileName)
 	if err != nil {
@@ -60,6 +61,7 @@ func run(state *model.AppState) error {
 	}
 
 	state.From, state.To, fileName = latestFile.From, latestFile.To, latestFile.FileName
+	// state.FromVocabulary = 0
 
 	txtFile, err := os.Open(fileName)
 	if err != nil {
@@ -80,6 +82,8 @@ func run(state *model.AppState) error {
 
 	state.StartTime = time.Now()
 	state.CurrentPercentage = int(progress.GetPercentage(state.To, &state.FileContent))
+	state.FromForVocabulary = 0
+	state.ToForVocabulary = len(state.Vocabulary)
 
 	txtArea := tui.NewVBox()
 	txtAreaScroll := tui.NewScrollArea(txtArea)
@@ -134,7 +138,10 @@ func run(state *model.AppState) error {
 	keybindings.AddShowMinutesTakenToReachPercentagePointKeyBinding(tuiUI, txtReader, state)
 	keybindings.AddShowHelpKeyBinding(tuiUI, txtReader, state)
 	keybindings.AddOpenRAEWebSite(tuiUI, inputCommand)
-	keybindings.AddOpenGoodReadsWebSite(tuiUI, inputCommand)
+	keybindings.AddSaveVocabularyKeyBinding(tuiUI, fileName, inputCommand, state)
+	keybindings.AddVocabularyNavigationKeyBindings(tuiUI, state)
+	keybindings.AddOnSelectedVocabulary(state)
+	keybindings.AddShowVocabularyKeyBinding(tuiUI, txtReader, txtArea, inputCommand, txtAreaScroll, state)
 
 	inputCommand.SetText(utils.GetStatusInformation(state))
 

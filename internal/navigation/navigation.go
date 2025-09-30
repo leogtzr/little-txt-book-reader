@@ -53,3 +53,25 @@ func UpdateRangesReferenceDown(state *model.AppState) {
 		state.ToReferences++
 	}
 }
+
+func UpdateRangesVocabularyUp(state *model.AppState) {
+	if state.FromForVocabulary <= 0 {
+		return
+	}
+	if state.FromForVocabulary > 0 {
+		state.FromForVocabulary--
+	}
+	state.ToForVocabulary--
+}
+
+func UpdateRangesVocabularyDown(state *model.AppState) {
+	if state.FromForVocabulary < len(state.Vocabulary) {
+		state.FromForVocabulary++
+	}
+	if state.ToForVocabulary >= len(state.Vocabulary) {
+		return
+	}
+	if state.ToForVocabulary < len(state.Vocabulary) {
+		state.ToForVocabulary++
+	}
+}

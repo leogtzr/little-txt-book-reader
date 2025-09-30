@@ -52,6 +52,9 @@ func MoveTextDown(txtArea *tui.Box, txtAreaScroll *tui.ScrollArea, state *model.
 	case model.ShowReferencesNavigationMode:
 		navigation.UpdateRangesReferenceDown(state)
 		chunk = GetChunk(&state.References, state.FromForReferences, state.ToReferences)
+	case model.VocabularyNavigationMode:
+		return // Disable scrolling in table mode
+	// In these modes we don't want to scroll the text area
 	case model.AnalyzeAndFilterReferencesNavigationMode, model.GotoNavigationMode:
 		return
 	default:
@@ -70,6 +73,8 @@ func MoveTextUp(txtArea *tui.Box, txtAreaScroll *tui.ScrollArea, state *model.Ap
 	case model.ShowReferencesNavigationMode:
 		navigation.UpdateRangesReferenceUp(state)
 		chunk = GetChunk(&state.References, state.FromForReferences, state.ToReferences)
+	case model.VocabularyNavigationMode:
+		return // Disable scrolling in table mode
 	case model.AnalyzeAndFilterReferencesNavigationMode, model.GotoNavigationMode:
 		return
 	default:

@@ -11,19 +11,19 @@ type NavMode int
 
 // AppState holds the application state.
 type AppState struct {
-	From, To, FromForReferences, ToReferences int
-	GotoLine                                  string
-	//FileToOpen                                *string
-	FileToOpen                             string // Changed from *string to string
-	PercentagePointStats, ToggleShowStatus bool
-	References, FileContent, BannedWords   []string
-	CurrentNavMode                         NavMode
-	Sidebar                                *tui.Box
-	RefsTable                              *tui.Table
-	PageIndex, CurrentPercentage, Advance  int
-	MinutesToReachNextPercentagePoint      map[int]time.Duration
-	StartTime                              time.Time
-	CurrentHighlight, CurrentWord          int
+	From, To, FromForReferences, ToReferences, FromForVocabulary, ToForVocabulary int
+	GotoLine                                                                      string
+	FileToOpen                                                                    string
+	Vocabulary                                                                    []string
+	PercentagePointStats, ToggleShowStatus                                        bool
+	References, FileContent, BannedWords                                          []string
+	CurrentNavMode                                                                NavMode
+	Sidebar                                                                       *tui.Box
+	RefsTable, VocabTable                                                         *tui.Table
+	PageIndex, CurrentPercentage, Advance                                         int
+	MinutesToReachNextPercentagePoint                                             map[int]time.Duration
+	StartTime                                                                     time.Time
+	CurrentHighlight, CurrentWord                                                 int
 }
 
 // NewAppState initializes a new AppState instance.
@@ -41,8 +41,10 @@ func NewAppState() *AppState {
 		FileContent:                       []string{},
 		BannedWords:                       []string{},
 		CurrentNavMode:                    ReadingNavigationMode,
+		Vocabulary:                        []string{},
 		Sidebar:                           tui.NewVBox(),
 		RefsTable:                         tui.NewTable(0, 0),
+		VocabTable:                        tui.NewTable(0, 0),
 		PageIndex:                         0,
 		MinutesToReachNextPercentagePoint: make(map[int]time.Duration),
 		CurrentPercentage:                 0,
@@ -79,6 +81,9 @@ const (
 	OpenRAEWebSiteKeyBinging                         = "o"
 	OpenGoodReadsWebSiteKeyBinding                   = "d"
 	ShowHelpKeyBinding                               = "h"
+	SaveVocabularyKeyBinding                         = "w"
+	ShowVocabularyKeyBinding                         = "W" // New key binding for vocabulary dialog
+
 )
 
 const (
@@ -88,12 +93,13 @@ const (
 	GotoNavigationMode                       NavMode = 4
 	ShowTimePercentagePointsMode             NavMode = 5
 	ShowHelpMode                             NavMode = 6
+	VocabularyNavigationMode                 NavMode = 7 // New navigation mode
 
 	GotoWidgetIndex = 2
 
 	NonRefsFileName = "non-refs.txt"
 
-	PageSize = 10
+	PageSize = 20
 
 	DBFileRequiredNumberFields = 3
 )

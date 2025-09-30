@@ -15,24 +15,40 @@ func PutText(box *tui.Box, content *[]string, txtAreaScroll *tui.ScrollArea, sta
 		box.Remove(0)
 	}
 
+	spaceRe := regexp.MustCompile(`\s+`)
+
 	for i, txt := range *content {
-		txt = strings.Replace(txt, " ", " ", -1)
-		txt = strings.Replace(txt, "\t", "    ", -1)
+		txt = strings.Replace(txt, "\t", "    ", -1) // Replace tabs with 4 spaces
+		txt = spaceRe.ReplaceAllString(txt, " ")     // Collapse multiple spaces to single
 
 		if i != state.CurrentHighlight {
 			label := tui.NewLabel(txt)
+			label.SetWordWrap(true)
+			label.SetFocused(true)
 			box.Append(label)
 		} else {
 			wordsList := words.ExtractWords(txt)
-			lineBox := tui.NewHBox()
-			for j, word := range wordsList {
-				wordLabel := tui.NewLabel(word)
-				if j == state.CurrentWord {
+
+			var lineBox *tui.Box
+
+			if len(wordsList) == 0 {
+				lineBox = tui.NewHBox()
+				for i := 0; i < 1; i++ {
+					wordLabel := tui.NewLabel("                                                                        ")
 					wordLabel.SetStyleName("wordhighlight")
+					lineBox.Append(wordLabel)
 				}
-				lineBox.Append(wordLabel)
-				if j < len(wordsList)-1 {
-					lineBox.Append(tui.NewLabel(" "))
+			} else {
+				lineBox = tui.NewHBox()
+				for j, word := range wordsList {
+					wordLabel := tui.NewLabel(word)
+					if j == state.CurrentWord {
+						wordLabel.SetStyleName("wordhighlight")
+					}
+					lineBox.Append(wordLabel)
+					if j < len(wordsList)-1 {
+						lineBox.Append(tui.NewLabel(" "))
+					}
 				}
 			}
 			box.Append(lineBox)

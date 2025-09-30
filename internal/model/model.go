@@ -82,8 +82,7 @@ const (
 	OpenGoodReadsWebSiteKeyBinding                   = "d"
 	ShowHelpKeyBinding                               = "h"
 	SaveVocabularyKeyBinding                         = "w"
-	ShowVocabularyKeyBinding                         = "W" // New key binding for vocabulary dialog
-
+	ShowVocabularyKeyBinding                         = "v"
 )
 
 const (

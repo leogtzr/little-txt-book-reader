@@ -426,7 +426,6 @@ func AddShowMinutesTakenToReachPercentagePointKeyBinding(ui tui.UI, txtReader *t
 
 func AddShowHelpKeyBinding(ui tui.UI, txtReader *tui.Box, state *model.AppState) {
 	ui.SetKeybinding(model.ShowHelpKeyBinding, func() {
-
 		// Check if we are already in that mode ...
 		if state.CurrentNavMode == model.ShowHelpMode {
 			return
@@ -464,6 +463,9 @@ func AddShowHelpKeyBinding(ui tui.UI, txtReader *tui.Box, state *model.AppState)
 		addKeyBindingDescription(fmt.Sprintf("%10s -> Highlight Up", model.UpKeyBindingAlternative2), &strs)
 		addKeyBindingDescription(fmt.Sprintf("%10s -> Word Left / Word Right", "Left/Right"), &strs)
 		addKeyBindingDescription(fmt.Sprintf("%10s -> Copy Word to Clipboard", "c"), &strs)
+		addKeyBindingDescription(fmt.Sprintf("%10s -> Save Word to Vocabulary", model.SaveVocabularyKeyBinding), &strs)
+		addKeyBindingDescription(fmt.Sprintf("%10s -> Show Vocabulary Dialog", model.ShowVocabularyKeyBinding), &strs)
+		addKeyBindingDescription(fmt.Sprintf("%10s -> Delete Selected Word from Vocabulary", "x"), &strs)
 
 		l.AddItems(strs...)
 		s := tui.NewScrollArea(l)
@@ -546,41 +548,56 @@ func prepareTableForVocabulary(state *model.AppState) {
 		state.VocabTable.AppendRow(tui.NewLabel("No vocabulary words saved"))
 	} else {
 		for _, word := range paginatedVocabulary {
-			state.VocabTable.AppendRow(tui.NewLabel(fmt.Sprintf("  %s  ", word)))
+			state.VocabTable.AppendRow(tui.NewLabel(fmt.Sprintf("   %s   ", word)))
 		}
 	}
 	state.VocabTable.SetSelected(0)
 }
 
-func AddVocabularyNavigationKeyBindings(ui tui.UI, state *model.AppState) {
+func AddVocabularyNavigationKeyBindings(ui tui.UI, state *model.AppState, inputCommand *tui.Entry) {
 	ui.SetKeybinding("Right", func() {
 		if state.CurrentNavMode != model.VocabularyNavigationMode {
 			return
 		}
 		if state.PageIndex >= len(state.Vocabulary)-model.PageSize {
+			inputCommand.SetText("No more vocabulary pages")
 			return
 		}
 		state.PageIndex += model.PageSize
 		prepareTableForVocabulary(state)
+		state.VocabTable.SetFocused(true)
+		inputCommand.SetText(fmt.Sprintf("Vocabulary page %d", state.PageIndex/model.PageSize+1))
 	})
 	ui.SetKeybinding("Left", func() {
 		if state.CurrentNavMode != model.VocabularyNavigationMode {
 			return
 		}
 		if state.PageIndex < model.PageSize {
+			inputCommand.SetText("At first vocabulary page")
 			return
 		}
 		state.PageIndex -= model.PageSize
 		prepareTableForVocabulary(state)
+		state.VocabTable.SetFocused(true)
+		inputCommand.SetText(fmt.Sprintf("Vocabulary page %d", state.PageIndex/model.PageSize+1))
 	})
 	ui.SetKeybinding(model.UpKeyBindingAlternative2, func() {
 		if state.CurrentNavMode != model.VocabularyNavigationMode {
 			return
 		}
 		selected := state.VocabTable.Selected()
-		if selected > 0 {
-			state.VocabTable.SetSelected(selected - 1)
+		paginatedVocabulary := utils.Paginate(state.Vocabulary, state.PageIndex, model.PageSize)
+		if len(paginatedVocabulary) == 0 {
+			inputCommand.SetText("No vocabulary words to navigate")
+			return
 		}
+		if selected > 0 {
+			state.VocabTable.SetSelected(selected)
+			inputCommand.SetText(fmt.Sprintf("Selected: %s", paginatedVocabulary[selected-1]))
+		} else {
+			inputCommand.SetText("At first word in page")
+		}
+		state.VocabTable.SetFocused(true)
 	})
 	ui.SetKeybinding(model.DownKeyBindingAlternative2, func() {
 		if state.CurrentNavMode != model.VocabularyNavigationMode {
@@ -588,18 +605,35 @@ func AddVocabularyNavigationKeyBindings(ui tui.UI, state *model.AppState) {
 		}
 		selected := state.VocabTable.Selected()
 		paginatedVocabulary := utils.Paginate(state.Vocabulary, state.PageIndex, model.PageSize)
-		if selected < len(paginatedVocabulary)-1 {
-			state.VocabTable.SetSelected(selected + 1)
+		if len(paginatedVocabulary) == 0 {
+			inputCommand.SetText("No vocabulary words to navigate")
+			return
 		}
+		if selected < len(paginatedVocabulary)-1 {
+			state.VocabTable.SetSelected(selected)
+			inputCommand.SetText(fmt.Sprintf("Selected: %s", paginatedVocabulary[selected+1]))
+		} else {
+			inputCommand.SetText("At last word in page")
+		}
+		state.VocabTable.SetFocused(true)
 	})
 	ui.SetKeybinding("k", func() {
 		if state.CurrentNavMode != model.VocabularyNavigationMode {
 			return
 		}
 		selected := state.VocabTable.Selected()
-		if selected > 0 {
-			state.VocabTable.SetSelected(selected - 1)
+		paginatedVocabulary := utils.Paginate(state.Vocabulary, state.PageIndex, model.PageSize)
+		if len(paginatedVocabulary) == 0 {
+			inputCommand.SetText("No vocabulary words to navigate")
+			return
 		}
+		if selected > 0 {
+			state.VocabTable.SetSelected(selected)
+			inputCommand.SetText(fmt.Sprintf("Selected: %s                       ", paginatedVocabulary[selected-1]))
+		} else {
+			inputCommand.SetText("At first word in page")
+		}
+		state.VocabTable.SetFocused(true)
 	})
 	ui.SetKeybinding("j", func() {
 		if state.CurrentNavMode != model.VocabularyNavigationMode {
@@ -607,9 +641,18 @@ func AddVocabularyNavigationKeyBindings(ui tui.UI, state *model.AppState) {
 		}
 		selected := state.VocabTable.Selected()
 		paginatedVocabulary := utils.Paginate(state.Vocabulary, state.PageIndex, model.PageSize)
-		if selected < len(paginatedVocabulary)-1 {
-			state.VocabTable.SetSelected(selected + 1)
+		if len(paginatedVocabulary) == 0 {
+			inputCommand.SetText("No vocabulary words to navigate")
+			return
 		}
+
+		if selected < len(paginatedVocabulary)-1 {
+			state.VocabTable.SetSelected(selected)
+			inputCommand.SetText(fmt.Sprintf("Selected: %s                       ", paginatedVocabulary[selected+1]))
+		} else {
+			inputCommand.SetText("At last word in page")
+		}
+		state.VocabTable.SetFocused(true)
 	})
 }
 
@@ -619,9 +662,36 @@ func AddOnSelectedVocabulary(state *model.AppState) {
 		itemToAddToNonRefs := state.Vocabulary[state.PageIndex+itemIndexToRemove]
 		text.FindAndRemove(&state.Vocabulary, itemToAddToNonRefs)
 		prepareTableForVocabulary(state)
+		// ToDo: handle error
 		file.SaveStatus(state.FileToOpen, state.From, state.To, state)
 		if !words.Contains(state.BannedWords, itemToAddToNonRefs) {
 			file.AppendLineToFile(model.NonRefsFileName, itemToAddToNonRefs, "")
 		}
+	})
+}
+
+func AddDeleteVocabularyKeyBinding(ui tui.UI, inputCommand *tui.Entry, state *model.AppState) {
+	ui.SetKeybinding("x", func() {
+		if state.CurrentNavMode != model.VocabularyNavigationMode {
+			return
+		}
+		itemIndexToRemove := state.VocabTable.Selected()
+		if len(state.Vocabulary) == 0 {
+			inputCommand.SetText("No vocabulary words to delete")
+			return
+		}
+		if itemIndexToRemove < 0 || itemIndexToRemove+state.PageIndex >= len(state.Vocabulary) {
+			inputCommand.SetText("No word selected to delete")
+			return
+		}
+		itemToRemove := state.Vocabulary[state.PageIndex+itemIndexToRemove]
+		text.FindAndRemove(&state.Vocabulary, itemToRemove)
+		prepareTableForVocabulary(state)
+		err := file.SaveStatus(state.FileToOpen, state.From, state.To, state)
+		if err != nil {
+			inputCommand.SetText(fmt.Sprintf("Error deleting vocabulary word: %v", err))
+			return
+		}
+		inputCommand.SetText(fmt.Sprintf("Deleted '%s' from vocabulary    ", itemToRemove))
 	})
 }

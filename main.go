@@ -119,6 +119,10 @@ func run(state *model.AppState) error {
 		Bold:      tui.DecorationOn,
 		Underline: tui.DecorationOn,
 	})
+	theme.SetStyle("table.cell.selected", tui.Style{
+		Fg: tui.ColorBlack,
+		Bg: tui.ColorYellow,
+	})
 	tuiUI.SetTheme(theme)
 
 	keybindings.AddUpDownKeyBindings(txtArea, tuiUI, inputCommand, txtAreaScroll, state)
@@ -141,9 +145,10 @@ func run(state *model.AppState) error {
 	keybindings.AddShowHelpKeyBinding(tuiUI, txtReader, state)
 	keybindings.AddOpenRAEWebSite(tuiUI, inputCommand)
 	keybindings.AddSaveVocabularyKeyBinding(tuiUI, fileName, inputCommand, state)
-	keybindings.AddVocabularyNavigationKeyBindings(tuiUI, state)
+	keybindings.AddVocabularyNavigationKeyBindings(tuiUI, state, inputCommand)
 	keybindings.AddOnSelectedVocabulary(state)
 	keybindings.AddShowVocabularyKeyBinding(tuiUI, txtReader, txtArea, inputCommand, txtAreaScroll, state)
+	keybindings.AddDeleteVocabularyKeyBinding(tuiUI, inputCommand, state)
 
 	inputCommand.SetText(utils.GetStatusInformation(state))
 
